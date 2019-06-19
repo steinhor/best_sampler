@@ -588,11 +588,22 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			// throw out values out of range
             
             
+            		k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
+            		if((resinfo->spin)<1.001)
+            		{
+               		 gamma=width*(mass/m)*(k/kr);
+            		}
+            		else
+            		{
+			gamma=width*(mass/m)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
+            		}
             
             
-			k=sqrt(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0))/(2.0*m);
-			gamma=width*pow((2.0*k*k)/(k*k+kr*kr),alpha); // CHANGE??
-			rho=(2.0/(width*PI))*(0.25*gamma*gamma)/((0.25*gamma*gamma)+(mass-m)*(mass-m)); // CHANGE??
+           		 rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(mass-m)*(mass-m));
+            
+			//k=sqrt(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0))/(2.0*m);
+			//gamma=width*pow((2.0*k*k)/(k*k+kr*kr),alpha); // CHANGE??
+			//rho=(2.0/(width*PI))*(0.25*gamma*gamma)/((0.25*gamma*gamma)+(mass-m)*(mass-m)); // CHANGE??
             //gamma=width*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
             //rho=(2.0*norm/PI)*E*E*gamma/((E*E*gamma*gamma)+(resmass+E)*(resmass+E)*(resmass-E)*(resmass-E));
             
