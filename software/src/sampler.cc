@@ -578,7 +578,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		}
 		k2mr = gsl_sf_bessel_Kn(2,(mass/Tf)); // K2 for resmass
 		kr=pow(mass*mass-m1*m1-m2*m2,2) - (4*m1*m1*m2*m2);
-		kr = (1/(2*mass))*sqrt(kr); // k at resonant mass
+		kr = (1/(2*mass))*sqrt(abs(kr)); // k at resonant mass
 		success=false; // for use in while loop
 		do{
 			r1 = randy->ran(); // get random numbers
