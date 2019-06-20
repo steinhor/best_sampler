@@ -28,11 +28,11 @@ double Crandy::ran_gauss(void){
 
 void Crandy::ran_gauss2(double &ra,double &rb){
 	double x,y,r2,r,c,s;
-	TRY_AGAIN:
-	x=1.0-2.0*ran();
-	y=1.0-2.0*ran();
-	r2=x*x+y*y;
-	if(r2>1.0) goto TRY_AGAIN;
+	do {
+		x=1.0-2.0*ran();
+		y=1.0-2.0*ran();
+		r2=x*x+y*y;
+	} while (r2>1.0);
 	r=sqrt(r2);
 	c=x/r;
 	s=y/r;
@@ -46,31 +46,31 @@ void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
 	double pmag,E,ctheta,stheta,phi,pgauss,K;
 	array<double,4> pp;
 	pp[0]=pp[1]=pp[2]=pp[3]=1.2345;
-	GB_TRYAGAIN:
-	r0=ran();
-	I1=mass*mass;
-	I2=2.0*mass*T;
-	I3=2.0*T*T;
-	Itot=I1+I2+I3;
-	if(r0<I1/Itot){
-		r1=ran();
-		K=-T*log(r1);
-	}
-	else if(r0<(I1+I2)/Itot){
-		r1=ran();
-		r2=ran();
-		K=-T*log(r1*r2);
-	}
-	else{
-		r1=ran();
-		r2=ran();
-		r3=ran();
-		K=-T*log(r1*r2*r3);
-	}
-	E=K+mass;
-	pmag=sqrt(E*E-mass*mass);
-	r0=ran();
-	if(r0>pmag/E) goto GB_TRYAGAIN;
+	do {
+		r0=ran();
+		I1=mass*mass;
+		I2=2.0*mass*T;
+		I3=2.0*T*T;
+		Itot=I1+I2+I3;
+		if(r0<I1/Itot){
+			r1=ran();
+			K=-T*log(r1);
+		}
+		else if(r0<(I1+I2)/Itot){
+			r1=ran();
+			r2=ran();
+			K=-T*log(r1*r2);
+		}
+		else{
+			r1=ran();
+			r2=ran();
+			r3=ran();
+			K=-T*log(r1*r2*r3);
+		}
+		E=K+mass;
+		pmag=sqrt(E*E-mass*mass);
+		r0=ran();
+	} while (r0>pmag/E);
 	phi=2.0*PI*ran();
 	ctheta=1.0-2.0*ran();
 	stheta=sqrt(1.0-ctheta*ctheta);
@@ -85,14 +85,14 @@ void Crandy::generate_boltzmann(double mass,double T,FourVector &p){
 	double r1,r2,r3,a,b,c;
 	double pmag,ctheta,stheta,phi,pgauss;
 	if(T/mass>0.6){
-		GB_TRYAGAIN:
-		r1=ran();
-		r2=ran();
-		r3=ran();
-		a=-log(r1); b=-log(r2); c=-log(r3);
-		pmag=T*(a+b+c);
-		p[0]=sqrt(pmag*pmag+mass*mass);
-		if(ran()>exp((pmag-p[0])/T)) goto GB_TRYAGAIN;
+		do {
+			r1=ran();
+			r2=ran();
+			r3=ran();
+			a=-log(r1); b=-log(r2); c=-log(r3);
+			pmag=T*(a+b+c);
+			p[0]=sqrt(pmag*pmag+mass*mass);
+		} while (ran()>exp((pmag-p[0])/T));
 		ctheta=(a-b)/(a+b);
 		stheta=sqrt(1.0-ctheta*ctheta);
 		phi=T*T*pow(a+b,2)/(pmag*pmag);
