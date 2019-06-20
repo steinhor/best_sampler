@@ -578,7 +578,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		}
 		k2mr = gsl_sf_bessel_Kn(2,(mass/Tf)); // K2 for resmass
 		kr=pow(mass*mass-m1*m1-m2*m2,2) - (4*m1*m1*m2*m2);
-		kr = (1/(2*mass))*sqrt(kr); // k at resonant mass
+		kr = (1/(2*mass))*sqrt(abs(kr)); // k at resonant mass
 		success=false; // for use in while loop
 		do{
 			r1 = randy->ran(); // get random numbers
@@ -586,29 +586,23 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			m = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
 			if ((m < resinfo->minmass) ) continue;
 			// throw out values out of range
-            
-            
-            		k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
-            		if((resinfo->spin)<1.001)
-            		{
-               		 gamma=width*(mass/m)*(k/kr);
-            		}
-            		else
-            		{
-			gamma=width*(mass/m)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
-            		}
-            
-            
-           		 rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(mass-m)*(mass-m));
-            
+        	k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
+        	if((resinfo->spin)<1.001)
+        	{
+           	    gamma=width*(mass/m)*(k/kr);
+        	}
+        	else
+        	{
+		        gamma=width*(mass/m)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
+        	}
+            rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(mass-m)*(mass-m));
+
 			//k=sqrt(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0))/(2.0*m);
 			//gamma=width*pow((2.0*k*k)/(k*k+kr*kr),alpha); // CHANGE??
 			//rho=(2.0/(width*PI))*(0.25*gamma*gamma)/((0.25*gamma*gamma)+(mass-m)*(mass-m)); // CHANGE??
             //gamma=width*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
             //rho=(2.0*norm/PI)*E*E*gamma/((E*E*gamma*gamma)+(resmass+E)*(resmass+E)*(resmass-E)*(resmass-E));
-            
-            
-            
+
 			lor = (width/(2*PI))/(pow(width/2,2.0) + pow(mass-m,2.0));
 			k2 = gsl_sf_bessel_Kn(2,(m/Tf)); // K2 value
 			weight = rho*k2*m*m/(lor*k2mr*mass*mass*mw);

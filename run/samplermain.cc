@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 	parmap.ReadParsFromFile("parameters.dat");
 	CmasterSampler::meanfield=new CmeanField_Simple(&parmap);
 	CmasterSampler ms(&parmap);
-	Csampler *sampler=new Csampler(150,93.0);
+	Csampler *sampler=new Csampler(0.150,0.0930);
 	Crandy *randy=new Crandy(1234);
 	ms.randy->reset(time(NULL));
 
@@ -53,13 +53,13 @@ int main(int argc, char *argv[]){
 	printf("-----------------------------\n");
 	//exit(1); */
 
-	int nparts;
+	int nparts=0;
 	int temp;
 	list<Chyper *>::iterator it;
 	for (it=ms.hyperlist.begin();it!=ms.hyperlist.end();it++) {
 		hyper=*it;
 		temp=sampler->MakeParts(hyper);
-		if (temp!=0) {printf("temp=%d\n",temp);}
+		//if (temp!=0) {printf("temp=%d\n",temp);}
 		nparts+=temp;
 		//printf("epsilon=%g, rhoB=%6.4f, nhadrons=%7.4f, T=%7.3f, muB=%7.4f, muI=%7.4f, muS=%7.4f \n",hyper->epsilon,hyper->rhoB,hyper->nhadrons,hyper->T,hyper->muB,hyper->muI,hyper->muS);
 	}
