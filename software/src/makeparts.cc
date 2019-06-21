@@ -12,12 +12,15 @@ int Csampler::MakeParts(Chyper *hyper){
 		dNtot=dNprime=udotdOmega*nhadronsf0;
 	else
 		dNtot=dNprime=udotdOmega*nhadronsf;
+	double npartstemp;
+	totvol+=udotdOmega;
     //printf("randy->threshold=%g, randy->netprob=%g, dNtot=%g\n",randy->threshold,randy->netprob,dNtot);
 	if(randy->test_threshold(dNtot)){
 		ires=0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
 			resinfo=iter->second;
 			if(resinfo->code!=22){
+				npartstemp=0;
 				if(mastersampler->SETMU0==true)
 					xx=1.0;
 				else{
@@ -31,14 +34,17 @@ int Csampler::MakeParts(Chyper *hyper){
 				while(randy->test_threshold(0.0)){
 					GetP(hyper,resinfo,p);
 					nparts+=1;
+					npartstemp+=1;
 					randy->increase_threshold();
 				}
+				DensityMap[ires]+=float(npartstemp);
 				if(!(randy->test_threshold(dNprime))){
 					randy->increment_netprob(dNprime);
 					goto NoMoreParts;
 				}
+				ires++;
 			}
-			ires+=1;
+			//printf("resinfo: ires=%d code=%d mass=%lf\n",resinfo->ires, resinfo->code, resinfo->mass);
 		}
 		NoMoreParts:
 		return nparts;
@@ -61,7 +67,6 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
 	double m,delN,r[3],w[3],nhat[4]={0.0};
 	double mw;
 	mw=maxweight[resinfo->ires];
-
 	if(mw<0.0 || resinfo->width<0.001){
 		m=resinfo->mass;
 		randy->generate_boltzmann(m,Tf,pnoviscous);
