@@ -17,12 +17,13 @@
 #include "classdefs.h"
 #include "constants.h"
 #include "sf.h"
+#include "resonances.h"
 
 using namespace std;
 
 namespace EOS{
     void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
-    void freegascalc_onespecies_finitewidth(double T,double resmass, double m1, double m2, double width, double reswidth_alpha, double spin_deg,
+    void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha, double spin_deg,
                                             double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight);
     
 };

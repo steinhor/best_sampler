@@ -11,9 +11,9 @@
 #include <unordered_map>
 #include <sys/stat.h>
 #include "misc.h"
-#include "eos.h"
 #include "resonances.h"
 #include "classdefs.h"
+#include "eos.h"
 
 using namespace std;
 //using namespace boost;

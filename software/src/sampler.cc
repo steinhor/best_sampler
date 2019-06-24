@@ -586,23 +586,78 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			m = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
 			if ((m < resinfo->minmass) ) continue;
 			// throw out values out of range
-        	k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
-        	if((resinfo->spin)<1.001)
-        	{
-           	    gamma=width*(mass/m)*(k/kr);
-        	}
-        	else
-        	{
-		        gamma=width*(mass/m)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
-        	}
+            
+            if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
+            {
+                double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
+                double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsum,spectsum0,ma_kra,ma_ka,s0;
+                
+                if(resinfo->branchlist[0]->resinfo[0]->decay==true)
+                {   ma_min=resinfo->branchlist[0]->resinfo[0]->minmass;
+                    ma_pole=resinfo->branchlist[0]->resinfo[0]->mass;
+                    mb=resinfo->branchlist[0]->resinfo[1]->mass;
+                    ma_width=resinfo->branchlist[0]->resinfo[0]->width;
+                    ma1=resinfo->branchlist[0]->resinfo[0]->branchlist[0]->resinfo[0]->mass;
+                    ma2=resinfo->branchlist[0]->resinfo[0]->branchlist[0]->resinfo[1]->mass;
+                    if(m1==776 && m2==138) { form_lambda=0.8; }
+                    else if(resinfo->branchlist[0]->resinfo[1]->decay) { form_lambda=0.6; }
+                    else if(resinfo->branchlist[0]->resinfo[0]->baryon==0) { form_lambda=1.6; }
+                    else {form_lambda=2.0;}
+                }
+                if(resinfo->branchlist[0]->resinfo[1]->decay==true)
+                {   ma_min=resinfo->branchlist[0]->resinfo[1]->minmass;
+                    ma_pole=resinfo->branchlist[0]->resinfo[1]->mass;
+                    mb=resinfo->branchlist[0]->resinfo[0]->mass;
+                    ma_width=resinfo->branchlist[0]->resinfo[1]->width;
+                    ma1=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[0]->mass;
+                    ma2=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[1]->mass;
+                    if(m1==776 && m2==138) { form_lambda=0.8; }
+                    else if(resinfo->branchlist[0]->resinfo[0]->decay) { form_lambda=0.6; }
+                    else if(resinfo->branchlist[0]->resinfo[1]->baryon==0) { form_lambda=1.6; }
+                    else {form_lambda=2.0;}
+                }
+                
+                ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
+                suma=0.0;
+                int Na=100;
+                
+                for(int na=0;na<Na;na++)
+                {
+                    double sum_ma=(na+0.5)/Na;
+                    ma_0 = 0.5*width*tan(PI*(sum_ma - .5));
+                    ma = ma_0+ma_pole;
+                    if(ma>=ma_min && ma<=m)
+                    {
+                        ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
+                        ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
+                        ma_rho=(2.0)/(ma_width*PI)*0.25*ma_gamma*ma_gamma/((0.25*ma_gamma*ma_gamma)+(ma_pole-ma)*(ma_pole-ma));
+                        ma_rho0 = (1/PI)*(ma_width/2.0)/(0.25*ma_width*ma_width+ma_0*ma_0);
+                        ma_kra=sqrt(abs(pow((mass*mass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*mass);
+                        ma_ka=sqrt(abs(pow((m*m-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*m);
+                        s0=ma+mb;
+                        rho_width=(ma_ka*ma_ka*ma_ka)/(m*(ma_ka*ma_ka+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-mass*mass),2.0))/(pow(form_lambda,4.0)+pow((m*m-0.5*(s0+mass*mass)),2.0)));
+                        rho_width_0=(ma_kra*ma_kra*ma_kra)/(mass*(ma_kra*ma_kra+HBARC*HBARC));
+                        
+                        suma+=ma_rho/ma_rho0;
+                        spectsum+=rho_width*ma_rho/ma_rho0;
+                        spectsum0+=rho_width_0*ma_rho/ma_rho0;
+                    }
+                }
+                if(ma>m) continue;
+                double avg_weight_ma=suma/Na;
+                double normal_ma=1.0/avg_weight_ma;
+                double spect=normal_ma*spectsum/Na;
+                double spect0=normal_ma*spectsum0/Na;
+                gamma=width*spect/spect0;
+            }
+           else
+           {
+               k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
+               if((resinfo->spin)<1.001)
+               {gamma=width*(mass/m)*(k/kr);}
+               else{gamma=width*(mass/m)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));}
+           }
             rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(mass-m)*(mass-m));
-
-			//k=sqrt(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0))/(2.0*m);
-			//gamma=width*pow((2.0*k*k)/(k*k+kr*kr),alpha); // CHANGE??
-			//rho=(2.0/(width*PI))*(0.25*gamma*gamma)/((0.25*gamma*gamma)+(mass-m)*(mass-m)); // CHANGE??
-            //gamma=width*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
-            //rho=(2.0*norm/PI)*E*E*gamma/((E*E*gamma*gamma)+(resmass+E)*(resmass+E)*(resmass-E)*(resmass-E));
-
 			lor = (width/(2*PI))/(pow(width/2,2.0) + pow(mass-m,2.0));
 			k2 = gsl_sf_bessel_Kn(2,(m/Tf)); // K2 value
 			weight = rho*k2*m*m/(lor*k2mr*mass*mass*mw);
@@ -701,7 +756,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 			dm=mf->GetMass(resinfo->branchlist[0]->resinfo[n],sigmaf);
 			m2+=dm;
 		}
-        EOS::freegascalc_onespecies_finitewidth(Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
+        EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
 	}
 	else{
 		//printf("m=%g, Tf=%g\n",m,Tf);
