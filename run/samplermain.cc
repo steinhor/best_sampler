@@ -56,15 +56,37 @@ int main(int argc, char *argv[]){
 	int nparts=0;
 	int temp;
 	list<Chyper *>::iterator it;
-	for (it=ms.hyperlist.begin();it!=ms.hyperlist.end();it++) {
-		hyper=*it;
-		temp=sampler->MakeParts(hyper);
-		//if (temp!=0) {printf("temp=%d\n",temp);}
-		nparts+=temp;
-		//printf("epsilon=%g, rhoB=%6.4f, nhadrons=%7.4f, T=%7.3f, muB=%7.4f, muI=%7.4f, muS=%7.4f \n",hyper->epsilon,hyper->rhoB,hyper->nhadrons,hyper->T,hyper->muB,hyper->muI,hyper->muS);
+	map<int,double> MasterDensityMap;
+	double totvol=0.0;
+	for (int i=0; i<493; i++) { //initialize master map
+		MasterDensityMap.insert(pair<int,double>(i,0.0));
 	}
+	for (int i=0;i<100;i++) { //for each sampler
+		sampler=new Csampler(0.150,0.0930);
+		sampler->totvol=0.0;
+		for (int i=0; i<493; i++) { //initialize map
+			sampler->DensityMap.insert(pair<int,double>(i,0.0));
+		}
+		for (it=ms.hyperlist.begin();it!=ms.hyperlist.end();it++) { //for each hyper element
+			hyper=*it;
+			temp=sampler->MakeParts(hyper);
+			nparts+=temp;
+		}
 
+		//update master data
+		totvol+=sampler->totvol;
+		for (int i=0; i<493; i++) {
+			MasterDensityMap[i]+=sampler->DensityMap[i];
+		}
+	}
+	printf("ires:\tDensityMap:\tdensityf0:\n");
+	for (int i=0; i<493; i++) {
+		MasterDensityMap[i]=MasterDensityMap[i]/totvol;
+		printf("%d\t%lf\t%lf\n",i,MasterDensityMap[i],sampler->densityf0[i]);
+	}
 	printf("nparts=%d\n",nparts);
+	printf("totvol=%lf\n",totvol);
+	printf("nhad=%lf",sampler->nhadronsf0);
 
 	/*
 	for(int ihyper=0;ihyper<=NHYPER;ihyper++){

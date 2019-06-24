@@ -37,7 +37,6 @@ int Csampler::MakeParts(Chyper *hyper){
                     randy->increment_netprob(dNprime);
                     goto NoMoreParts;
                 }
-                //printf("ires=%d\n",ires);
                 ires++;
             }
             //printf("resinfo: ires=%d code=%d mass=%lf\n",resinfo->ires, resinfo->code, resinfo->mass);
