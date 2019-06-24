@@ -53,6 +53,7 @@ int main(int argc, char *argv[]){
 	printf("-----------------------------\n");
 	//exit(1); */
 
+	/*
 	int nparts=0;
 	int temp;
 	list<Chyper *>::iterator it;
@@ -87,6 +88,7 @@ int main(int argc, char *argv[]){
 	printf("nparts=%d\n",nparts);
 	printf("totvol=%lf\n",totvol);
 	printf("nhad=%lf",sampler->nhadronsf0);
+	*/
 
 	/*
 	for(int ihyper=0;ihyper<=NHYPER;ihyper++){
