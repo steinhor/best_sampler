@@ -567,7 +567,9 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 	bool success;
 	double alpha=mastersampler->RESWIDTH_ALPHA;
 	CmeanField *mf=mastersampler->meanfield;
-	if(resinfo->decay){
+    double decay=resinfo->decay;
+    //decay=false;
+	if(decay){
 		mass=mf->GetMass(resinfo,sigmaf);
 		width=resinfo->width;
 		m1=resinfo->branchlist[0]->resinfo[0]->mass;
@@ -586,6 +588,18 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			m = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
 			if ((m < resinfo->minmass) ) continue;
 			// throw out values out of range
+            
+            //if(resinfo->code==223)
+            //{printf("line 593 -- %g,\n",m);}
+            /*
+                printf("PID=%d\n",resinfo->code);
+            if(resinfo->code==22214 || resinfo->code==-22214 || resinfo->code==22114 || resinfo->code==-22114)
+            {
+                    
+            }
+            else
+            {
+             */
             
             if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
             {
@@ -617,16 +631,22 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                     else {form_lambda=2.0;}
                 }
                 
+                double Emb = m - mb;
+                if(ma_min>=Emb) continue;
+                
                 ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
                 suma=0.0;
                 int Na=100;
+                int ma_counter;
+                ma_counter = 0;
                 
                 for(int na=0;na<Na;na++)
                 {
                     double sum_ma=(na+0.5)/Na;
                     ma_0 = 0.5*width*tan(PI*(sum_ma - .5));
                     ma = ma_0+ma_pole;
-                    if(ma>=ma_min && ma<=m)
+                    
+                    if(ma>=ma_min && ma<=(m-mb))
                     {
                         ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
                         ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
@@ -641,15 +661,18 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                         suma+=ma_rho/ma_rho0;
                         spectsum+=rho_width*ma_rho/ma_rho0;
                         spectsum0+=rho_width_0*ma_rho/ma_rho0;
+                        ma_counter++;
                     }
                 }
-                if(ma>m) continue;
+                
+                if(ma_counter == 0) continue;
                 double avg_weight_ma=suma/Na;
                 double normal_ma=1.0/avg_weight_ma;
                 double spect=normal_ma*spectsum/Na;
                 double spect0=normal_ma*spectsum0/Na;
                 gamma=width*spect/spect0;
             }
+            
            else
            {
                k=sqrt(abs(pow((m*m-m1*m1-m2*m2),2.0)-pow((2.0*m1*m2),2.0)))/(2.0*m);
@@ -666,6 +689,8 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 	}
 	else
 		m=resinfo->mass;
+    //if(resinfo->code==223)
+    //{printf("%g,\n",m);}
 	return m; //returns a random mass proportional to n0*L'
 }
 
@@ -745,7 +770,8 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 	degeni=resinfo->spin;
 	m=mf->GetMass(resinfo,sigmaf);
 	if(abs(resinfo->baryon)==1)
-		m*=mratio;
+    {m*=mratio;}
+    
 	width=resinfo->width;
 	minmass=resinfo->minmass;
 	if((minmass>0.0) && (width>0.00001) && decay){
@@ -759,13 +785,9 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
         EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
 	}
 	else{
-		//printf("m=%g, Tf=%g\n",m,Tf);
 		EOS::freegascalc_onespecies(Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
 		maxweighti=1.0;
-        //printf("Tf=%g,m=%g,epsiloni=%g,Pi=%g,densi=%g,sigma2i=%g,dedti=%g\n",Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
 	}
-    //printf("m=%g, Tf=%g\n",m,Tf);
-    //printf("___z=%g,m=%g,T=%g ___\n",z,m,T);
 	xx=exp(mutot);
 	densi*=degeni*xx;
 	Pi*=degeni*xx;

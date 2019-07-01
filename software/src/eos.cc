@@ -22,38 +22,64 @@ void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double r
     m1=resinfo->branchlist[0]->resinfo[0]->mass;
     m2=resinfo->branchlist[0]->resinfo[1]->mass;
     
+    //if(resinfo->code==213)
+    //printf("line 25 ---- PID=%d\n",resinfo->code);
+    
     // E0 = minmass if minmass declared already in resonance.cc
     E0=m1+m2;
     maxweight=0.0;
     res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
     kr=sqrt(abs(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2))/(2.0*resmass);
     
+    if(resinfo->code==10221)
+    { printf("---- PID=%d,resmass=%g,minmass=%g,m1=%g,m2=%g ---\n",resinfo->code,resmass,minmass,m1,m2); }
+    
     for(int n=0;n<N;n++)
     {
         double Sum_E=(n+0.5)/N;
         E_S0 = 0.5*width*tan(PI*(Sum_E - .5));
+        E = E_S0+resmass;
+        
+        if(resinfo->code==10221)
+        { printf("n=%d,E=%g\n",n,E); }
+        
         if((E_S0+resmass)>=minmass)
         {
-            E = E_S0+resmass;
-            
-            if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
-            {
+            if(resinfo->code==10221)
+            { printf("n=%d,E=%g\n",n,E); }
+                if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
+                {
                     double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
-                    double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsum,spectsum0,ma_kra,ma_ka,s0;
-                
-                    if(resinfo->branchlist[0]->resinfo[0]->decay==true)
+                    double mb1,mb2,mb_pole,mb_0,mb_min,sum_mb,nb,mb_gamma,mb_width,Emb,Ema;
+                    
+                    double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsumb,spectsumb0,kr_ab,k_ab,s0;
+                    double mb_kr,mb_k,mb_rho,mb_rho0,sumb,spectsum,spectsum0;
+                    
+                    if(resinfo->branchlist[0]->resinfo[0]->decay==true) // 1st daughter in 1 daughter decay and 2 daughter decay
                     {   ma_min=resinfo->branchlist[0]->resinfo[0]->minmass;
                         ma_pole=resinfo->branchlist[0]->resinfo[0]->mass;
-                        mb=resinfo->branchlist[0]->resinfo[1]->mass;
+                        mb_pole=resinfo->branchlist[0]->resinfo[1]->mass;
                         ma_width=resinfo->branchlist[0]->resinfo[0]->width;
                         ma1=resinfo->branchlist[0]->resinfo[0]->branchlist[0]->resinfo[0]->mass;
                         ma2=resinfo->branchlist[0]->resinfo[0]->branchlist[0]->resinfo[1]->mass;
+                        if(resinfo->branchlist[0]->resinfo[1]->decay==true){
+                            mb_min=resinfo->branchlist[0]->resinfo[1]->minmass;
+                            mb_width=resinfo->branchlist[0]->resinfo[0]->width;
+                            mb1=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[0]->mass;
+                            mb2=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[1]->mass;
+                            mb_kr=sqrt(abs(pow((mb_pole*mb_pole-mb1*mb1-mb2*mb2),2.0)-4.0*mb1*mb1*mb2*mb2))/(2.0*mb_pole);
+                            Emb = E - mb_min;
+                        }
+                        else{
+                            mb=resinfo->branchlist[0]->resinfo[1]->mass;
+                            Emb = E - mb;
+                        }
                         if(m1==776 && m2==138) { form_lambda=0.8; }
                         else if(resinfo->branchlist[0]->resinfo[1]->decay) { form_lambda=0.6; }
                         else if(resinfo->branchlist[0]->resinfo[0]->baryon==0) { form_lambda=1.6; }
                         else {form_lambda=2.0;}
                     }
-                    if(resinfo->branchlist[0]->resinfo[1]->decay==true)
+                    else // 2nd daughter in 1 daughter decay
                     {   ma_min=resinfo->branchlist[0]->resinfo[1]->minmass;
                         ma_pole=resinfo->branchlist[0]->resinfo[1]->mass;
                         mb=resinfo->branchlist[0]->resinfo[0]->mass;
@@ -65,51 +91,138 @@ void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double r
                         else if(resinfo->branchlist[0]->resinfo[1]->baryon==0) { form_lambda=1.6; }
                         else {form_lambda=2.0;}
                     }
-        
+                    
+                    if(ma_min>=Emb) continue;
+                    
+                    if(resinfo->code==10221)
+                    { printf("---- ma_min=%g,(E-mb)=%g,ma_pole=%g,ma1=%g,ma2=%g,mb=%g ---\n",ma_min,Emb,ma_pole,ma1,ma2,mb); }
+                    
+                    
                     ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
                     suma=0.0;
                     int Na=100;
-                
+                    int ma_counter;
+                    ma_counter = 0;
+                    
                     for(int na=0;na<Na;na++)
                     {
                         double sum_ma=(na+0.5)/Na;
                         ma_0 = 0.5*width*tan(PI*(sum_ma - .5));
                         ma = ma_0+ma_pole;
+                        Ema = E - ma;
                         
-                        if(ma>=ma_min && ma<=E)
+                        if(resinfo->code==10221)
+                        { printf("na=%d,ma=%g\n",na,ma); }
+                        
+                        if(ma>=ma_min && ma<=Emb)
                         {
+                            
                             ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
                             ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
                             ma_rho=(2.0)/(ma_width*PI)*0.25*ma_gamma*ma_gamma/((0.25*ma_gamma*ma_gamma)+(ma_pole-ma)*(ma_pole-ma));
                             ma_rho0 = (1/PI)*(ma_width/2.0)/(0.25*ma_width*ma_width+ma_0*ma_0);
-                            ma_kra=sqrt(abs(pow((resmass*resmass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*resmass);
-                            ma_ka=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
-                            s0=ma+mb;
-                            rho_width=(ma_ka*ma_ka*ma_ka)/(E*(ma_ka*ma_ka+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-resmass*resmass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+resmass*resmass)),2.0)));
-                            rho_width_0=(ma_kra*ma_kra*ma_kra)/(resmass*(ma_kra*ma_kra+HBARC*HBARC));
+                            
+                            
+                            if(resinfo->branchlist[0]->resinfo[0]->decay==true && resinfo->branchlist[0]->resinfo[1]->decay==true)
+                            {
+                                
+                                if(mb_min>=Ema) continue;
+                                
+                                mb_kr=sqrt(abs(pow((mb_pole*mb_pole-mb1*mb1-mb2*mb2),2.0)-4.0*mb1*mb1*mb2*mb2))/(2.0*mb_pole);
+                                sumb=0.0;
+                                int Nb=100;
+                                int mb_counter;
+                                mb_counter = 0;
+                                
+                                for(int nb=0;nb<Nb;nb++)
+                                {
+                                    double sum_mb=(nb+0.5)/Nb;
+                                    mb_0 = 0.5*width*tan(PI*(sum_mb - .5));
+                                    mb = mb_0+mb_pole;
+                                    
+                                    if(resinfo->code==10221)
+                                    { printf("nb=%d,mb=%g\n",nb,mb); }
+                                    
+                                    if(mb>=mb_min && mb<=Ema)
+                                    {
+                                    mb_k=sqrt(abs(pow((mb*mb-mb1*mb1-mb2*mb2),2.0)-(4.0*mb1*mb1*mb2*mb2)))/(2.0*mb);
+                                    mb_gamma=mb_width*(mb_pole/mb)*((mb_k*mb_k*mb_k)/(mb_kr*mb_kr*mb_kr))*((mb_kr*mb_kr+HBARC*HBARC)/(mb_k*mb_k+HBARC*HBARC));
+                                    mb_rho=(2.0)/(mb_width*PI)*0.25*mb_gamma*mb_gamma/((0.25*mb_gamma*mb_gamma)+(mb_pole-mb)*(mb_pole-mb));
+                                    mb_rho0 = (1/PI)*(mb_width/2.0)/(0.25*mb_width*mb_width+mb_0*mb_0);
+                                    
+                                    kr_ab=sqrt(abs(pow((resmass*resmass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*resmass);
+                                    k_ab=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
+                                    s0=ma+mb;
+                                    rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-resmass*resmass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+resmass*resmass)),2.0)));
+                                    rho_width_0=(kr_ab*kr_ab*kr_ab)/(resmass*(kr_ab*kr_ab+HBARC*HBARC));
+                                    
+                                    sumb+=mb_rho/mb_rho0;
+                                    spectsumb+=rho_width*mb_rho/mb_rho0;
+                                    spectsumb0+=rho_width_0*mb_rho/mb_rho0;
+                                    mb_counter++;
+                                        
+                                        if(resinfo->code==10221)
+                                        { printf("mb_k=%g,mb_gamma=%g,mb_rho=%g,mb_rho0=%g,kr_ab=%g,k_ab=%g,rho_width=%g,rho_width_0=%g\n",mb_k,mb_gamma,mb_rho,mb_rho0,kr_ab,k_ab,rho_width,rho_width_0); }
+                                    }
+                                
+                                }
+                                if(mb_counter == 0) continue;
+                                double avg_weight_mb=sumb/Nb;
+                                double normal_mb=1.0/avg_weight_mb;
+                                double spectb=normal_mb*spectsumb/Nb;
+                                double spectb0=normal_mb*spectsumb0/Nb;
                         
                             suma+=ma_rho/ma_rho0;
-                            spectsum+=rho_width*ma_rho/ma_rho0;
-                            spectsum0+=rho_width_0*ma_rho/ma_rho0;
+                            spectsum+=spectb*ma_rho/ma_rho0;
+                            spectsum0+=spectb0*ma_rho/ma_rho0;
+                            ma_counter++;
+                            
+                                if(resinfo->code==10221)
+                                { printf("ma_k=%g,ma_gamma=%g,ma_rho=%g,ma_rho0=%g\n",ma_k,ma_gamma,ma_rho,ma_rho0); }
+                            }
+                            else{
+                                ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
+                                ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
+                                ma_rho=(2.0)/(ma_width*PI)*0.25*ma_gamma*ma_gamma/((0.25*ma_gamma*ma_gamma)+(ma_pole-ma)*(ma_pole-ma));
+                                ma_rho0 = (1/PI)*(ma_width/2.0)/(0.25*ma_width*ma_width+ma_0*ma_0);
+                                
+                                kr_ab=sqrt(abs(pow((resmass*resmass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*resmass);
+                                k_ab=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
+                                s0=ma+mb;
+                                rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-resmass*resmass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+resmass*resmass)),2.0)));
+                                rho_width_0=(kr_ab*kr_ab*kr_ab)/(resmass*(kr_ab*kr_ab+HBARC*HBARC));
+                            
+                                suma+=ma_rho/ma_rho0;
+                                spectsum+=rho_width*ma_rho/ma_rho0;
+                                spectsum0+=rho_width_0*ma_rho/ma_rho0;
+                                ma_counter++;
+                            }
                         }
                     }
-                    if(ma>E) continue;
+                    
+                    if(ma_counter == 0) continue;
                     double avg_weight_ma=suma/Na;
                     double normal_ma=1.0/avg_weight_ma;
                     double spect=normal_ma*spectsum/Na;
                     double spect0=normal_ma*spectsum0/Na;
                     gamma=width*spect/spect0;
-            }
+                    if(resinfo->code==10221)
+                    printf("gamma=%g\n",gamma);
+                }
+                
             
             else{
                 k=sqrt(abs(pow((E*E-m1*m1-m2*m2),2.0)-(4.0*m1*m1*m2*m2)))/(2.0*E);
                 if(spin_deg<1.001)
                 {gamma=width*(resmass/E)*(k/kr); }
                 else {gamma=width*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));}
-            }
+                //printf("rho=%g,PID=%d\n",rho,resinfo->code);
+                }
             
             rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(resmass-E)*(resmass-E));
             rho_0 = (1/PI)*(width/2.0)/(0.25*width*width+E_S0*E_S0);
+            //if(resinfo->code==22214 || resinfo->code==223 || resinfo->code==22114 || resinfo->code==23122)
+            //{printf("{%g, %g},\n",E,rho);}
             freegascalc_onespecies(T,E,epsilon,P,dens,sigma2,dedt);
             weight=rho*dens/(rho_0*res_dens);
             if(weight>maxweight)
@@ -123,13 +236,16 @@ void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double r
         }
     }
 
-    avg_weight=sum/N;
-    normal=1.0/avg_weight;
-    epsilon=normal*esum/N;
-    P=normal*psum/N;
-    dens=normal*dsum/N;
-    sigma2=normal*sigsum/N;
-    dedt=normal*dedtsum/N;
+        avg_weight=sum/N;
+        normal=1.0/avg_weight;
+        //if(resinfo->code==22214)
+        //{printf("%g\n",normal);}
+        epsilon=normal*esum/N;
+        P=normal*psum/N;
+        dens=normal*dsum/N;
+        //printf("line 142 --- %g\n",dens);
+        sigma2=normal*sigsum/N;
+        dedt=normal*dedtsum/N;
 }
 
 void EOS::freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
