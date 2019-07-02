@@ -464,12 +464,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 				+0.25*eh0_b1i1s2*(xB*xxS*xxS-xxB*xS*xS)*(xI+xxI)
 					+0.25*eh0_b1i2s1*(xB*xxS-xxB*xS)*(xI*xI+xxI*xxI)
 						+0.25*eh0_b1i3s0*(xB-xxB)*(xI*xI*xI+xxI*xxI*xxI);
+
 	de_dmuI=0.5*eh0_b0i2s0*(2*xI*xI-2*xxI*xxI)
 		+0.25*eh0_b0i1s1*(xI-xxI)*(xS+xxS)
 			+0.25*eh0_b1i1s0*(xB+xxB)*(xI-xxI)
 				+0.25*eh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI-xxI)
 					+0.25*eh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 						+0.25*eh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
+
 	de_dmuS=0.25*eh0_b0i1s1*(xI+xxI)*(xS-xxS)
 		+0.5*eh0_b1i0s1*(-xB*xxS-xxB*xS)
 			+0.5*eh0_b1i0s3*(-3*xB*xxS*xxS*xxS+3*xxB*xS*xS*xS)
@@ -482,17 +484,21 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 				+0.25*nh0_b1i1s2*(xB*xxS*xxS-xxB*xS*xS)*(xI+xxI)
 					+0.25*nh0_b1i2s1*(xB*xxS-xxB*xS)*(xI*xI+xxI*xxI)
 						+0.25*nh0_b1i3s0*(xB-xxB)*(xI*xI*xI+xxI*xxI*xxI);
+
 	drhoB_dt=de_dmuB/(Tf*Tf);
+
 	drhoB_dmuB=0.5*nh0_b1i0s1*(xB*xxS+xxB*xS)
 		+0.5*nh0_b1i0s3*(xB*xxS*xxS*xxS+xxB*xS*xS*xS)
 			+0.25*nh0_b1i1s0*(xB+xxB)*(xI+xxI)
 				+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI+xxI)
 					+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 						+0.25*nh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI);
+
 	drhoB_dmuI=0.25*nh0_b1i1s0*(xB-xxB)*(xI-xxI)
 		+0.25*nh0_b1i1s2*(xB*xxS*xxS-xxB*xS*xS)*(xI-xxI)
 			+0.25*nh0_b1i2s1*(xB*xxS-xxB*xS)*(2*xI*xI-2*xxI*xxI)
 				+0.25*nh0_b1i3s0*(xB-xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
+
 	drhoB_dmuS=0.5*nh0_b1i0s1*(-xB*xxS-xxB*xS)
 		+0.5*nh0_b1i0s3*(-3*xB*xxS*xxS*xxS-3*xxB*xS*xS*xS)
 			+0.25*nh0_b1i1s2*(-2*xB*xxS*xxS-2*xxB*xS*xS)*(xI+xxI)
@@ -504,14 +510,18 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 				+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI-xxI)
 					+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 						+0.25*nh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
+
 	drhoI_dt=de_dmuI/(Tf*Tf);
+
 	drhoI_dmuB=drhoB_dmuI;
+
 	drhoI_dmuI=0.5*nh0_b0i2s0*(4*xI*xI+4*xxI*xxI)
 		+0.25*nh0_b0i1s1*(xI+xxI)*(xS+xxS)
 					+0.25*nh0_b1i1s0*(xB+xxB)*(xI+xxI)
 						+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI+xxI)
 							+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(4*xI*xI+4*xxI*xxI)
 								+0.25*nh0_b1i3s0*(xB+xxB)*(9*xI*xI*xI+9*xxI*xxI*xxI);
+                                
 	drhoI_dmuS=0.25*nh0_b0i1s1*(xI-xxI)*(xS-xxS)
 		+0.25*nh0_b1i1s2*(-2*xB*xxS*xxS+2*xxB*xS*xS)*(xI-xxI)
 			+0.25*nh0_b1i2s1*(-xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI);
@@ -586,12 +596,12 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			m = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
 			if ((m < resinfo->minmass) ) continue;
 			// throw out values out of range
-            
+
             if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
             {
                 double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
                 double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsum,spectsum0,ma_kra,ma_ka,s0;
-                
+
                 if(resinfo->branchlist[0]->resinfo[0]->decay==true)
                 {   ma_min=resinfo->branchlist[0]->resinfo[0]->minmass;
                     ma_pole=resinfo->branchlist[0]->resinfo[0]->mass;
@@ -616,11 +626,11 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                     else if(resinfo->branchlist[0]->resinfo[1]->baryon==0) { form_lambda=1.6; }
                     else {form_lambda=2.0;}
                 }
-                
+
                 ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
                 suma=0.0;
                 int Na=100;
-                
+
                 for(int na=0;na<Na;na++)
                 {
                     double sum_ma=(na+0.5)/Na;
@@ -637,7 +647,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                         s0=ma+mb;
                         rho_width=(ma_ka*ma_ka*ma_ka)/(m*(ma_ka*ma_ka+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-mass*mass),2.0))/(pow(form_lambda,4.0)+pow((m*m-0.5*(s0+mass*mass)),2.0)));
                         rho_width_0=(ma_kra*ma_kra*ma_kra)/(mass*(ma_kra*ma_kra+HBARC*HBARC));
-                        
+
                         suma+=ma_rho/ma_rho0;
                         spectsum+=rho_width*ma_rho/ma_rho0;
                         spectsum0+=rho_width_0*ma_rho/ma_rho0;
@@ -756,11 +766,11 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 			dm=mf->GetMass(resinfo->branchlist[0]->resinfo[n],sigmaf);
 			m2+=dm;
 		}
-        EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
+        EOS::freegascalc_onespecies_finitewidth(parmap,resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
 	}
 	else{
 		//printf("m=%g, Tf=%g\n",m,Tf);
-		EOS::freegascalc_onespecies(Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
+		EOS::freegascalc_onespecies(parmap,resinfo,Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
 		maxweighti=1.0;
         //printf("Tf=%g,m=%g,epsiloni=%g,Pi=%g,densi=%g,sigma2i=%g,dedti=%g\n",Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
 	}
