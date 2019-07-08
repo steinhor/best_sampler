@@ -5,13 +5,13 @@
 
 
 
-void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
+void EOS::freegascalc_onespecies_finitewidth(vector<double> &npidens,vector<double> &npiP,vector<double> &npiepsilon,vector<double> &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
                                               double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
 
     double kr,k,E0,rho,rho_0,gammas,n0,res_dens,weight,avg_weight,normal;
     double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
     double gamma=0;
-    int N = 100;
+    int N = 5;
     // E_S0 are E' values where E'=E-resmass
     double E_S0;
     double E;
@@ -30,23 +30,27 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
     maxweight=0.0;
     res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
     kr=sqrt(abs(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2))/(2.0*resmass);
-
+    /*
     if(resinfo->code==10221)
     { printf("---- PID=%d,resmass=%g,minmass=%g,m1=%g,m2=%g ---\n",resinfo->code,resmass,minmass,m1,m2); }
+    */
 
     for(int n=0;n<N;n++)
     {
         double Sum_E=(n+0.5)/N;
         E_S0 = 0.5*width*tan(PI*(Sum_E - .5));
         E = E_S0+resmass;
-
+        /*
         if(resinfo->code==10221)
         { printf("n=%d,E=%g\n",n,E); }
+        */
 
         if((E_S0+resmass)>=minmass)
         {
+            /*
             if(resinfo->code==10221)
             { printf("n=%d,E=%g\n",n,E); }
+            */
                 if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
                 {
                     double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
@@ -93,14 +97,14 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                     }
 
                     if(ma_min>=Emb) continue;
-
+                    /*
                     if(resinfo->code==10221)
                     { printf("---- ma_min=%g,(E-mb)=%g,ma_pole=%g,ma1=%g,ma2=%g,mb=%g ---\n",ma_min,Emb,ma_pole,ma1,ma2,mb); }
-
+                    */
 
                     ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
                     suma=0.0;
-                    int Na=100;
+                    int Na=5;
                     int ma_counter;
                     ma_counter = 0;
 
@@ -110,10 +114,10 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                         ma_0 = 0.5*width*tan(PI*(sum_ma - .5));
                         ma = ma_0+ma_pole;
                         Ema = E - ma;
-
+                        /*
                         if(resinfo->code==10221)
                         { printf("na=%d,ma=%g\n",na,ma); }
-
+                        */
                         if(ma>=ma_min && ma<=Emb)
                         {
 
@@ -130,7 +134,7 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
 
                                 mb_kr=sqrt(abs(pow((mb_pole*mb_pole-mb1*mb1-mb2*mb2),2.0)-4.0*mb1*mb1*mb2*mb2))/(2.0*mb_pole);
                                 sumb=0.0;
-                                int Nb=100;
+                                int Nb=5;
                                 int mb_counter;
                                 mb_counter = 0;
 
@@ -140,8 +144,10 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                                     mb_0 = 0.5*width*tan(PI*(sum_mb - .5));
                                     mb = mb_0+mb_pole;
 
+                                    /*
                                     if(resinfo->code==10221)
                                     { printf("nb=%d,mb=%g\n",nb,mb); }
+                                    */
 
                                     if(mb>=mb_min && mb<=Ema)
                                     {
@@ -160,9 +166,10 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                                     spectsumb+=rho_width*mb_rho/mb_rho0;
                                     spectsumb0+=rho_width_0*mb_rho/mb_rho0;
                                     mb_counter++;
-
+                                        /*
                                         if(resinfo->code==10221)
                                         { printf("mb_k=%g,mb_gamma=%g,mb_rho=%g,mb_rho0=%g,kr_ab=%g,k_ab=%g,rho_width=%g,rho_width_0=%g\n",mb_k,mb_gamma,mb_rho,mb_rho0,kr_ab,k_ab,rho_width,rho_width_0); }
+                                        */
                                     }
 
                                 }
@@ -176,9 +183,10 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                             spectsum+=spectb*ma_rho/ma_rho0;
                             spectsum0+=spectb0*ma_rho/ma_rho0;
                             ma_counter++;
-
+                                /*
                                 if(resinfo->code==10221)
                                 { printf("ma_k=%g,ma_gamma=%g,ma_rho=%g,ma_rho0=%g\n",ma_k,ma_gamma,ma_rho,ma_rho0); }
+                                */
                             }
                             else{
                                 ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
@@ -206,8 +214,10 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
                     double spect=normal_ma*spectsum/Na;
                     double spect0=normal_ma*spectsum0/Na;
                     gamma=width*spect/spect0;
+                    /*
                     if(resinfo->code==10221)
                     printf("gamma=%g\n",gamma);
+                    */
                 }
 
 
@@ -223,7 +233,7 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
             rho_0 = (1/PI)*(width/2.0)/(0.25*width*width+E_S0*E_S0);
             //if(resinfo->code==22214 || resinfo->code==223 || resinfo->code==22114 || resinfo->code==23122)
             //{printf("{%g, %g},\n",E,rho);}
-            freegascalc_onespecies(parmap,resinfo,T,E,epsilon,P,dens,sigma2,dedt);
+            freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,T,E,epsilon,P,dens,sigma2,dedt);
             weight=rho*dens/(rho_0*res_dens);
             if(weight>maxweight)
                 maxweight=weight;
@@ -248,16 +258,29 @@ void EOS::freegascalc_onespecies_finitewidth(CparameterMap *parmap,CresInfo *res
         dedt=normal*dedtsum/N;
 }
 
-void EOS::freegascalc_onespecies(CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
+void EOS::freegascalc_onespecies(vector<double> &npidens,vector<double> &npiP,vector<double> &npiepsilon,vector<double> &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
     const double prefactor=1.0/(2.0*PI*PI*pow(HBARC,3));
     double k0,k1,z,k0prime,k1prime,m2,m3,m4,t2,t3,I1,I2,Iomega;
+    bool pion;
     int n;
     m2=m*m;
     m3=m2*m;
     m4=m2*m2;
 
-    if (parmap->getB("BOSE_CORR",false) && (resinfo->code==111 || resinfo->code==-211 || resinfo->code==211 || resinfo->code==-111)) {n=parmap->getI("N_BOSE_CORR",1);}
-	else {n=1;}
+    //this whole if/else loop does all the bose correction checks
+    if (resinfo->code==-211 || resinfo->code==211 || resinfo->code==111) {
+        if (resinfo->code!=111) {
+            pion=true; //I know this is misleading but in this context we only want pion to be true for pions w/ isospin 2 (for CSampler::GetNH0)
+        }
+        if (parmap->getB("BOSE_CORR",false)) {
+            n=parmap->getI("N_BOSE_CORR",1);
+        }
+        else n=1;
+    }
+	else {
+        n=1;
+        pion=false;
+    }
 
     z=m/T;
     if(z>1000.0){
@@ -275,19 +298,28 @@ void EOS::freegascalc_onespecies(CparameterMap *parmap,CresInfo *resinfo,double 
             t2=Ti*Ti;
             t3=t2*Ti;
             z=m/Ti;
-            //if(n!=1){printf("i=%d Ti=%lf z=%lf\t",i,Ti,z);}
             k0=Bessel::K0(z);
             k1=Bessel::K1(z);
             //k0=boost::math::cyl_bessel_k(0.0,z);
             //k1=boost::math::cyl_bessel_k(1.0,z);
+
             double temp=prefactor*(m2*t2*k0+2.0*m*t3*k1);
             P+=temp;
-            epsilon+=prefactor*(3.0*m2*t2*k0+(m3*Ti+6.0*m*t3)*k1);
+            if(pion) npiP[i-1]+=temp;
+
             dens+=temp/Ti;
-            //if(n!=1){printf("dens=%lf\n",dens);}
+            if(pion) npidens[i-1]+=temp/Ti;
+
+            temp=prefactor*(3.0*m2*t2*k0+(m3*Ti+6.0*m*t3)*k1);
+            epsilon+=temp;
+            if(pion) npiepsilon[i-1]+=temp;
+
             k0prime=-k1;
             k1prime=-k0-k1/z;
-            dedt+=prefactor*(6.0*m2*Ti*k0+(m3+18.0*m*t2)*k1-3.0*m3*k0prime-((m4/Ti)+6.0*m2*Ti)*k1prime);
+
+            temp=prefactor*(6.0*m2*Ti*k0+(m3+18.0*m*t2)*k1-3.0*m3*k0prime-((m4/Ti)+6.0*m2*Ti)*k1prime);
+            dedt+=temp;
+            if(pion) npidedt[i-1]+=temp;
         }
         z=m/T;
         Iomega=exp(-z)/(30.0*PI*PI*HBARC*HBARC*HBARC);

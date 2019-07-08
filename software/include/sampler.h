@@ -41,6 +41,7 @@ public:
 
 	void CalcDensitiesF0();
 
+	vector<double> npidens, npiP, npiepsilon, npidedt; //bose correction terms for pions
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities
 	double nh0_b0i0s0,nh0_b0i2s0,nh0_b0i1s1;
