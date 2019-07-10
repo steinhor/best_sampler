@@ -19,13 +19,6 @@ Csampler::Csampler(double Tfset,double sigmafset){
 	lambdaf0i.resize(nres);
 	maxweight.resize(nres);
 
-    /*
-    int nbc=parmap->getI("N_BOSE_CORR",1);
-    npiP.resize(nbc);
-    npiepsilon.resize(nbc);
-    npidedt.resize(nbc);
-    npidens.resize(nbc);
-    */
 	CalcDensitiesF0();
 	CalcLambdaF0();
 	GetNH0();
@@ -266,6 +259,8 @@ void Csampler::GetMuNH(Chyper *hyper){
 	Eigen::MatrixXd A(3,3);
 	Eigen::VectorXd mu(3),dmu(3),drho(3);
 	int ntries=0;
+    bool bose_corr=parmap->getB("BOSE_CORR",false);
+    int n_bose_corr=parmap->getI("N_BOSE_CORR",1);
 
 	mu[0]=muB;
 	mu[1]=0.5*muI;
@@ -308,6 +303,18 @@ void Csampler::GetMuNH(Chyper *hyper){
 					+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI-xxI)
 						+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 							+0.25*nh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
+        if (bose_corr) {
+            for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+                int n=2;
+                if (it->first==211 || it->first==-211) {
+                    for(int i=1;i<n_bose_corr;i++) {
+                        rhoI+=0.5*((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
+                        n++;
+                    }
+                }
+            }
+        }
+
 		drhoI_dmuB=drhoB_dmuI;
 		drhoI_dmuI=0.5*nh0_b0i2s0*(4*xI*xI+4*xxI*xxI)
 			+0.25*nh0_b0i1s1*(xI+xxI)*(xS+xxS)
@@ -315,6 +322,18 @@ void Csampler::GetMuNH(Chyper *hyper){
 							+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI+xxI)
 								+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(4*xI*xI+4*xxI*xxI)
 									+0.25*nh0_b1i3s0*(xB+xxB)*(9*xI*xI*xI+9*xxI*xxI*xxI);
+        if (bose_corr) {
+            for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+                int n=2;
+                if (it->first==211 || it->first==-211) {
+                    for(int i=1;i<n_bose_corr;i++) {
+                        drhoI_dmuI+=0.5*((it->second)[i])*(4*exp(muI*n)+4*exp(-muI*n));
+                        n++;
+                    }
+                }
+            }
+        }
+
 		drhoI_dmuS=0.25*nh0_b0i1s1*(xI-xxI)*(xS-xxS)
 							+0.25*nh0_b1i1s2*(-2*xB*xxS*xxS+2*xxB*xS*xS)*(xI-xxI)
 								+0.25*nh0_b1i2s1*(-xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI);
@@ -370,6 +389,29 @@ void Csampler::GetMuNH(Chyper *hyper){
 						+0.25*eh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI+xxI)
 							+0.25*eh0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 								+0.25*eh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI);
+    if (bose_corr) {
+        for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++) {
+                    nhadronsf+=0.5*((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    n++;
+                }
+            }
+        }
+    }
+    if (bose_corr) {
+        for (CboseMap::iterator it=npiepsilon.begin();it!=npiepsilon.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++) {
+                    epsilonf+=0.5*((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    n++;
+                }
+            }
+        }
+    }
+
 	hyper->muB=mu[0];
 	hyper->muI=2.0*mu[1];
 	hyper->muS=mu[2];
@@ -463,7 +505,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++) {
-                    nhadronsf+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    nhadronsf+=0.5*((it->second)[i])*(exp(muI*n)+exp(-muI*n));
                     n++;
                 }
             }
@@ -502,7 +544,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++) {
-                    epsilon+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    epsilon+=0.5*((it->second)[i])*(exp(muI*n)+exp(-muI*n));
                     n++;
                 }
             }
@@ -522,7 +564,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++){
-                    de_dT+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    de_dT+=0.5*((it->second)[i])*(exp(muI*n)+exp(-muI*n));
                     n++;
                 }
             }
@@ -547,7 +589,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++){
-                    de_dmuI+=((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
+                    de_dmuI+=0.5*((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
                     n++;
                 }
             }
@@ -597,7 +639,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++){
-                    rhoI+=((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
+                    rhoI+=0.5*((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
                     n++;
                 }
             }
@@ -619,7 +661,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
             int n=2;
             if (it->first==211 || it->first==-211) {
                 for(int i=1;i<n_bose_corr;i++){
-                    drhoI_dmuI+=((it->second)[i])*(4*exp(muI*n)+4*exp(-muI*n));
+                    drhoI_dmuI+=0.5*((it->second)[i])*(4*exp(muI*n)+4*exp(-muI*n));
                     n++;
                 }
             }
