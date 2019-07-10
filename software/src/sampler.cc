@@ -825,19 +825,32 @@ void Csampler::CalcDensitiesF0(){
     npidedt.clear();
     npidens.clear();
 
+    npiP0.clear();
+    npiepsilon0.clear();
+    npidens0.clear();
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
 			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 			GetDensPMaxWeight(resinfo,0.0,densi,epsiloni,Pi,dedti,maxweighti);
 			densityf0[ires]=densi;
+            epsilonf0i[ires]=epsiloni;
+			Pf0i[ires]=Pi;
+
+            if ((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && parmap->getB("BOSE_CORR",false)) {
+                for (int i=0;i<parmap->getI("N_BOSE_CORR",1);i++) {
+                    npidens0[resinfo->code].push_back(npidens[resinfo->code][i]);
+                    npiepsilon0[resinfo->code].push_back(npiepsilon[resinfo->code][i]);
+                    npiP0[resinfo->code].push_back(npiP[resinfo->code][i]);
+                }
+            }
+
 			rhoBcalc+=densi*resinfo->baryon;
 			rhoIcalc+=densi*I3;
 			rhoScalc+=densi*resinfo->strange;
 			maxweight[ires]=maxweighti;
 			nhadronsf0+=densityf0[ires];
-			epsilonf0i[ires]=epsiloni;
-			Pf0i[ires]=Pi;
 			epsilonf0+=epsiloni;
 			Pf0+=Pi;
 			ires+=1;
@@ -870,14 +883,18 @@ void Csampler::CalcDensitiesF(){
 			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
 			xx=exp(mutot);
 			//printf("muB=%g\n",muB);
-            if(resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) {
+            if((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && parmap->getB("BOSE_CORR",false)) {
                 densi=0;
                 for (int i=0;i<parmap->getI("N_BOSE_CORR",1);i++) {
                     densi+=npidens[resinfo->code][i]*exp(mutot*(i+1));
+                    epsilonf+=npiepsilon0[resinfo->code][i]*exp(mutot*(i+1));
+                    Pf+=npiP0[resinfo->code][i]*exp(mutot*(i+1));
                 }
             }
             else {
                 densi=densi*xx;
+                epsilonf+=epsilonf0i[ires]*xx;
+                Pf+=Pf0i[ires]*xx;
             }
             //densityf[ires]=densi=densityf0[ires]*xx;
             densityf[ires]=densi;
@@ -886,8 +903,6 @@ void Csampler::CalcDensitiesF(){
             rhoIcalc+=densi*I3;
             rhoScalc+=densi*resinfo->strange;
             nhadronsf+=densi;
-            epsilonf+=epsilonf0i[ires]*xx;
-            Pf+=Pf0i[ires]*xx;
 			ires+=1;
 		}
 	}

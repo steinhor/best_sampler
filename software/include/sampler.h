@@ -45,7 +45,8 @@ public:
 	double totvol;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
-	//vector<double> npidens, npiP, npiepsilon, npidedt; //bose correction terms for pions
+	CboseMap npidens0, npiP0, npiepsilon0;
+
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities
 	double nh0_b0i0s0,nh0_b0i2s0,nh0_b0i1s1;
