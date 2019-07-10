@@ -19,12 +19,13 @@ Csampler::Csampler(double Tfset,double sigmafset){
 	lambdaf0i.resize(nres);
 	maxweight.resize(nres);
 
+    /*
     int nbc=parmap->getI("N_BOSE_CORR",1);
     npiP.resize(nbc);
     npiepsilon.resize(nbc);
     npidedt.resize(nbc);
     npidens.resize(nbc);
-
+    */
 	CalcDensitiesF0();
 	CalcLambdaF0();
 	GetNH0();
@@ -155,7 +156,6 @@ void Csampler::GetNH0(){
     double m,degen;
     double Pi,epsiloni,densi,sigma2i,dedti,si,maxweighti;
     int B,S,II,Q;
-    bool bothpicount=false;
     nh0_b0i0s0=nh0_b0i2s0=nh0_b0i1s1=0.0;
     nh0_b1i0s1=nh0_b1i0s3=nh0_b1i1s0=nh0_b1i1s2=nh0_b1i2s1=nh0_b1i3s0=0.0;
     nh0_b2i0s0=0.0;
@@ -167,12 +167,10 @@ void Csampler::GetNH0(){
     dedth0_b2i0s0=0.0;
     nhadronsf0=0.0;
 
-    for (int i=0;i<parmap->getI("N_BOSE_CORR",1);i++) {
-        npiP[i]=0;
-        npiepsilon[i]=0;
-        npidedt[i]=0;
-        npidens[i]=0;
-    }
+    npiP.clear();
+    npiepsilon.clear();
+    npidedt.clear();
+    npidens.clear();
 
     for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
         resinfo=rpos->second;
@@ -200,14 +198,10 @@ void Csampler::GetNH0(){
             }
             else if(B==0 && II==2 && S==0){
                 //printf("code=%d\t",resinfo->code);
-                if((resinfo->code==211 || resinfo->code==-211) && true) {
-                    if (bothpicount) { //second time this runs, npidens, etc contain dens, etc for BOTH pions
-                        //printf("npidens[0]=%lf npiepsilon[0]=%lf npidedt[0]=%lf\n",npidens[0],npiepsilon[0],npidedt[0]);
-                        nh0_b0i2s0+=npidens[0];
-                        eh0_b0i2s0+=npiepsilon[0];
-                        dedth0_b0i2s0+=npidedt[0];
-                    }
-                    else bothpicount=true;
+                if(resinfo->code==211 || resinfo->code==-211) {
+                    nh0_b0i2s0+=npidens[resinfo->code][0];
+                    eh0_b0i2s0+=npiepsilon[resinfo->code][0];
+                    dedth0_b0i2s0+=npidedt[resinfo->code][0];
                 }
                 else {
                     //printf("densi=%lf epsiloni=%lf dedti=%lf\n",densi,epsiloni,dedti);
@@ -388,7 +382,6 @@ void Csampler::GetTfMuNH(Chyper *hyper){
 	muB=hyper->muB;
 	muI=hyper->muI;
 	muS=hyper->muS;
-    printf("epsilon=%lf rhoB=%lf rhoI=%lf rhoS=%lf\n", hyper->epsilon, hyper->rhoB, hyper->rhoI, hyper->rhoS);
 	GetTfMuNH(hyper->epsilon,hyper->rhoB,hyper->rhoI,hyper->rhoS);
 	hyper->T=Tf;
 	hyper->muB=muB;
@@ -400,6 +393,8 @@ void Csampler::GetTfMuNH(Chyper *hyper){
 
 void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget){
 	// Here rhoI refers to rho_u-rho_d = 2*I3 and mu[1]=muI/2
+    bool bose_corr=parmap->getB("BOSE_CORR",false);
+    int n_bose_corr=parmap->getI("N_BOSE_CORR",1);
 	double epsilon,rhoB,rhoS,rhoI;
 	double xB,xI,xS,xxB,xxI,xxS;
 	double alpha=1.0;
@@ -445,6 +440,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		muS+=dmu[3];
 
 	}while(fabs(drho[0])>1.0E-3 || fabs(drho[1])>1.0E-5 || fabs(drho[2])>1.0E-5 || fabs(drho[3])>1.0E-5);
+    printf("epsilon=%lf target=%lf\trhoB=%lf target=%lf\trhoI=%lf target=%lf\trhoS=%lf target=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget);
 
 	xB=exp(muB);
 	xI=exp(0.5*muI);
@@ -462,6 +458,17 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 							+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI+xxI)
 								+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 									+0.25*nh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI);
+    if (bose_corr) {
+        for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++) {
+                    nhadronsf+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    n++;
+                }
+            }
+        }
+    }
 
 	CalcDensitiesF();
 }
@@ -491,10 +498,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 							+0.25*eh0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 								+0.25*eh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI);
     if (bose_corr) {
-        int n=2;
-        for(int i=1;i<n_bose_corr;i++) {
-            epsilon+=npiepsilon[i]*(exp(muI*n)+exp(-muI*n));
-            n++;
+        for (CboseMap::iterator it=npiepsilon.begin();it!=npiepsilon.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++) {
+                    epsilon+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    n++;
+                }
+            }
         }
     }
 
@@ -507,10 +518,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 							+0.25*dedth0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 								+0.25*dedth0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI);
     if (bose_corr) {
-        int n=2;
-        for(int i=1;i<n_bose_corr;i++){
-            de_dT+=npidedt[i]*(exp(muI*n)+exp(-muI*n));
-            n++;
+        for (CboseMap::iterator it=npidedt.begin();it!=npidedt.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++){
+                    de_dT+=((it->second)[i])*(exp(muI*n)+exp(-muI*n));
+                    n++;
+                }
+            }
         }
     }
 
@@ -528,10 +543,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 					+0.25*eh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 						+0.25*eh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
     if (bose_corr) {
-        int n=2;
-        for(int i=1;i<n_bose_corr;i++){
-            de_dmuI+=npiepsilon[i]*(2*exp(muI*n)-2*exp(-muI*n));
-            n++;
+        for (CboseMap::iterator it=npiepsilon.begin();it!=npiepsilon.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++){
+                    de_dmuI+=((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
+                    n++;
+                }
+            }
         }
     }
 
@@ -574,10 +593,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 					+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 						+0.25*nh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
     if (bose_corr) {
-        int n=2;
-        for(int i=1;i<n_bose_corr;i++){
-            rhoI+=npidens[i]*(2*exp(muI*n)-2*exp(-muI*n));
-            n++;
+        for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++){
+                    rhoI+=((it->second)[i])*(2*exp(muI*n)-2*exp(-muI*n));
+                    n++;
+                }
+            }
         }
     }
 
@@ -592,10 +615,14 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 							+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(4*xI*xI+4*xxI*xxI)
 								+0.25*nh0_b1i3s0*(xB+xxB)*(9*xI*xI*xI+9*xxI*xxI*xxI);
     if (bose_corr) {
-        int n=2;
-        for(int i=1;i<n_bose_corr;i++){
-            drhoI_dmuI+=npidens[i]*(4*exp(muI*n)+4*exp(-muI*n));
-            n++;
+        for (CboseMap::iterator it=npidens.begin();it!=npidens.end();it++) {
+            int n=2;
+            if (it->first==211 || it->first==-211) {
+                for(int i=1;i<n_bose_corr;i++){
+                    drhoI_dmuI+=((it->second)[i])*(4*exp(muI*n)+4*exp(-muI*n));
+                    n++;
+                }
+            }
         }
     }
 
@@ -829,6 +856,12 @@ void Csampler::CalcDensitiesF(){
 	char dummy[100];
 	nhadronsf=Pf=epsilonf=0.0;
 	ires=0;
+
+    npiP.clear();
+    npiepsilon.clear();
+    npidedt.clear();
+    npidens.clear();
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
@@ -837,15 +870,24 @@ void Csampler::CalcDensitiesF(){
 			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
 			xx=exp(mutot);
 			//printf("muB=%g\n",muB);
-			//densityf[ires]=densi=densityf0[ires]*xx;
-			densityf[ires]=densi=densi*xx;
+            if(resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) {
+                densi=0;
+                for (int i=0;i<parmap->getI("N_BOSE_CORR",1);i++) {
+                    densi+=npidens[resinfo->code][i]*exp(mutot*(i+1));
+                }
+            }
+            else {
+                densi=densi*xx;
+            }
+            //densityf[ires]=densi=densityf0[ires]*xx;
+            densityf[ires]=densi;
             //printf("densi=%g\n",densi);
-			rhoBcalc+=densi*resinfo->baryon;
-			rhoIcalc+=densi*I3;
-			rhoScalc+=densi*resinfo->strange;
-			nhadronsf+=densi;
-			epsilonf+=epsilonf0i[ires]*xx;
-			Pf+=Pf0i[ires]*xx;
+            rhoBcalc+=densi*resinfo->baryon;
+            rhoIcalc+=densi*I3;
+            rhoScalc+=densi*resinfo->strange;
+            nhadronsf+=densi;
+            epsilonf+=epsilonf0i[ires]*xx;
+            Pf+=Pf0i[ires]*xx;
 			ires+=1;
 		}
 	}
@@ -876,7 +918,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 			m2+=dm;
 		}
         EOS::freegascalc_onespecies_finitewidth(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degeni,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
-	}
+    }
 	else{
 		//printf("m=%g, Tf=%g\n",m,Tf);
 		EOS::freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,epsiloni,Pi,densi,sigma2i,dedti);

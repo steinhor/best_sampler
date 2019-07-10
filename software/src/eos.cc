@@ -5,7 +5,7 @@
 
 
 
-void EOS::freegascalc_onespecies_finitewidth(vector<double> &npidens,vector<double> &npiP,vector<double> &npiepsilon,vector<double> &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
+void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
                                               double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
 
     double kr,k,E0,rho,rho_0,gammas,n0,res_dens,weight,avg_weight,normal;
@@ -221,7 +221,7 @@ void EOS::freegascalc_onespecies_finitewidth(vector<double> &npidens,vector<doub
                 }
 
 
-            else{
+            else{ //neither daughter decays
                 k=sqrt(abs(pow((E*E-m1*m1-m2*m2),2.0)-(4.0*m1*m1*m2*m2)))/(2.0*E);
                 if(spin_deg<1.001)
                 {gamma=width*(resmass/E)*(k/kr); }
@@ -258,7 +258,7 @@ void EOS::freegascalc_onespecies_finitewidth(vector<double> &npidens,vector<doub
         dedt=normal*dedtsum/N;
 }
 
-void EOS::freegascalc_onespecies(vector<double> &npidens,vector<double> &npiP,vector<double> &npiepsilon,vector<double> &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
+void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
     const double prefactor=1.0/(2.0*PI*PI*pow(HBARC,3));
     double k0,k1,z,k0prime,k1prime,m2,m3,m4,t2,t3,I1,I2,Iomega;
     bool pion;
@@ -266,12 +266,15 @@ void EOS::freegascalc_onespecies(vector<double> &npidens,vector<double> &npiP,ve
     m2=m*m;
     m3=m2*m;
     m4=m2*m2;
-
     //this whole if/else loop does all the bose correction checks
     if (resinfo->code==-211 || resinfo->code==211 || resinfo->code==111) {
+        /*
         if (resinfo->code!=111) {
             pion=true; //I know this is misleading but in this context we only want pion to be true for pions w/ isospin 2 (for CSampler::GetNH0)
         }
+        else pion=false;
+        */
+        pion=true;
         if (parmap->getB("BOSE_CORR",false)) {
             n=parmap->getI("N_BOSE_CORR",1);
         }
@@ -305,21 +308,24 @@ void EOS::freegascalc_onespecies(vector<double> &npidens,vector<double> &npiP,ve
 
             double temp=prefactor*(m2*t2*k0+2.0*m*t3*k1);
             P+=temp;
-            if(pion) npiP[i-1]+=temp;
+            if(pion) npiP[resinfo->code].push_back(temp); //npiP[i-1]+=temp;
 
             dens+=temp/Ti;
-            if(pion) npidens[i-1]+=temp/Ti;
+            if(pion) npidens[resinfo->code].push_back(temp/Ti); //npidens[i-1]+=temp/Ti;
 
             temp=prefactor*(3.0*m2*t2*k0+(m3*Ti+6.0*m*t3)*k1);
             epsilon+=temp;
-            if(pion) npiepsilon[i-1]+=temp;
+            if(pion) {
+                //printf("npiepsilon[code][%d]=%lf\n",i-1,npiepsilon[resinfo->code][i-1]);
+                npiepsilon[resinfo->code].push_back(temp); //npiepsilon[i-1]+=temp;
+            }
 
             k0prime=-k1;
             k1prime=-k0-k1/z;
 
             temp=prefactor*(6.0*m2*Ti*k0+(m3+18.0*m*t2)*k1-3.0*m3*k0prime-((m4/Ti)+6.0*m2*Ti)*k1prime);
             dedt+=temp;
-            if(pion) npidedt[i-1]+=temp;
+            if(pion) npidedt[resinfo->code].push_back(temp); //npidedt[i-1]+=temp;
         }
         z=m/T;
         Iomega=exp(-z)/(30.0*PI*PI*HBARC*HBARC*HBARC);
