@@ -168,7 +168,7 @@ void CmasterSampler::ReadHyper2D(){
 	//element.clear();
 	nelements=0;
 	//b3d->TotalVolume=0.0;
-	filename="../local/resinfo/surface_2D.dat";
+	filename=parmap->getS("HYPER_INFO_FILE",string("../local/resinfo/surface_2D.dat"));
 	printf("opening %s\n",filename.c_str());
 	FILE *fptr=fopen(filename.c_str(),"rb");
 

@@ -8,5 +8,6 @@ SAMPLER_SETMU0 true
 SAMPLER_NEVENTS 1
 RESONANCES_INFO_FILE ../local/resinfo/pdg-SMASH.dat
 RESONANCES_DECAYS_FILE ../local/resinfo/pdg-SMASH.dat
+HYPER_INFO_FILE ../local/resinfo/surface_2D.dat
 BOSE_CORR true
 N_BOSE_CORR 5
