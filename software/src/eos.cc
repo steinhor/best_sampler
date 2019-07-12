@@ -268,12 +268,6 @@ void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npie
     m4=m2*m2;
     //this whole if/else loop does all the bose correction checks
     if (resinfo->code==-211 || resinfo->code==211 || resinfo->code==111) {
-        /*
-        if (resinfo->code!=111) {
-            pion=true; //I know this is misleading but in this context we only want pion to be true for pions w/ isospin 2 (for CSampler::GetNH0)
-        }
-        else pion=false;
-        */
         pion=true;
         if (parmap->getB("BOSE_CORR",false)) {
             n=parmap->getI("N_BOSE_CORR",1);
