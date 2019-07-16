@@ -293,6 +293,11 @@ void CmasterSampler::ReadHyper2D(){
 			elem->rhoS=0.0;
 			elem->rhoI=0.5*(nproton-(1-nproton));
 
+			elem->qmu[0]=qmu0;
+			elem->qmu[1]=qmu1;
+			elem->qmu[2]=qmu2;
+			elem->qmu[3]=qmu3;
+
 			hyperlist.push_back(elem);
 			TotalVolume+=udotdOmega;
 			ielement+=1;

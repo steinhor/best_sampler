@@ -17,6 +17,7 @@ public:
 	int ihyp;
 	double T,sigma,rhoB,rhoI,rhoS;
 	double muB,muI,muS,nhadrons,lambda,epsilon;
+	FourVector qmu;
 	FourVector dOmega; // hyper volume
 	double udotdOmega;
 	FourVector u;  // collective velocity

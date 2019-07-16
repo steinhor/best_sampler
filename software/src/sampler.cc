@@ -48,8 +48,8 @@ void Csampler::CalcLambda(){
             if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) imax=nbc;
             else imax=1;
 
+            dIpp=0.0;
             for (int i=1;i<=imax;i++) {
-                dIpp=0.0;
     			m=resinfo->mass;
     			degen=resinfo->spin;
     			z=m*i/Tf;
@@ -71,9 +71,9 @@ void Csampler::CalcLambda(){
     				nfact=nfact*0.5/(n+1.0);
     				if(n>0) nfact*=(2.0*n-1.0);
     			}
-    			dIpp=degen*exp(i*mutot)*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
-    			dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
+    			dIpp+=degen*exp(i*mutot)*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
             }
+            dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
             Ipp+=dIpp;
 		}
 	}
@@ -90,36 +90,55 @@ void Csampler::CalcLambdaF0(){
 	double G[nmax+5];
 	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
 	double dIpptest=0.0,dp=4.0,p,e,lambdafact,I3;
+    double temp, imax;
+    int nbc;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
 	ires=0;
+
+    npilambda0.clear();
+    if (parmap->getB("BOSE_CORR",false)) {
+        nbc=parmap->getI("N_BOSE_CORR",1);
+    }
+    else nbc=1;
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
-			m=resinfo->mass;
-			degen=resinfo->spin;
-			z=m/Tf;
+            if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) imax=nbc;
+            else imax=1;
 
-			G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
-			for(int i=1;i<nmax+5;i++){
-				n=5-2*i;
-				if(n!=-1)	G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
-				else G[i]=gsl_sf_gamma_inc(-1,z)*z;
-			}
-			J=0.0;
-			nfact=1.0;
-			sign=1.0;
-			for(n=0;n<nmax;n+=1){
-				if(n>0) sign=-1.0;
-				J+=sign*nfact*(G[n]-2.0*G[n+1]+G[n+2]);
-				nfact=nfact*0.5/(n+1.0);
-				if(n>0) nfact*=(2.0*n-1.0);
-			}
-			dIpp=degen*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
-			dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
-			lambdaf0i[resinfo->ires]=dIpp;
-			Ipp+=dIpp;
-			ires+=1;
+            dIpp=0.0;
+            for (int i=1;i<=imax;i++) {
+    			m=resinfo->mass;
+    			degen=resinfo->spin;
+    			z=m*i/Tf;
+
+    			G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
+    			for(int i=1;i<nmax+5;i++){
+    				n=5-2*i;
+    				if(n!=-1)	G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
+    				else G[i]=gsl_sf_gamma_inc(-1,z)*z;
+    			}
+    			J=0.0;
+    			nfact=1.0;
+    			sign=1.0;
+    			for(n=0;n<nmax;n+=1){
+    				if(n>0) sign=-1.0;
+    				J+=sign*nfact*(G[n]-2.0*G[n+1]+G[n+2]);
+    				nfact=nfact*0.5/(n+1.0);
+    				if(n>0) nfact*=(2.0*n-1.0);
+    			}
+                temp=degen*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
+    			dIpp+=temp;
+                if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) {
+                    npilambda0[resinfo->code].push_back(temp);
+                }
+            }
+            dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
+            lambdaf0i[resinfo->ires]=dIpp;
+            Ipp+=dIpp;
+            ires+=1;
 		}
 	}
 	if(mastersampler->SETMU0)
@@ -137,14 +156,28 @@ void Csampler::CalcLambdaF(){
 	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
 	double dIpptest=0.0,dp=4.0,p,e,lambdafact,mutot,I3;
 	CresInfo *resinfo;
+    int nbc;
 	CresMassMap::iterator rpos;
 	ires=0;
+
+    if (parmap->getB("BOSE_CORR",false)) {
+        nbc=parmap->getI("N_BOSE_CORR",1);
+    }
+    else nbc=1;
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
 			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-muS*resinfo->strange);
 			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-			Ipp+=lambdaf0i[ires]*exp(mutot);
+
+            dIpp=0.0;
+            if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) {
+                for (int i=1;i<=nbc;i++) {
+                    Ipp+=npilambda0[resinfo->code][i-1]*exp(i*mutot);
+                }
+            }
+            else Ipp+=lambdaf0i[ires]*exp(mutot);
 			ires+=1;
 		}
 	}
@@ -441,7 +474,7 @@ void Csampler::GetTfMuNH(Chyper *hyper){
 	hyper->muB=muB;
 	hyper->muI=muI;
 	hyper->muS=muS;
-	printf("TEST: nhadronsf=%g\n",nhadronsf);
+	//printf("TEST: nhadronsf=%g\n",nhadronsf);
 	hyper->nhadrons=nhadronsf;
 }
 
