@@ -33,36 +33,48 @@ void Csampler::CalcLambda(){
 	double G[nmax+5];
 	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
 	double dIpptest=0.0,dp=4.0,p,e,lambdafact,mutot,I3;
+    int nbc,imax;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
+
+    if (parmap->getB("BOSE_CORR",false)) {
+        nbc=parmap->getI("N_BOSE_CORR",1);
+    }
+    else nbc=1;
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
-			m=resinfo->mass;
-			degen=resinfo->spin;
-			z=m/Tf;
-			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-muS*resinfo->strange);
-			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
+            if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) imax=nbc;
+            else imax=1;
 
-			G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
-			for(int i=1;i<nmax+5;i++){
-				n=5-2*i;
-				if(n!=-1)	G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
-				else G[i]=gsl_sf_gamma_inc(-1,z)*z;
-			}
-			J=0.0;
-			nfact=1.0;
-			sign=1.0;
-			for(n=0;n<nmax;n+=1){
-				if(n>0) sign=-1.0;
-				J+=sign*nfact*(G[n]-2.0*G[n+1]+G[n+2]);
-				nfact=nfact*0.5/(n+1.0);
-				if(n>0) nfact*=(2.0*n-1.0);
-			}
-			dIpp=degen*exp(mutot)*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
-			dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
-			Ipp+=dIpp;
+            for (int i=1;i<=imax;i++) {
+                dIpp=0.0;
+    			m=resinfo->mass;
+    			degen=resinfo->spin;
+    			z=m*i/Tf;
+    			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-muS*resinfo->strange);
+    			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
 
+    			G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
+    			for(int i=1;i<nmax+5;i++){
+    				n=5-2*i;
+    				if(n!=-1)	G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
+    				else G[i]=gsl_sf_gamma_inc(-1,z)*z;
+    			}
+    			J=0.0;
+    			nfact=1.0;
+    			sign=1.0;
+    			for(n=0;n<nmax;n+=1){
+    				if(n>0) sign=-1.0;
+    				J+=sign*nfact*(G[n]-2.0*G[n+1]+G[n+2]);
+    				nfact=nfact*0.5/(n+1.0);
+    				if(n>0) nfact*=(2.0*n-1.0);
+    			}
+    			dIpp=degen*exp(i*mutot)*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
+    			dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
+            }
+            Ipp+=dIpp;
 		}
 	}
 	if(mastersampler->SETMU0)
@@ -453,7 +465,6 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		}
 		smb=sinh(muB);
 		cmb=cosh(muB);
-        //printf("T=%lf\n",Tf);
 		GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
         /*
         printf("A= \n");
@@ -744,15 +755,15 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
             E = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
             if ((E < resinfo->minmass) ) continue;
             // throw out values out of range
-            
+
             if(resinfo->branchlist[0]->resinfo[0]->decay==true || resinfo->branchlist[0]->resinfo[1]->decay==true)
             {
                 double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
                 double mb1,mb2,mb_pole,mb_0,mb_min,sum_mb,nb,mb_gamma,mb_width,Emb,Ema;
-                
+
                 double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsumb,spectsumb0,kr_ab,k_ab,s0;
                 double mb_kr,mb_k,mb_rho,mb_rho0,sumb,spectsum,spectsum0;
-                
+
                 if(resinfo->branchlist[0]->resinfo[0]->decay==true) // 1st daughter in 1 daughter decay and 2 daughter decay
                 {   ma_min=resinfo->branchlist[0]->resinfo[0]->minmass;
                     ma_pole=resinfo->branchlist[0]->resinfo[0]->mass;
@@ -790,29 +801,29 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                     else if(resinfo->branchlist[0]->resinfo[1]->baryon==0) { form_lambda=1.6; }
                     else {form_lambda=2.0;}
                 }
-                
+
                 if(ma_min>=Emb) continue;
-                
+
                 ma_kr=sqrt(abs(pow((ma_pole*ma_pole-ma1*ma1-ma2*ma2),2.0)-4.0*ma1*ma1*ma2*ma2))/(2.0*ma_pole);
                 suma=0.0;
                 int Na=100;
                 int ma_counter;
                 ma_counter = 0;
-                
+
                 for(int na=0;na<Na;na++)
                 {
                     double sum_ma=(na+0.5)/Na;
                     ma_0 = 0.5*ma_width*tan(PI*(sum_ma - .5));
                     ma = ma_0+ma_pole;
                     Ema = E - ma;
-                    
+
                     if(ma>=ma_min && ma<=Emb)
                     {
                         ma_k=sqrt(abs(pow((ma*ma-ma1*ma1-ma2*ma2),2.0)-(4.0*ma1*ma1*ma2*ma2)))/(2.0*ma);
                         ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
                         ma_rho=(2.0)/(ma_width*PI)*0.25*ma_gamma*ma_gamma/((0.25*ma_gamma*ma_gamma)+(ma_pole-ma)*(ma_pole-ma));
                         ma_rho0 = (1/PI)*(ma_width/2.0)/(0.25*ma_width*ma_width+ma_0*ma_0);
-                        
+
                         if(resinfo->branchlist[0]->resinfo[0]->decay==true && resinfo->branchlist[0]->resinfo[1]->decay==true)
                         {
                             if(mb_min>=Ema) continue;
@@ -832,13 +843,13 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                                     mb_gamma=mb_width*(mb_pole/mb)*((mb_k*mb_k*mb_k)/(mb_kr*mb_kr*mb_kr))*((mb_kr*mb_kr+HBARC*HBARC)/(mb_k*mb_k+HBARC*HBARC));
                                     mb_rho=(2.0)/(mb_width*PI)*0.25*mb_gamma*mb_gamma/((0.25*mb_gamma*mb_gamma)+(mb_pole-mb)*(mb_pole-mb));
                                     mb_rho0 = (1/PI)*(mb_width/2.0)/(0.25*mb_width*mb_width+mb_0*mb_0);
-                                    
+
                                     kr_ab=sqrt(abs(pow((mass*mass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*mass);
                                     k_ab=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
                                     s0=ma+mb;
                                     rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-mass*mass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+mass*mass)),2.0)));
                                     rho_width_0=(kr_ab*kr_ab*kr_ab)/(mass*(kr_ab*kr_ab+HBARC*HBARC));
-                                    
+
                                     sumb+=mb_rho/mb_rho0;
                                     spectsumb+=rho_width*mb_rho;
                                     spectsumb0+=rho_width_0*mb_rho;
@@ -860,13 +871,13 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
                             ma_gamma=ma_width*(ma_pole/ma)*((ma_k*ma_k*ma_k)/(ma_kr*ma_kr*ma_kr))*((ma_kr*ma_kr+HBARC*HBARC)/(ma_k*ma_k+HBARC*HBARC));
                             ma_rho=(2.0)/(ma_width*PI)*0.25*ma_gamma*ma_gamma/((0.25*ma_gamma*ma_gamma)+(ma_pole-ma)*(ma_pole-ma));
                             ma_rho0 = (1/PI)*(ma_width/2.0)/(0.25*ma_width*ma_width+ma_0*ma_0);
-                            
+
                             kr_ab=sqrt(abs(pow((mass*mass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*mass);
                             k_ab=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
                             s0=ma+mb;
                             rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-mass*mass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+mass*mass)),2.0)));
                             rho_width_0=(kr_ab*kr_ab*kr_ab)/(mass*(kr_ab*kr_ab+HBARC*HBARC));
-                            
+
                             suma+=ma_rho/ma_rho0;
                             spectsum+=rho_width*ma_rho/ma_rho0;
                             spectsum0+=rho_width_0*ma_rho/ma_rho0;
