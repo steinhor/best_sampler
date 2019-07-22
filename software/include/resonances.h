@@ -22,18 +22,7 @@ public:
 	double branching;
 	CbranchInfo();
 };
-/*
-class Cspectralfunc{
-public:
-    Cspectralfunc();
-    virtual double rho(CresInfo* resinfo, double E, double kr);
-};
 
-class Cspectralfunc_SMASH : public Cspectralfunc {
-public:
-    double rho(CresInfo* resinfo, double E, double kr);
-};
-*/
 class CresInfo{
 public:
 	int ires;
@@ -54,7 +43,7 @@ public:
 	bool decay; //false if stable, true if can decay. check if true
 	CbranchList branchlist;
 	CbranchInfo	*bptr_minmass;
-    //Cspectralfunc *bptr_spect;
+    map<double,double> spectmap;
 	void Print();
 	void DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo);
 	void DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo);
@@ -90,6 +79,7 @@ public:
 	//double **SigmaMaxArray;
 	CresInfo *GetResInfoPtr(int pid);
 	void ReadResInfo();
+    void FillSpectMap(CresInfo *resinfo);
 	//bool RESONANCE_DECAYS;
 	CparameterMap *parmap;
 };

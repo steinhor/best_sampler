@@ -46,7 +46,6 @@ public:
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0;
-	CboseMap npilambda0;
 
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities

@@ -163,8 +163,7 @@ void CmasterSampler::ReadHyper2D(){
 	double eta,dOmegaZ,uz,Edec,Tdec,muB,muS,muC,Pdec;
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
-	double rhoB;
-	double nproton=parmap->getD("N_PROTON",0.4);
+	double Bn;
 
 	//element.clear();
 	nelements=0;
@@ -177,7 +176,6 @@ void CmasterSampler::ReadHyper2D(){
 	double TotalVolume=0.0;
 
 	int n=0;
-	int i=0;
 	while(!feof(fptr)){
 		elem=new Chyper();
 		elem->ihyp=ielement;
@@ -229,7 +227,7 @@ void CmasterSampler::ReadHyper2D(){
 		pitildezz = array[27]*HBARC/(tau*tau);  // GeV/fm^3
 
 		PIbulk = array[28]*HBARC;   // GeV/fm^3
-		rhoB = array[29];  // 1/fm^3
+		Bn = array[29];  // 1/fm^3
 
 		qmu0 = array[30];
 		qmu1 = array[31];
@@ -289,19 +287,11 @@ void CmasterSampler::ReadHyper2D(){
 			elem->T=Tdec; //was Tf
 			//elem->P=Pdec; //was Pf
 			//elem->lambda=lambdaf;
-			elem->rhoB=rhoB;
-			elem->rhoS=0.0;
-			elem->rhoI=0.5*(nproton-(1-nproton));
-
-			elem->qmu[0]=qmu0;
-			elem->qmu[1]=qmu1;
-			elem->qmu[2]=qmu2;
-			elem->qmu[3]=qmu3;
+			elem->Bn=Bn;
 
 			hyperlist.push_back(elem);
 			TotalVolume+=udotdOmega;
 			ielement+=1;
-			i++;
 		}
 	}
 	nelements=ielement;
