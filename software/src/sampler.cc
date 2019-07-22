@@ -291,7 +291,7 @@ void Csampler::GetNH0(){
     }
 }
 
-void Csampler::GetMuNH(Chyper *hyper){
+void Csampler::GetMuNH(Chyper *hyper){ //3D Newton's Method
 	// Here rhoI refers to rho_u-rho_d = 2*I3 and mu[1]=muI/2
 	double rhoBtarget=hyper->rhoB;
 	double rhoItarget=2.0*hyper->rhoI;
@@ -478,7 +478,7 @@ void Csampler::GetTfMuNH(Chyper *hyper){
 	hyper->nhadrons=nhadronsf;
 }
 
-void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget){
+void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget){ //4D Newton's Method
 	// Here rhoI refers to rho_u-rho_d = 2*I3 and mu[1]=muI/2
     bool bose_corr=parmap->getB("BOSE_CORR",false);
     int n_bose_corr=parmap->getI("N_BOSE_CORR",1);
@@ -526,7 +526,6 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		muS+=dmu[3];
 
 	}while(fabs(drho[0])>1.0E-3 || fabs(drho[1])>1.0E-5 || fabs(drho[2])>1.0E-5 || fabs(drho[3])>1.0E-5);
-    printf("epsilon=%lf target=%lf\trhoB=%lf target=%lf\trhoI=%lf target=%lf\trhoS=%lf target=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget);
 
 	xB=exp(muB);
 	xI=exp(0.5*muI);
@@ -1051,7 +1050,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 	CmeanField *mf=mastersampler->meanfield;
 	//
 	bool decay=resinfo->decay;
-	//decay=false;
+	decay=false;
 	//
 	degeni=resinfo->spin;
 	m=mf->GetMass(resinfo,sigmaf);

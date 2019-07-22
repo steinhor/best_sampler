@@ -7,12 +7,17 @@ int Csampler::MakeParts(Chyper *hyper){
     CresInfo *resinfo;
     double udotdOmega=hyper->udotdOmega; //Misc::DotProduct(hyper->u,hyper->dOmega);
     double dN,dNtot,dNprime,xx,mutot,I3;
+    double nptemp;
+    Cpart *part;
     CresMassMap::iterator iter;
+    //printf("nhadronsf0=%lf nhadronsf=%lf\n",nhadronsf0,nhadronsf);
     if(mastersampler->SETMU0)
         dNtot=dNprime=udotdOmega*nhadronsf0;
     else
         dNtot=dNprime=udotdOmega*nhadronsf;
     //printf("randy->threshold=%g, randy->netprob=%g, dNtot=%g\n",randy->threshold,randy->netprob,dNtot);
+    totvol+=udotdOmega;
+    printf("test 1\n");
     if(randy->test_threshold(dNtot)){
         ires=0;
         for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
@@ -25,13 +30,34 @@ int Csampler::MakeParts(Chyper *hyper){
                     mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
                     xx=exp(mutot);
                 }
-                dN=densityf0[ires]*udotdOmega*xx;
+                printf("test 2\n");
+                if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
+                else dN=densityf[ires]*udotdOmega*xx;
                 randy->increment_netprob(dN);
                 dNprime-=dN;
+                nptemp=0;
+                printf("test 3\n");
                 while(randy->test_threshold(0.0)){
-                    GetP(hyper,resinfo,p);
-                    nparts+=1;
+                    //printf("resinfo->code=%d\n",resinfo->code);
+                    part=new Cpart();
+                    printf("test 5\n");
+                    GetP(hyper,resinfo,part->p,part);
+                    nparts++;
+                    printf("test 6\n");
+                    partmap->insert(pair<int,Cpart*>(nparts,part));
+                    printf("test 7\n");
+                    pmap[resinfo->code].push_back(part);
+                    //printf("part inserted!\n");
+                    nptemp++;
+                    printf("test 8\n");
                     randy->increase_threshold();
+                }
+                printf("test 4\n");
+                if (DensityMap.count(resinfo->code)==0) {
+                    DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
+                }
+                else {
+                    DensityMap[resinfo->code]+=nptemp;
                 }
                 if(!(randy->test_threshold(dNprime))){
                     randy->increment_netprob(dNprime);
@@ -50,7 +76,7 @@ int Csampler::MakeParts(Chyper *hyper){
     }
 }
 
-void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
+void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part){
     bool VISCOUSCORRECTIONS=true;
     double weight;
     bool success=false,reflect;
@@ -62,6 +88,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
     double m,delN,r[3],w[3],nhat[4]={0.0};
     double mw;
     mw=maxweight[resinfo->ires];
+    printf("test 9\n");
     if(mw<0.0 || resinfo->width<0.001){
         m=resinfo->mass;
         randy->generate_boltzmann(m,Tf,pnoviscous);
@@ -70,6 +97,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
         m=GenerateThermalMass(resinfo);
         randy->generate_boltzmann(m,Tf,pnoviscous);
     }
+    part->msquared=m*m;
     if(VISCOUSCORRECTIONS){
         for(alpha=1;alpha<4;alpha++){
             ptilde[alpha]=pnoviscous[alpha];
@@ -78,7 +106,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf);
                 else
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf);
+                    //printf("ptilde[alpha]=%lf\t",ptilde[alpha]);
             }
+            //printf("\n");
         }
         ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);
     }
@@ -87,12 +117,11 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
             ptilde[alpha]=pnoviscous[alpha];
     }
     //printf("ptilde=(%g,%g,%g,%g)\n",ptilde[0],ptilde[1],ptilde[2],ptilde[3]);
-    
+
     Misc::BoostToCM(hyper->u,hyper->dOmega,dOmegaTilde);  //dOmegaTilde is dOmega in fluid (u=0) frame
     pdotdOmega=ptilde[0]*dOmegaTilde[0]-ptilde[1]*dOmegaTilde[1]-ptilde[2]*dOmegaTilde[2];
     //printf("u=(%g,%g), dOmega=(%g,%g,%g), dOmegaTilde=(%g, %g,%g)\n",
     //ux,uy,dOmega[0],dOmega[1],dOmega[2],dOmegaTilde[0],dOmegaTilde[1],dOmegaTilde[2]);
-    
     wreflect=pdotdOmega/(ptilde[0]*dOmegaTilde[0]);
     reflect=false;
     if(wreflect<0.0)
@@ -109,5 +138,12 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p){
         p[1]-=2.0*nhat[1]*nhatdotp;
         p[2]-=2.0*nhat[2]*nhatdotp;
     }
-    Misc::Boost(u,ptilde,p);
+    for (int i=0;i<4;i++) {
+        //printf("ptilde=%lf p[%d]=%lf\t",ptilde[i],i,p[i]);
+    }
+    Misc::Boost(hyper->u,ptilde,p);
+    for (int i=0;i<4;i++) {
+        //printf("ptilde=%lf p[%d]=%lf\t",ptilde[i],i,p[i]);
+    }
+    //printf("\n\n");
 }

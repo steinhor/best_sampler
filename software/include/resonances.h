@@ -34,6 +34,7 @@ public:
     double rho(CresInfo* resinfo, double E, double kr);
 };
 */
+
 class CresInfo{
 public:
 	int ires;

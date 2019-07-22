@@ -291,7 +291,7 @@ void CmasterSampler::ReadHyper2D(){
 			//elem->lambda=lambdaf;
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
-			elem->rhoI=0.5*(nproton-(1-nproton));
+			//elem->rhoI=0.5*(nproton-(1-nproton));
 
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;

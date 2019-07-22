@@ -39,8 +39,10 @@ void Misc::Boost(FourVector &u,FourVector &p,FourVector &pprime){
 	int alpha;
 	double pdotu=p[0]*u[0]-p[1]*u[1]-p[2]*u[2]-p[3]*u[3];
 	double A=-(pdotu+p[0])/(1.0+u[0]);
+	//printf("A=%lf\n",A);
 	for(alpha=0;alpha<4;alpha++)
 		pprime[alpha]=p[alpha];
+		//printf("pprime[alpha]=%lf\tp[alpha]=%lf\n",pprime[alpha],p[alpha]);
 	pprime[0]+=A;
 	for(alpha=0;alpha<4;alpha++)
 		pprime[alpha]+=(A+2*p[0])*u[alpha];
@@ -134,7 +136,7 @@ complex<double> Misc::cpow(complex<double> z,complex<double> a){
 //! \param pprime the boosted version of p
 //! A simple example shows how to use this function correctly.  Suppose
 //! we wish to boost from rest to some frame moving in the +z direction with velocity 0.2c.
-//! In this case, we use \f$ u = \gamma*( 1, 0, 0, 0.2 ) \f$ where 
+//! In this case, we use \f$ u = \gamma*( 1, 0, 0, 0.2 ) \f$ where
 //! \f$ \gamma = 1/\sqrt(1-0.2^2) = 1.02062 \f$.
 /*
 void Misc::lorentz(double *u,double *p,double *pprime){
@@ -198,7 +200,7 @@ void Misc::Boost(double *u,double **PiTilde,double **Pi){
 				}
 			}
 		}
-	}	
+	}
 }
 /*
 void Misc::Boost(double *u,double *ptilde,double *p){
@@ -240,7 +242,7 @@ double Misc::oldcgc(double j1,double m1,double j2,double m2,double j,double m){
 	//rule check
 	if (fabs(m1+m2-m)>0.01) return 0.0; //sum of m's must be zero
 	if (j1+j2<j) return 0.0; //triangle rule
-	if (j+j1<j2) return 0.0; 
+	if (j+j1<j2) return 0.0;
 	double p1,p2,p3,p4,p5,thesum = 0,ans;
 	double z=0;
 	if(m1 + m2 == m && m<=j && -j <=m){
@@ -469,13 +471,13 @@ void Misc::Quartic(double a0,double a1,double a2,double a3,double a4,complex<dou
 		exit(-1);
 	}
 	Quartic(a0,a1,a2,a3,a4,z);
-	z1=z[0]; z2=z[1]; z3=z[2]; z4=z[3];	
+	z1=z[0]; z2=z[1]; z3=z[2]; z4=z[3];
 }
 
 // There are a couple differences with the original routine.
 // The arrays z[] and u[] are now zero-indexed.
-//int cern_quartic_real_coeff::rrteq4(double a, double b, double c, double d, 
-	//			    complex<double> z[], double &dc, 
+//int cern_quartic_real_coeff::rrteq4(double a, double b, double c, double d,
+	//			    complex<double> z[], double &dc,
 		//		    int &mt) {
 void Misc::Quartic(double a0,double a1,double a2,double a3,double a4,complex<double> *z){
 	double dc;
@@ -611,7 +613,7 @@ void Misc::Quartic(double a0,double a1,double a2,double a3,double a4,complex<dou
 // Similar to the original, in the case of complex roots, x[0]
 // is the real root and x[1] and x[2] contain the real and
 // imaginary parts of the complex roots.
-//int cern_cubic_real_coeff::rrteq3(double r, double s, double t, 
+//int cern_cubic_real_coeff::rrteq3(double r, double s, double t,
 //double x[], double &d) {
 void Misc::CubicResolvant(double r,double s,double t,double x[],double &d){
 	double eps=1.0e-6, delta=1.0e-15;
@@ -643,7 +645,7 @@ void Misc::CubicResolvant(double r,double s,double t,double x[],double &d){
 	double h=r3*r;
 	double h1=r2*q;
 	double u,v,d_new;
-// AWS hack 
+// AWS hack
 // The discriminant in 'd' has units of [x]^6 so it is very
 // sensitive to the absolute magnitude of the roots.  We attempt to
 // fix this by using the ratio instead of the sum.
@@ -735,11 +737,11 @@ void Misc::CubicResolvant(double r,double s,double t,double x[],double &d){
 
 
 /* int cern_cubic_real_coeff::solve_rc
-(const double a3, const double b3, const double c3, const double d3, 
+(const double a3, const double b3, const double c3, const double d3,
 double &r1, complex<double> &r2, complex<double> &r3) {
 
 	if (a3==0.0) {
-		cout << 
+		cout <<
 			"Leading coefficient zero in cern_cubic_real_coeff::solve_rc()."
 			<< endl;
 		exit(-1);
@@ -787,9 +789,9 @@ void Misc::CubicComplex(double a0,double a1,double a2,double a3,complex<double> 
 	z2=GSL_REAL(gslz2)+ci*GSL_IMAG(gslz2);
 	z3=GSL_REAL(gslz3)+ci*GSL_IMAG(gslz3);
 }
-			
+
 bool Misc::file_exists(const char* file_name){
-  std::ifstream file; 
+  std::ifstream file;
   file.open(file_name,std::ios::in);
   bool result;
   if (file.fail()) result = false;
@@ -808,13 +810,13 @@ double Misc::mod(double x, double y){
 
 double Misc::PCMS(double M, double particle_i, double particle_j){
 	double out;
-	
+
 	if((M*M - pow(particle_i + particle_j,2) < 0.0 ) || (M*M -pow(particle_i - particle_j,2) < 0.0)){
 		out = 0;
 	}else{
 		out = (1/(2*M))*sqrt((M*M - pow(particle_i + particle_j,2))*(M*M -pow(particle_i - particle_j,2)));
 	}
-	
+
 	return out;
 }
 
@@ -828,20 +830,20 @@ int Misc::Sign(int a){
 
 void Misc::freegascalc_onespecies_finitewidth(double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
                                              double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
-    
+
     double kr,k,E0,gamma,rho,rho_0,gammas,n0,res_dens,weight,avg_weight,normal;
     double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
     int N = 100;
     // E_S0 is an array of E' values where E'=E-resmass
     double E_S0;
     double E;
-    
+
     // E0 = minmass if minmass declared already in resonance.cc
     E0=m1+m2;
     maxweight=0.0;
     res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
     kr=sqrt(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2)/(2.0*resmass);
-    
+
     //cout << minmass << endl;
     //cout << E0 << endl;
     for(int n=0;n<N;n++)
@@ -861,10 +863,10 @@ void Misc::freegascalc_onespecies_finitewidth(double T,double resmass, double m1
             {
                 gamma=width*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
             }
-             
+
             rho=(2.0)/(width*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(resmass-E)*(resmass-E));
             rho_0 = (1/PI)*(width/2.0)/(0.25*width*width+E_S0*E_S0);
-            
+
             freegascalc_onespecies(T,E,epsilon,P,dens,sigma2,dedt);
             weight=rho*dens/(rho_0*res_dens);
             if(weight>maxweight)
