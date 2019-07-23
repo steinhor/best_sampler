@@ -754,6 +754,7 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
     double mw;
+    int nfail=0,nfailmax=1000;
     if(mastersampler->SETMU0)
         mw=maxweight[resinfo->ires];
     else
@@ -783,7 +784,8 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
             weight = rho*k2*E*E/(lor*k2mr*mass*mass*mw);
             //if(weight > 1.00)  printf("PID=%d, maxweight=%g, weight=%g\n",resinfo->code,mw,weight);
             if (r2 < weight) success=true; // success
-        }while(!success);
+            else nfail+=1;
+        }while(!success && nfail<nfailmax);
     }
     else
         E=resinfo->mass;
@@ -897,7 +899,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 	CmeanField *mf=mastersampler->meanfield;
 	//
 	bool decay=resinfo->decay;
-	decay=false;
+	//decay=false;
 	//
 	degeni=resinfo->spin;
 	m=mf->GetMass(resinfo,sigmaf);
