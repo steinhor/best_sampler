@@ -23,8 +23,6 @@ public:
 	CbranchInfo();
 };
 
-=======
->>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
 class CresInfo{
 public:
 	int ires;

@@ -21,6 +21,7 @@ public:
 	double udotdOmega;
 	FourVector u;  // collective velocity
 	FourVector r; // position
+	FourVector qmu;
 	double tau,eta; // Bjorken tau and spatial rapidity
 	double pitilde[4][4]; // shear tensor
 	double Bn;

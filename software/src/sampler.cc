@@ -35,6 +35,8 @@ void Csampler::CalcLambda(){
 	double dIpptest=0.0,dp=4.0,p,e,lambdafact,mutot,I3;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
+    int nbc;
+    int imax;
 
     if (parmap->getB("BOSE_CORR",false)) {
         nbc=parmap->getI("N_BOSE_CORR",1);
@@ -66,7 +68,8 @@ void Csampler::CalcLambda(){
     			sign=1.0;
     			for(n=0;n<nmax;n+=1){
     				if(n>0) sign=-1.0;
-
+                }
+            }
 		}
 	}
 	if(mastersampler->SETMU0)
@@ -85,6 +88,15 @@ void Csampler::CalcLambdaF0(){
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
 	ires=0;
+    int imax;
+    double temp;
+    int nbc;
+
+    if (parmap->getB("BOSE_CORR",false)) {
+        nbc=parmap->getI("N_BOSE_CORR",1);
+    }
+    else nbc=1;
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
@@ -141,6 +153,13 @@ void Csampler::CalcLambdaF(){
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
 	ires=0;
+    int nbc;
+
+    if (parmap->getB("BOSE_CORR",false)) {
+        nbc=parmap->getI("N_BOSE_CORR",1);
+    }
+    else nbc=1;
+
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
@@ -503,10 +522,6 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		muS+=dmu[3];
 
 	}while(fabs(drho[0])>1.0E-3 || fabs(drho[1])>1.0E-5 || fabs(drho[2])>1.0E-5 || fabs(drho[3])>1.0E-5);
-<<<<<<< HEAD
-=======
-    //printf("epsilon=%lf target=%lf\trhoB=%lf target=%lf\trhoI=%lf target=%lf\trhoS=%lf target=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget);
->>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
 
 	xB=exp(muB);
 	xI=exp(0.5*muI);

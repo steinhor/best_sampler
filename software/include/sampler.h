@@ -22,7 +22,7 @@ public:
 	double nhadronsf0,epsilonf0,Pf0,lambdaf0;
 	vector<double> densityf0,epsilonf0i,Pf0i,lambdaf0i;
 	vector<double> pidensf0,pi0densf0;
-	//
+
 	vector<double> maxweight;
 	double GenerateThermalMass(CresInfo *resinfo);
 	void GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
@@ -46,7 +46,7 @@ public:
 	double totvol;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
-	CboseMap npidens0, npiP0, npiepsilon0;
+	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
 
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities
