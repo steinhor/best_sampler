@@ -6,42 +6,27 @@ int Csampler::MakeParts(Chyper *hyper){
     FourVector p;
     CresInfo *resinfo;
     double udotdOmega=hyper->udotdOmega; //Misc::DotProduct(hyper->u,hyper->dOmega);
-    double dN=0,dNtot=0,dNprime=0,xx=1.0,mutot=0,I3;
+    double dN,dNtot,dNprime,xx,mutot,I3;
+<<<<<<< HEAD
     double nptemp;
     Cpart *part;
-    double sum=0;
+=======
+    double T = hyper->T;
+>>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
     CresMassMap::iterator iter;
     //printf("nhadronsf0=%lf nhadronsf=%lf\n",nhadronsf0,nhadronsf);
     if(mastersampler->SETMU0)
         dNtot=dNprime=udotdOmega*nhadronsf0;
     else
         dNtot=dNprime=udotdOmega*nhadronsf;
-    /*
-    ires=0;
-    if(randy->test_threshold(dNtot)||true){
-        for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
-            resinfo=iter->second;
-            if(resinfo->code!=22){
-                if(mastersampler->SETMU0==true)
-                    xx=1.0;
-                else{
-                    I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-                    mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-                    xx=exp(mutot);
-                    //printf("mutot=%lf\n",mutot);
-                }
-                if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
-                else dN=densityf[ires]*udotdOmega*xx;
-                sum+=dN;
-                //printf("dN=%lf densityf[ires]=%lf udotdOmega=%lf ires=%d xx=%lf\n",dN,densityf[ires],udotdOmega,ires,xx);
-                ires++;
-            }
-        }
-    }
-    printf("dNtot=%lf\tsum=%lf\n",dNtot,sum);
-    */
-    //sum=0;
+    //printf("randy->threshold=%g, randy->netprob=%g, dNtot=%g\n",randy->threshold,randy->netprob,dNtot);
+<<<<<<< HEAD
     totvol+=udotdOmega;
+    printf("test 1\n");
+=======
+    //printf("%g,%g,%g,%g\n",dNtot,udotdOmega,nhadronsf,nhadronsf0);
+    totvol+=udotdOmega;
+>>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
     if(randy->test_threshold(dNtot)){
         ires=0;
         for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
@@ -54,31 +39,51 @@ int Csampler::MakeParts(Chyper *hyper){
                     mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
                     xx=exp(mutot);
                 }
+<<<<<<< HEAD
+                printf("test 2\n");
                 if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
                 else dN=densityf[ires]*udotdOmega*xx;
-                //sum+=dN;
                 randy->increment_netprob(dN);
                 dNprime-=dN;
                 nptemp=0;
+                printf("test 3\n");
                 while(randy->test_threshold(0.0)){
                     //printf("resinfo->code=%d\n",resinfo->code);
                     part=new Cpart();
+                    printf("test 5\n");
                     GetP(hyper,resinfo,part->p,part);
                     nparts++;
-                    //partmap->insert(pair<int,Cpart*>(nparts,part));
+                    printf("test 6\n");
+                    partmap->insert(pair<int,Cpart*>(nparts,part));
+                    printf("test 7\n");
                     pmap[resinfo->code].push_back(part);
                     //printf("part inserted!\n");
                     nptemp++;
+                    printf("test 8\n");
                     randy->increase_threshold();
                 }
-
+                printf("test 4\n");
+=======
+                //if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
+                dN=densityf[ires]*udotdOmega*xx;
+                randy->increment_netprob(dN);
+                dNprime-=dN;
+                double nptemp=0.0;
+                while(randy->test_threshold(0.0)){
+                    GetP(hyper,resinfo,p);
+                    nparts++;
+                    nptemp++;
+                    int code = resinfo->code;
+                    printf("T=%g\n",T);
+                    randy->increase_threshold();
+                }
+>>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
                 if (DensityMap.count(resinfo->code)==0) {
                     DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
                 }
                 else {
                     DensityMap[resinfo->code]+=nptemp;
                 }
-
                 if(!(randy->test_threshold(dNprime))){
                     randy->increment_netprob(dNprime);
                     goto NoMoreParts;
@@ -88,7 +93,6 @@ int Csampler::MakeParts(Chyper *hyper){
             //printf("resinfo: ires=%d code=%d mass=%lf\n",resinfo->ires, resinfo->code, resinfo->mass);
         }
     NoMoreParts:
-        //printf("dNtot=%lf\tsum=%lf\tdNprime=%lf\n",dNtot,sum,dNprime);
         return nparts;
     }
     else{
@@ -109,7 +113,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part){
     double m,delN,r[3],w[3],nhat[4]={0.0};
     double mw;
     mw=maxweight[resinfo->ires];
-    //printf("test 9\n");
+    printf("test 9\n");
     if(mw<0.0 || resinfo->width<0.001){
         m=resinfo->mass;
         randy->generate_boltzmann(m,Tf,pnoviscous);

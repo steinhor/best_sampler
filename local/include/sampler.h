@@ -22,7 +22,7 @@ public:
 	double nhadronsf0,epsilonf0,Pf0,lambdaf0;
 	vector<double> densityf0,epsilonf0i,Pf0i,lambdaf0i;
 	vector<double> pidensf0,pi0densf0;
-	//
+
 	vector<double> maxweight;
 	double GenerateThermalMass(CresInfo *resinfo);
 	void GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
@@ -41,11 +41,12 @@ public:
 
 	void CalcDensitiesF0();
 
+	map<int,vector<Cpart*>> pmap;
 	map<int,double> DensityMap;
 	double totvol;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
-	CboseMap npidens0, npiP0, npiepsilon0;
+	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
 
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities
@@ -73,7 +74,7 @@ public:
 	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget);
 	void GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 	int MakeParts(Chyper *hyper);
-	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p);
+	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part);
 
 	// Same as above with with rhoI != 0, I1 refers to |I_3|=1/2, I3 to 3/2...
 	void GetMuNH(double rhoBtarget,double rhoItarget,double &muB,double &muI,double &muS,double &nh); // Uses nh0_xxx, rhoB, rhoI and rhoS=0 to find muB/T, muI/T and muS/T, also finds total hadron density
