@@ -5,17 +5,13 @@
 
 
 
+
 void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
                                               double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
 
-    double kr,k,E0,rho,rho_0,gammas,n0,res_dens,weight,avg_weight,normal;
+    double E,E_S0,rho,rho_0,res_dens,weight,avg_weight,normal,N;
     double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
-    double gamma=0;
-    int N = 10;
-    // E_S0 are E' values where E'=E-resmass
-    double E_S0;
-    double E;
-
+    int Ncounter = 0;
     resmass=resinfo->mass;
     width=resinfo->width;
     minmass=resinfo->minmass;
@@ -264,18 +260,46 @@ void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,Cb
             dedtsum+=dedt*rho/rho_0;
             sum+=rho/rho_0;
         }
-    }
+=======
+    int Ncounter = 0;
+    resmass=resinfo->mass;
+    width=resinfo->width;
+    minmass=resinfo->minmass;
 
-        avg_weight=sum/N;
-        normal=1.0/avg_weight;
-        //if(resinfo->code==22214)
-        //{printf("%g\n",normal);}
-        epsilon=normal*esum/N;
-        P=normal*psum/N;
-        dens=normal*dsum/N;
-        //printf("line 142 --- %g\n",dens);
-        sigma2=normal*sigsum/N;
-        dedt=normal*dedtsum/N;
+    maxweight=0.0;
+    res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
+   // if(resinfo->code == 213) printf("EOS line 21 PID = %d\n",resinfo->code);
+    for (auto it = resinfo->spectmap.begin(); it != resinfo->spectmap.end(); it++) { 
+
+        E = (*it).first;
+        rho = (*it).second;
+        //if(resinfo->code == 213) printf("EOS E = %g, rho = %g\n",E,rho);
+        E_S0 = E - resmass;
+        rho_0 = (1/PI)*(width/2.0)/(0.25*width*width+E_S0*E_S0);
+        double corr = rho/rho_0;
+
+        freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,T,E,epsilon,P,dens,sigma2,dedt);
+        weight=rho*dens/(rho_0*res_dens);
+        if(weight>maxweight)  maxweight=weight;
+        esum+=epsilon*rho/rho_0;
+        psum+=P*rho/rho_0;
+        dsum+=dens*rho/rho_0;
+        sigsum+=sigma2*rho/rho_0;
+        dedtsum+=dedt*rho/rho_0;
+        sum+=rho/rho_0;
+        Ncounter++;
+>>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
+    }
+    
+    N=Ncounter;
+    avg_weight=sum/N;
+    normal=1.0/avg_weight;
+    epsilon=normal*esum/N;
+    P=normal*psum/N;
+    dens=normal*dsum/N;
+    sigma2=normal*sigsum/N;
+    dedt=normal*dedtsum/N;
+
 }
 
 void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
@@ -288,6 +312,12 @@ void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npie
     m4=m2*m2;
     //this whole if/else loop does all the bose correction checks
     if (resinfo->code==-211 || resinfo->code==211 || resinfo->code==111) {
+        /*
+        if (resinfo->code!=111) {
+            pion=true; //I know this is misleading but in this context we only want pion to be true for pions w/ isospin 2 (for CSampler::GetNH0)
+        }
+        else pion=false;
+        */
         pion=true;
         if (parmap->getB("BOSE_CORR",false)) {
             n=parmap->getI("N_BOSE_CORR",1);

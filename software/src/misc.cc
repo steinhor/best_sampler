@@ -828,6 +828,7 @@ int Misc::Sign(int a){
 	}
 }
 
+<<<<<<< HEAD
 void Misc::freegascalc_onespecies_finitewidth(double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
                                              double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
 
@@ -928,4 +929,6 @@ void Misc::freegascalc_onespecies(double T,double m,double &epsilon,double &P,do
 	}
 }
 
+=======
+>>>>>>> 6c5f0fd37a897bf428980355794663032a20c78d
 #endif

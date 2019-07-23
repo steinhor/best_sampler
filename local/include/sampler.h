@@ -41,6 +41,12 @@ public:
 
 	void CalcDensitiesF0();
 
+	map<int,double> DensityMap;
+	double totvol;
+
+	CboseMap npidens, npiP, npiepsilon, npidedt;
+	CboseMap npidens0, npiP0, npiepsilon0;
+
 	// Including Isospin (i refers to 2*I3)
 	// numberdensities
 	double nh0_b0i0s0,nh0_b0i2s0,nh0_b0i1s1;
@@ -80,7 +86,5 @@ public:
 	static CparameterMap *parmap;
 	static CmasterSampler *mastersampler;
 };
-
-
 
 #endif

@@ -77,10 +77,6 @@ namespace Misc{
 	bool file_exists( const char* file_name );
 	bool file_exists( const std::string& file_name );
 	double mod(double x, double y);
-	
-	void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
-	void freegascalc_onespecies_finitewidth(double T,double resmass, double m1, double m2, double width,double reswidth_alpha,double spin_deg,
-	double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight);
 };
 
 #endif
