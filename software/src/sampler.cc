@@ -429,7 +429,7 @@ void Csampler::GetTfMuNH(Chyper *hyper){
 	hyper->muB=muB;
 	hyper->muI=muI;
 	hyper->muS=muS;
-	printf("TEST: nhadronsf=%g\n",nhadronsf);
+	//printf("TEST: nhadronsf=%g\n",nhadronsf);
 	hyper->nhadrons=nhadronsf;
 }
 
@@ -482,7 +482,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		muS+=dmu[3];
 
 	}while(fabs(drho[0])>1.0E-3 || fabs(drho[1])>1.0E-5 || fabs(drho[2])>1.0E-5 || fabs(drho[3])>1.0E-5);
-    printf("epsilon=%lf target=%lf\trhoB=%lf target=%lf\trhoI=%lf target=%lf\trhoS=%lf target=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget);
+    //printf("epsilon=%lf target=%lf\trhoB=%lf target=%lf\trhoI=%lf target=%lf\trhoS=%lf target=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget);
 
 	xB=exp(muB);
 	xI=exp(0.5*muI);
@@ -724,7 +724,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
     double alpha=mastersampler->RESWIDTH_ALPHA;
     CmeanField *mf=mastersampler->meanfield;
     double decay=resinfo->decay;
-    //decay=false;
+    decay=false;
     if(decay){
         mass=mf->GetMass(resinfo,sigmaf);
         width=resinfo->width;
@@ -742,6 +742,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
             lor = (width/(2*PI))/(pow(width/2,2.0) + pow(mass-E,2.0));
             rho = lor;
             weight = rho*k2*E*E/(lor*k2mr*mass*mass*mw);
+            //if(weight > 1.00)  printf("PID=%d, maxweight=%g, weight=%g\n",resinfo->code,mw,weight);
             if (r2 < weight) success=true; // success
         }while(!success);
     }
@@ -857,7 +858,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 	CmeanField *mf=mastersampler->meanfield;
 	//
 	bool decay=resinfo->decay;
-	//decay=false;
+	decay=false;
 	//
 	degeni=resinfo->spin;
 	m=mf->GetMass(resinfo,sigmaf);
