@@ -434,11 +434,11 @@ void CresList::ReadResInfo(){
 
     		double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
         	double mb1,mb2,mb_pole,mb_0,mb_min,sum_mb,nb,mb_gamma,mb_width,Emb,Ema;
-                
+
         	double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma,rho_width,rho_width_0,spectsumb,spectsumb0,kr_ab,k_ab,s0;
-        	double mb_kr,mb_k,mb_rho,mb_rho0,sumb,spectsum,spectsum0;
-        	double avg_weight_mb,normal_mb,spectb,spectb0,avg_weight_ma,normal_ma,spect,spect0;		
-    
+        	double mb_kr,mb_k,mb_rho,mb_rho0,sumb,spectsum,spectsum0=0;
+        	double avg_weight_mb,normal_mb,spectb,spectb0,avg_weight_ma,normal_ma,spect,spect0=0;
+
     		// E0 = minmass if minmass declared already in resonance.cc
     		E0=m1+m2;
     		kr=sqrt(abs(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2))/(2.0*resmass);
@@ -512,18 +512,18 @@ void CresList::ReadResInfo(){
                                     		mb_gamma=mb_width*(mb_pole/mb)*((mb_k*mb_k*mb_k)/(mb_kr*mb_kr*mb_kr))*((mb_kr*mb_kr+HBARC*HBARC)/(mb_k*mb_k+HBARC*HBARC));
                                     		mb_rho=(2.0)/(mb_width*PI)*0.25*mb_gamma*mb_gamma/((0.25*mb_gamma*mb_gamma)+(mb_pole-mb)*(mb_pole-mb));
                                     		mb_rho0 = (1/PI)*(mb_width/2.0)/(0.25*mb_width*mb_width+mb_0*mb_0);
-                                    
+
                                     		kr_ab=sqrt(abs(pow((resmass*resmass-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*resmass);
                                     		k_ab=sqrt(abs(pow((E*E-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*E);
                                     		s0=ma+mb;
                                     		rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-resmass*resmass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+resmass*resmass)),2.0)));
                                     		rho_width_0=(kr_ab*kr_ab*kr_ab)/(resmass*(kr_ab*kr_ab+HBARC*HBARC));
-                                    
+
                                     		sumb+=mb_rho/mb_rho0;
                                     		spectsumb+=rho_width*mb_rho;
                                     		spectsumb0+=rho_width_0*mb_rho;
                                     		mb_counter++;
-                                		} 
+                                		}
                             		} // end of mb for loop
                             		if(mb_counter == 0) continue;
                             		avg_weight_mb=sumb/Nb;
@@ -541,7 +541,7 @@ void CresList::ReadResInfo(){
                             		s0=ma+mb;
                             		rho_width=(k_ab*k_ab*k_ab)/(E*(k_ab*k_ab+HBARC*HBARC))*((pow(form_lambda,4.0)+0.25*pow((s0-resmass*resmass),2.0))/(pow(form_lambda,4.0)+pow((E*E-0.5*(s0+resmass*resmass)),2.0)));
                            			rho_width_0=(kr_ab*kr_ab*kr_ab)/(resmass*(kr_ab*kr_ab+HBARC*HBARC));
-                            
+
                             		suma+=ma_rho/ma_rho0;
                             		spectsum+=rho_width*ma_rho/ma_rho0;
                            			spectsum0+=rho_width_0*ma_rho/ma_rho0;
@@ -553,14 +553,18 @@ void CresList::ReadResInfo(){
                 		avg_weight_ma=suma/Na;
                 		normal_ma=1.0/avg_weight_ma;
                 		spect=normal_ma*spectsum/Na;
-                		spect0=normal_ma*spectsum0/Na;
+                		spect0=1;
+						spect0=normal_ma*spectsum0/Na;
                 		gamma=reswidth*spect/spect0;
-            		} // end of if statement for decaying daughters 
+            		} // end of if statement for decaying daughters
             		else{
                 		k=sqrt(abs(pow((E*E-m1*m1-m2*m2),2.0)-(4.0*m1*m1*m2*m2)))/(2.0*E);
                 		if(spin_deg<1.001)
-                		{gamma=reswidth*(resmass/E)*(k/kr); }
-                		else {gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));}
+                		{gamma=reswidth*(resmass/E)*(k/kr);}
+                		else {
+							gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
+							//printf("gamma=%lf reswidth=%lf resmass=%lf E=%lf k=%lf kr=%lf HBARC=%lf\n",gamma,reswidth,resmass,E,k,kr,HBARC);
+						}
             		}
             		rho=(2.0)/(reswidth*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(resmass-E)*(resmass-E));
     				spectmap.insert(pair<double,double>(E,rho));
@@ -571,7 +575,7 @@ void CresList::ReadResInfo(){
     		if(antip) {aresinfo->spectmap = spectmap;}
 
     	}
-		
+
 	}
 	fclose(decayinfofile);
 
