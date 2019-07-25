@@ -25,7 +25,7 @@ public:
 
 	vector<double> maxweight;
 	double GenerateThermalMass(CresInfo *resinfo);
-	void GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
+	void GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
 
 	bool VISCOUSCORRECTIONS;
 	Csampler(double Tfset,double sigmafset); // Constructor

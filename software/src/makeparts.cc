@@ -16,47 +16,32 @@ int Csampler::MakeParts(Chyper *hyper){
         dNtot=dNprime=udotdOmega*nhadronsf0;
     else
         dNtot=dNprime=udotdOmega*nhadronsf;
-    /*
+
     ires=0;
-    if(randy->test_threshold(dNtot)||true){
-        for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
-            resinfo=iter->second;
-            if(resinfo->code!=22){
-                if(mastersampler->SETMU0==true)
-                    xx=1.0;
-                else{
-                    I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-                    mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-                    xx=exp(mutot);
-                    //printf("mutot=%lf\n",mutot);
-                }
-                if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
-                else dN=densityf[ires]*udotdOmega*xx;
-                sum+=dN;
-                //printf("dN=%lf densityf[ires]=%lf udotdOmega=%lf ires=%d xx=%lf\n",dN,densityf[ires],udotdOmega,ires,xx);
-                ires++;
-            }
+    for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
+        resinfo=iter->second;
+        if(resinfo->code!=22){
+            if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega;
+            else dN=densityf[ires]*udotdOmega;
+            sum+=dN;
+            //printf("dN=%lf densityf[ires]=%lf udotdOmega=%lf ires=%d xx=%lf resinfo->code=%d\n",dN,densityf[ires],udotdOmega,ires,xx,resinfo->code);
+            ires++;
         }
     }
-    printf("dNtot=%lf\tsum=%lf\n",dNtot,sum);
-    */
+    printf("dNtot=%lf\tsum=%lf\tmuB=%lf\tmuI=%lf\n",dNtot,sum,muB,muI);
+    //if (hyper->ihyp==0) printf("%lf\n",sum-dNtot);
+
     //sum=0;
     totvol+=udotdOmega;
     if(randy->test_threshold(dNtot)){
         ires=0;
         for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
             resinfo=iter->second;
-            if(resinfo->code!=22){
-                if(mastersampler->SETMU0==true)
-                    xx=1.0;
-                else{
-                    I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-                    mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-                    xx=exp(mutot);
-                }
-                if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega*xx;
-                else dN=densityf[ires]*udotdOmega*xx;
+            if(resinfo->code!=22) {
+                if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega;
+                else dN=densityf[ires]*udotdOmega;
                 //sum+=dN;
+                //printf("dNtot=%lf dN=%lf\n",dNtot,dN);
                 randy->increment_netprob(dN);
                 dNprime-=dN;
                 nptemp=0;
@@ -103,6 +88,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part){
     bool success=false,reflect;
     int nparts=0;
     double pdotdOmega,eta,y,nhatnorm,nhatdotp,wreflect;
+    double temp;
     FourVector dOmegaTilde,ptilde;
     int ispecies,alpha,beta,intweight,n,nsample;
     FourVector pnoviscous,u;
@@ -127,9 +113,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part){
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf);
                 else
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf);
-                    //printf("ptilde[alpha]=%lf\t",ptilde[alpha]);
             }
-            //printf("\n");
         }
         ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);
     }

@@ -18,7 +18,6 @@ Csampler::Csampler(double Tfset,double sigmafset){
 	Pf0i.resize(nres);
 	lambdaf0i.resize(nres);
 	maxweight.resize(nres);
-
 	CalcDensitiesF0();
 	CalcLambdaF0();
 	GetNH0();
@@ -42,7 +41,7 @@ void Csampler::CalcLambda(){
         nbc=parmap->getI("N_BOSE_CORR",1);
     }
     else nbc=1;
-
+    //printf("test 9\n");
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
@@ -56,13 +55,20 @@ void Csampler::CalcLambda(){
     			z=m*i/Tf;
     			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-muS*resinfo->strange);
     			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-
+                //printf("test 10\n");
     			G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
-    			for(int i=1;i<nmax+5;i++){
-    				n=5-2*i;
-    				if(n!=-1)	G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
-    				else G[i]=gsl_sf_gamma_inc(-1,z)*z;
+                //printf("test 12\n");
+    			for(int j=1;j<nmax+5;j++){
+    				n=5-2*j;
+    				if(n!=-1) {
+                        G[i]=(-exp(-z)/n)+(G[i-1]*z*z-z*exp(-z))/((n+1.0)*n);
+                    }
+    				else {
+                        //printf("z=%lf i=%d m=%lf Tf=%lf\n",z,i,m,Tf);
+                        G[j]=gsl_sf_gamma_inc(-1,z)*z;
+                    }
     			}
+                //printf("test 11\n");
     			J=0.0;
     			nfact=1.0;
     			sign=1.0;
@@ -208,7 +214,7 @@ void Csampler::GetNH0(){
     for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
         resinfo=rpos->second;
         if(resinfo->code!=22){
-            GetDensPMaxWeight(resinfo,0.0,densi,epsiloni,Pi,dedti,maxweighti);
+            GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,maxweighti);
             nhadronsf0+=densi;
 
             B=resinfo->baryon;
@@ -218,6 +224,7 @@ void Csampler::GetNH0(){
             B=abs(B);
             S=abs(S);
             II=abs(II);
+            //if (resinfo->code==223) printf("densi=%lf epsiloni=%lf dedti=%lf resinfo->code=%d\n",densi,epsiloni,dedti,resinfo->code);
 
             if(B==0 && II==0 && S==0){
                 nh0_b0i0s0+=densi;
@@ -477,7 +484,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 	// Here rhoI refers to rho_u-rho_d = 2*I3 and mu[1]=muI/2
     bool bose_corr=parmap->getB("BOSE_CORR",false);
     int n_bose_corr=parmap->getI("N_BOSE_CORR",1);
-	double epsilon,rhoB,rhoS,rhoI;
+	double epsilon=0,rhoB=0,rhoS=0,rhoI=0;
 	double xB,xI,xS,xxB,xxI,xxS;
 	double alpha=1.0;
 	int i;
@@ -493,18 +500,10 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		}
 		smb=sinh(muB);
 		cmb=cosh(muB);
-        //printf("T=%lf\n",Tf);
+        //printf("epsilon=%lf tar=%lf rhoB=%lf tar=%lf rhoI=%lf tar=%lf rhoS=%lf tar=%lf\nTf=%lf muB=%lf muI=%lf muS=%lf\n",
+        //        epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget,Tf,muB,muI,muS);
+
 		GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
-        /*
-        printf("A= \n");
-        for (int i=0;i<4;i++) {
-            for (int j=0;j<4;j++) {
-                printf("%lf ",A(i,j));
-            }
-            printf("\n");
-        }
-        printf("\n");
-        */
 		for(i=0;i<4;i++){
 			A(i,1)=A(i,1)/cmb;
 			//A(i,0)=A(i,0)/(alpha*pow(Tf,alpha-1.0));
@@ -522,6 +521,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		muS+=dmu[3];
 
 	}while(fabs(drho[0])>1.0E-3 || fabs(drho[1])>1.0E-5 || fabs(drho[2])>1.0E-5 || fabs(drho[3])>1.0E-5);
+    //printf("epsilon=%lf tar=%lf rhoB=%lf tar=%lf rhoI=%lf tar=%lf rhoS=%lf tar=%lf\nTf=%lf muB=%lf muI=%lf muS=%lf\n",epsilon,epsilontarget,rhoB,rhoBtarget,rhoI,rhoItarget,rhoS,rhoStarget,Tf,muB,muI,muS);
 	xB=exp(muB);
 	xI=exp(0.5*muI);
 	xS=exp(muS);
@@ -745,19 +745,30 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 	A(3,1)=drhoS_dmuB;
 	A(3,2)=0.5*drhoS_dmuI;
 	A(3,3)=drhoS_dmuS;
+    /*
+	printf("------------------- A(i,j) -------------\n");
+	cout << A << endl;
+	printf("----------------------------------------------\n");
 
-	//printf("------------------- A(i,j) -------------\n");
-	//cout << A << endl;
-	//printf("----------------------------------------------\n");
+    printf("xB=%lf xI=%lf xS=%lf\n\n",xB,xI,xS);
+    printf("nh0_b0i0s0=%lf,nh0_b0i2s0=%lf,nh0_b0i1s1=%lf,nh0_b1i0s1=%lf,nh0_b1i0s3=%lf,\nnh0_b1i1s0=%lf,nh0_b1i1s2=%lf,nh0_b1i2s1=%lf,nh0_b1i3s0=%lf,nh0_b2i0s0=%lf\n\n",
+            nh0_b0i0s0,nh0_b0i2s0,nh0_b0i1s1,nh0_b1i0s1,nh0_b1i0s3,nh0_b1i1s0,nh0_b1i1s2,nh0_b1i2s1,nh0_b1i3s0,nh0_b2i0s0);
+    printf("eh0_b0i0s0=%lf,eh0_b0i2s0=%lf,eh0_b0i1s1=%lf,eh0_b1i0s1=%lf,eh0_b1i0s3=%lf,\neh0_b1i1s0=%lf,eh0_b1i1s2=%lf,eh0_b1i2s1=%lf,eh0_b1i3s0=%lf,eh0_b2i0s0=%lf\n\n",
+            eh0_b0i0s0,eh0_b0i2s0,eh0_b0i1s1,eh0_b1i0s1,eh0_b1i0s3,eh0_b1i1s0,eh0_b1i1s2,eh0_b1i2s1,eh0_b1i3s0,eh0_b2i0s0);
+    printf("dedth0_b0i0s0=%lf,dedth0_b0i2s0=%lf,dedth0_b0i1s1=%lf,dedth0_b1i0s1=%lf,dedth0_b1i0s3=%lf,\ndedth0_b1i1s0=%lf,dedth0_b1i1s2=%lf,dedth0_b1i2s1=%lf,dedth0_b1i3s0=%lf,dedth0_b2i0s0=%lf\n\n",
+            dedth0_b0i0s0,dedth0_b0i2s0,dedth0_b0i1s1,dedth0_b1i0s1,dedth0_b1i0s3,dedth0_b1i1s0,dedth0_b1i1s2,dedth0_b1i2s1,dedth0_b1i3s0,dedth0_b2i0s0);
+
+    if (A(0,0)>1000||A(0,0)<-1000) {
+        exit(1);
+    }
+    */
+
 }
 
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
     double mw;
     int nfail=0,nfailmax=1000;
-    if(mastersampler->SETMU0)
-        mw=maxweight[resinfo->ires];
-    else
-        mw=maxweight[resinfo->ires];
+    mw=maxweight[resinfo->ires];
     double E,m1,m2,kr,k2mr,r1,r2,k,gamma,rho,lor,k2,weight,mass,width;
     bool success;
     double alpha=mastersampler->RESWIDTH_ALPHA;
@@ -816,7 +827,7 @@ void Csampler::CalcDensitiesF0(){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
 			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-			GetDensPMaxWeight(resinfo,0.0,densi,epsiloni,Pi,dedti,maxweighti);
+			GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,maxweighti);
 			densityf0[ires]=densi;
             epsilonf0i[ires]=epsiloni;
 			Pf0i[ires]=Pi;
@@ -834,6 +845,7 @@ void Csampler::CalcDensitiesF0(){
 			rhoScalc+=densi*resinfo->strange;
 			maxweight[ires]=maxweighti;
 			nhadronsf0+=densityf0[ires];
+            //printf("densityf0[%d]=%lf\n",ires,densityf0[ires]);
 			epsilonf0+=epsiloni;
 			Pf0+=Pi;
 			ires+=1;
@@ -861,7 +873,7 @@ void Csampler::CalcDensitiesF(){
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
-			GetDensPMaxWeight(resinfo,0.0,densi,epsiloni,Pi,dedti,maxweighti);
+			GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,maxweighti);
 			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 			mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
 			xx=exp(mutot);
@@ -891,7 +903,7 @@ void Csampler::CalcDensitiesF(){
 	}
 }
 
-void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti){
+void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti){
 	double degeni,width,m,minmass,m1,m2,mratio=1.0,sigma2i,dm;
 	double ddensi,eepsiloni,PPi,xx;
 	int n;
@@ -922,9 +934,4 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double mutot,double &densi,do
 		EOS::freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,epsiloni,Pi,densi,sigma2i,dedti);
 		maxweighti=1.0;
 	}
-	xx=exp(mutot);
-	densi*=degeni*xx;
-	Pi*=degeni*xx;
-	epsiloni*=degeni*xx;
-	dedti*=degeni*xx;
 }
