@@ -798,6 +798,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
             lor = (width/(2*PI))/(pow(width/2,2.0) + pow(mass-E,2.0));
             rho = lor;
             weight = rho*k2*E*E/(lor*k2mr*mass*mass*mw);
+            // weight > 1.00 (but < 1.05) for very small percentage of masses because of approximation in calculating rho
             //if(weight > 1.00)  printf("PID=%d, maxweight=%g, weight=%g\n",resinfo->code,mw,weight);
             if (r2 < weight) success=true; // success
             else nfail+=1;
