@@ -27,11 +27,11 @@ Csampler::~Csampler(){
 }
 
 void Csampler::CalcLambda(){
-	int iQ,n,i;
+	int n;
 	const int nmax=70;
 	double G[nmax+5];
-	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
-	double dIpptest=0.0,dp=4.0,p,e,lambdafact,mutot,I3;
+	double m,degen,z,Ipp=0.0,dIpp,J,nfact,sign;
+	double dp=4.0,p,e,lambdafact,mutot,I3;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
     int nbc;
@@ -74,8 +74,14 @@ void Csampler::CalcLambda(){
     			sign=1.0;
     			for(n=0;n<nmax;n+=1){
     				if(n>0) sign=-1.0;
+                    J+=sign*nfact*(G[n]-2.0*G[n+1]+G[n+2]);
+    				nfact=nfact*0.5/(n+1.0);
+    				if(n>0) nfact*=(2.0*n-1.0);
                 }
+                dIpp+=degen*exp(i*mutot)*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
             }
+            dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
+            Ipp+=dIpp;
 		}
 	}
 	if(mastersampler->SETMU0)
@@ -86,7 +92,7 @@ void Csampler::CalcLambda(){
 }
 
 void Csampler::CalcLambdaF0(){
-	int iQ,n,i,ires;
+	int n,i,ires;
 	const int nmax=70;
 	double G[nmax+5];
 	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
@@ -151,7 +157,7 @@ void Csampler::CalcLambdaF0(){
 }
 
 void Csampler::CalcLambdaF(){
-	int iQ,n,ires;
+	int n,ires;
 	const int nmax=70;
 	double G[nmax+5];
 	double m,degen,z,Ipp=0.0,Ipptest=0.0,dIpp,Ptest=0.0,J,nfact,sign;
