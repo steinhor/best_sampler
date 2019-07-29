@@ -44,6 +44,7 @@ public:
 	map<int,vector<Cpart*>> pmap;
 	map<int,double> DensityMap;
 	double totvol;
+	map<double,double> dpmap;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;

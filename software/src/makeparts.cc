@@ -3,13 +3,14 @@ using namespace std;
 
 int Csampler::MakeParts(Chyper *hyper){
     int nparts=0,ires;
-    FourVector p;
     CresInfo *resinfo;
     double udotdOmega=hyper->udotdOmega; //Misc::DotProduct(hyper->u,hyper->dOmega);
     double dN=0,dNtot=0,dNprime=0,xx=1.0,mutot=0,I3;
     double nptemp;
     Cpart *part;
     double sum=0;
+    double ndp=100;
+    double p,pbound=4.5;
     CresMassMap::iterator iter;
     //printf("nhadronsf0=%lf nhadronsf=%lf\n",nhadronsf0,nhadronsf);
     if(mastersampler->SETMU0)
@@ -28,7 +29,7 @@ int Csampler::MakeParts(Chyper *hyper){
             ires++;
         }
     }
-    printf("dNtot=%lf\tsum=%lf\tmuB=%lf\tmuI=%lf\n",dNtot,sum,muB,muI);
+    //printf("dNtot=%lf\tsum=%lf\tmuB=%lf\tmuI=%lf\n",dNtot,sum,muB,muI);
     //if (hyper->ihyp==0) printf("%lf\n",sum-dNtot);
 
     //sum=0;
@@ -40,20 +41,28 @@ int Csampler::MakeParts(Chyper *hyper){
             if(resinfo->code!=22) {
                 if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega;
                 else dN=densityf[ires]*udotdOmega;
-                //sum+=dN;
-                //printf("dNtot=%lf dN=%lf\n",dNtot,dN);
+
                 randy->increment_netprob(dN);
                 dNprime-=dN;
                 nptemp=0;
                 while(randy->test_threshold(0.0)){
-                    //printf("resinfo->code=%d\n",resinfo->code);
                     part=new Cpart();
                     GetP(hyper,resinfo,part->p,part);
                     nparts++;
-                    //partmap->insert(pair<int,Cpart*>(nparts,part));
-                    pmap[resinfo->code].push_back(part);
-                    //printf("part inserted!\n");
                     nptemp++;
+                    pmap[resinfo->code].push_back(part);
+                    p=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]);
+
+                    if (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) {
+                    	for (double i=0;i<=pbound;i+=pbound/double(ndp)) {
+                    		if (p>=i && p<(i+pbound/ndp)) {
+                                if (dpmap.count(i+pbound/(2*ndp))==0) dpmap.insert(pair<double,double>(i+pbound/(2*ndp),(2*PI*PI*HBARC*HBARC*HBARC)/(p*p)));
+                                else dpmap[i+pbound/(2*ndp)]+=1/(p*p);
+                                break;
+                            }
+                    	}
+                    }
+
                     randy->increase_threshold();
                 }
 
@@ -110,9 +119,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part){
             ptilde[alpha]=pnoviscous[alpha];
             for(beta=1;beta<4;beta++){
                 if(mastersampler->SETMU0)
-                    ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf);
+                    ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf*(2*PI));
                 else
-                    ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf);
+                    ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf*(2*PI));
             }
         }
         ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);

@@ -882,15 +882,16 @@ void Csampler::CalcDensitiesF(){
                 densi=0;
                 for (int i=0;i<parmap->getI("N_BOSE_CORR",1);i++) {
                     densi+=npidens[resinfo->code][i]*exp(mutot*(i+1));
-                    epsilonf+=npiepsilon0[resinfo->code][i]*exp(mutot*(i+1));
-                    Pf+=npiP0[resinfo->code][i]*exp(mutot*(i+1));
+                    epsilonf+=npiepsilon[resinfo->code][i]*exp(mutot*(i+1));
+                    Pf+=npiP[resinfo->code][i]*exp(mutot*(i+1));
                 }
             }
             else {
                 densi=densi*xx;
-                epsilonf+=epsilonf0i[ires]*xx;
-                Pf+=Pf0i[ires]*xx;
+                epsilonf+=epsiloni*xx;
+                Pf+=Pi*xx;//Pf0i[ires]*xx;
             }
+            //printf("Pf=%lf change=%lf code=%d xx=%lf\n",Pf,Pi,resinfo->code,xx);
             //densityf[ires]=densi=densityf0[ires]*xx;
             densityf[ires]=densi;
             //printf("densi=%g\n",densi);
