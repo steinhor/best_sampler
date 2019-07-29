@@ -730,12 +730,15 @@ void Csampler::GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rho
 }
 
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
-    double mw=maxweight[resinfo->ires],decay=resinfo->decay;
+    double mw;
     int nfail=0,nfailmax=1000;
-    double E,k2mr,r1,gamma,rho,lor,k2,weight,mass,width;
+    mw=maxweight[resinfo->ires];
+    double E,m1,m2,kr,k2mr,r1,r2,k,gamma,rho,lor,k2,weight,mass,width;
     bool success;
-    //decay=false;
-
+    double alpha=mastersampler->RESWIDTH_ALPHA;
+    CmeanField *mf=mastersampler->meanfield;
+    double decay=resinfo->decay;
+    decay=false;
     if(decay){
         mass=mf->GetMass(resinfo,sigmaf);
         width=resinfo->width;
@@ -746,14 +749,13 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
             r2 = randy->ran(); // between [0, 1]
             E = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
             if ((E < resinfo->minmass) ) continue;
-            k2 = gsl_sf_bessel_Kn(2,(E/Tf));
+            k2 = gsl_sf_bessel_Kn(2,(E/Tf)); // K2 value
             auto it = resinfo->spectmap.lower_bound(E);
             rho = (*it).second;
             lor = (width/(2*PI))/(pow(width/2,2.0) + pow(mass-E,2.0));
             rho = lor;
             weight = rho*k2*E*E/(lor*k2mr*mass*mass*mw);
-            // weight > 1.00 (but < 1.05) for very small percentage of masses because of approximation in calculating rho
-            if (r2 < weight) success=true;
+            if (r2 < weight) success=true; // success
             else nfail+=1;
         }while(!success && nfail<nfailmax);
     }
