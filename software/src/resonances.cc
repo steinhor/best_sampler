@@ -419,12 +419,6 @@
 
 	        // filling spectral function maps for resonance particles
 			if(resinfo->decay){
-				double kr,k,E0,rho,avg_weight,normal,Sum_E,E_S0,E;
-				double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
-				double gamma=0;
-				int N = 100,Na=100,Nb=100;
-				int ma_counter,mb_counter;
-					// E_S0 are E' values where E'=E-resmass
 				double resmass=resinfo->mass;
 				double reswidth=resinfo->width;
 				double minmass=resinfo->minmass;
@@ -432,17 +426,22 @@
 				double m2=resinfo->branchlist[0]->resinfo[1]->mass;
 				double spin_deg=resinfo->spin;
 
-	    		double ma,mb,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,na,ma_gamma,ma_width;
-	        	double mb1,mb2,mb_pole,mb_0,mb_min,sum_mb,nb,mb_gamma,mb_width,Emb,Ema;
-
-	        	double form_lambda,ma_kr,ma_k,ma_rho,ma_rho0,suma=0.0,rho_width,rho_width_0,spectsumb=0.0,spectsumb0=0.0,kr_ab,k_ab,s0;
-	        	double mb_kr,mb_k,mb_rho,mb_rho0,sumb=0.0,spectsum=0.0,spectsum0=0.0;
-	        	double avg_weight_mb,normal_mb,spectb,spectb0,avg_weight_ma,normal_ma,spect,spect0;
-
-	    		// E0 = minmass if minmass declared already in resonance.cc
-	    		E0=m1+m2;
-	    		kr=sqrt(abs(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2))/(2.0*resmass);
+				double kr=sqrt(abs(pow((resmass*resmass-m1*m1-m2*m2),2.0)-4.0*m1*m1*m2*m2))/(2.0*resmass);
 	    		map<double,double> spectmap;
+
+				double k,Sum_E,E_S0,E,rho;
+				double gamma=0;
+				int N = 100,Na=100,Nb=100;
+				int ma_counter,mb_counter;
+
+				// ma loop variables 
+	    		double ma,ma1,ma2,ma_pole,ma_0,ma_min,sum_ma,ma_gamma,ma_width,Ema;
+	    		double ma_kr,ma_k,ma_rho,ma_rho0,suma=0.0,spectsum=0.0,spectsum0=0.0,avg_weight_ma,normal_ma;
+	    		// mb loop variables
+	        	double mb,mb1,mb2,mb_pole,mb_0,mb_min,sum_mb,mb_gamma,mb_width,Emb;
+	        	double mb_kr,mb_k,mb_rho,mb_rho0,sumb=0.0,spectsumb=0.0,spectsumb0=0.0,avg_weight_mb,normal_mb,spectb,spectb0;
+	        	// spectral function calc inside of loops variables
+				double form_lambda,kr_ab,k_ab,s0,rho_width,rho_width_0,spect,spect0;
 
 	    		for(int n=0;n<N;n++){
 	        		Sum_E=(double(n)+0.5)/double(N);
@@ -479,7 +478,7 @@
 	                    		ma1=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[0]->mass;
 	                    		ma2=resinfo->branchlist[0]->resinfo[1]->branchlist[0]->resinfo[1]->mass;
 	                    		Emb = E - mb;
-	                    		if(m1==776 && m2==138) { form_lambda=0.8; }
+	                    		if(m1==138 && m2==776) { form_lambda=0.8; }
 	                    		else if(resinfo->branchlist[0]->resinfo[0]->decay) { form_lambda=0.6; }
 	                    		else if(resinfo->branchlist[0]->resinfo[1]->baryon==0) { form_lambda=1.6; }
 	                    		else {form_lambda=2.0;}
@@ -559,11 +558,8 @@
 	            		else{
 	                		k=sqrt(abs(pow((E*E-m1*m1-m2*m2),2.0)-(4.0*m1*m1*m2*m2)))/(2.0*E);
 	                		if(spin_deg<1.001)
-	                		{gamma=reswidth*(resmass/E)*(k/kr);}
-	                		else {
-								gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
-								//printf("gamma=%lf reswidth=%lf resmass=%lf E=%lf k=%lf kr=%lf HBARC=%lf\n",gamma,reswidth,resmass,E,k,kr,HBARC);
-							}
+	                			 { gamma=reswidth*(resmass/E)*(k/kr);}
+	                		else { gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC)); }
 	            		}
 	            		rho=(2.0)/(reswidth*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(resmass-E)*(resmass-E));
 	    				spectmap.insert(pair<double,double>(E,rho));
