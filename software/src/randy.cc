@@ -78,6 +78,7 @@ void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
     p[1]=pmag*stheta*cos(phi);
     p[2]=pmag*stheta*sin(phi);
     p[0]=E;
+    //printf("p0=%lf\t",p[0]);
 }
 
 void Crandy::generate_boltzmann(double mass,double T,FourVector &p){

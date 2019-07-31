@@ -864,7 +864,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsilon
 			dm=mf->GetMass(resinfo->branchlist[0]->resinfo[n],sigmaf);
 			m2+=dm;
 		}
-        EOS::freegascalc_onespecies_finitewidth(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,m1,m2,width,RESWIDTH_ALPHA,degen,minmass,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
+        EOS::freegascalc_onespecies_finitewidth(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,m1,m2,RESWIDTH_ALPHA,epsiloni,Pi,densi,sigma2i,dedti,maxweighti);
     }
 	else{
 		EOS::freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,Tf,m,epsiloni,Pi,densi,sigma2i,dedti);

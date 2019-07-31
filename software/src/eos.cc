@@ -2,15 +2,14 @@
 #define __EOS_CC
 #include "eos.h"
 
-void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass, double m1, double m2, double width, double reswidth_alpha,double spin_deg,
-                                              double minmass,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
+void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass,double m1, double m2, double reswidth_alpha,
+                                              double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
 
     double E,E_S0,rho,rho_0,res_dens,weight,avg_weight,normal,N;
     double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
     int Ncounter = 0;
-    resmass=resinfo->mass;
-    width=resinfo->width;
-    minmass=resinfo->minmass;
+    double width=resinfo->width;
+    double minmass=resinfo->minmass;
     maxweight=0.0;
     res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
 
@@ -19,8 +18,6 @@ void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,Cb
         rho = (*it).second;
         E_S0 = E - resmass;
         rho_0 = (1/PI)*(width/2.0)/(0.25*width*width+E_S0*E_S0);
-        double corr = rho/rho_0;
-
         freegascalc_onespecies(npidens,npiP,npiepsilon,npidedt,parmap,resinfo,T,E,epsilon,P,dens,sigma2,dedt);
         weight=rho*dens/(rho_0*res_dens);
         if(weight>maxweight)  maxweight=weight;
@@ -53,12 +50,6 @@ void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npie
     m4=m2*m2;
     //this whole if/else loop does all the bose correction checks
     if (resinfo->code==-211 || resinfo->code==211 || resinfo->code==111) {
-        /*
-        if (resinfo->code!=111) {
-            pion=true; //I know this is misleading but in this context we only want pion to be true for pions w/ isospin 2 (for CSampler::GetNH0)
-        }
-        else pion=false;
-        */
         pion=true;
         if (parmap->getB("BOSE_CORR",false)) {
             n=parmap->getI("N_BOSE_CORR",1);

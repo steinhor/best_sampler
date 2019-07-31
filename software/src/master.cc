@@ -33,6 +33,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	for(it=0;it<NTF;it++){
 		sampler[it].resize(NSIGMAF);
 		for(isigma=0;isigma<NSIGMAF;isigma++){
+			//printf("it=%d TFmin=%lf DELTF=%lf TFmin+(it+0.5)*DELTF=%lf\n",it,TFmin,DELTF,TFmin+(it+0.5)*DELTF);
 			sampler[it][isigma]=new Csampler(TFmin+(it+0.5)*DELTF,SIGMAFmin+isigma*DELSIGMAF);
 		}
 	}
@@ -154,47 +155,28 @@ void CmasterSampler::CalcPiFromParts(){
 void CmasterSampler::ReadHyper2D(){
 	string filename;
 	Chyper *elem;
-	double dumbo,udotn,PIbulk;
-	double u0,ux,uy,x,y,udotdOmega,dOmega0,dOmegaX,dOmegaY,dOmegaMax,pitildexx,pitildeyy,pitildexy,tau,epsilonf;
-	int alpha,beta;
-	double sigma,PI;
-	int ielement,initarraysize=1000;
-	char dummy[300];
+	double PIbulk;
+	int ielement=0;
+	double u0,ux,uy,x,y,udotdOmega,dOmega0,dOmegaX,dOmegaY,pitildexx,pitildeyy,pitildexy,tau,epsilonf;
 	double eta,dOmegaZ,uz,Edec,Tdec,muB,muS,muC,Pdec;
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
-	double nproton=parmap->getD("N_PROTON",0.4);
 
-	//element.clear();
 	nelements=0;
-	//b3d->TotalVolume=0.0;
 	filename=parmap->getS("HYPER_INFO_FILE",string("../local/include/surface_2D.dat"));
 	printf("opening %s\n",filename.c_str());
 	FILE *fptr=fopen(filename.c_str(),"rb");
 
-	ielement=0;
 	double TotalVolume=0.0;
 
-	int n=0;
 	while(!feof(fptr)){
 		elem=new Chyper();
 		elem->ihyp=ielement;
-		//if(element.size()==ielement) element.resize(element.size()+initarraysize);
 
 		//read from binary file
 		float array[34];
 		fread(array, sizeof(array),1,fptr);
-		/*
-		for (int i = 0; i < 34; i++) {
-			float temp = 0.;
-			fptr.read((char*)&temp, sizeof(float));
-			array[i] = temp;
-		}
-		*/
-
-		//elem=&element[ielement];
-		//elem->T=b3d->parmap.getD("FREEZEOUT_TEMP",0.155);
 
 		tau = array[0];
 		x = array[1];
@@ -237,23 +219,7 @@ void CmasterSampler::ReadHyper2D(){
 
 		udotdOmega=tau*(u0*dOmega0+ux*dOmegaX+uy*dOmegaY+uz*dOmegaZ);
 
-		/* OLD LINES FOR READING DATA
-		fscanf(fptr,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&tau,&x,&y,&ux,&uy,&dOmega0,&dOmegaX,&dOmegaY,&udotdOmega,&dOmegaMax,
-		&pitildexx,&pitildeyy,&pitildexy);
-		u0=sqrt(1.0+ux*ux+uy*uy);
-		*/
-
-		//printf("udotdOmega=%g =? %g\n",udotdOmega,u0*dOmega0+ux*dOmegaX+uy*dOmegaY);
-
-		if(udotdOmega<0.0){
-			/*
-			printf("udotdOmega<0!!!\n");
-			printf("ielement=%d, u=(%lf,%lf,%lf,%lf), dOmega=(%lf,%lf,%lf,%lf)\n",ielement, u0, ux, uy, uz, dOmega0, dOmegaX, dOmegaY, dOmegaZ);
-			//exit(1);
-			*/
-			n++;
-		}
-		else {
+		if(!(udotdOmega<0.0)) {
 			elem->tau=tau;
 			elem->dOmega[0]=dOmega0; //*2.0*b3d->ETAMAX;
 			elem->dOmega[1]=dOmegaX; //*2.0*b3d->ETAMAX;
@@ -272,7 +238,6 @@ void CmasterSampler::ReadHyper2D(){
 			elem->muB=muB;
 			elem->muS=muS;
 
-			//elem->CalcOmegaMax();
 			elem->pitilde[0][0]=pitilde00;
 			elem->pitilde[1][1]=pitildexx;
 			elem->pitilde[2][2]=pitildeyy;
@@ -284,13 +249,9 @@ void CmasterSampler::ReadHyper2D(){
 			elem->pitilde[0][2]=elem->pitilde[2][0]=pitilde0y;
 			elem->pitilde[0][3]=elem->pitilde[3][0]=pitilde0z;
 			elem->epsilon=epsilonf;
-			//elem->density=&densityf;
-			elem->T=Tdec; //was Tf
-			//elem->P=Pdec; //was Pf
-			//elem->lambda=lambdaf;
+			elem->T=Tdec;
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
-			//elem->rhoI=0.5*(nproton-(1-nproton));
 
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;
@@ -304,5 +265,5 @@ void CmasterSampler::ReadHyper2D(){
 		}
 	}
 	nelements=ielement;
-	printf("Exiting ReadHyper2D() happily, TotalVolume=%lf, nelements=%d, n=%d\n",TotalVolume,nelements,n);
+	printf("Exiting ReadHyper2D() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
 }

@@ -16,12 +16,10 @@ public:
 	double muB,muI,muS;
 	double nhadronsf,epsilonf,Pf;
 	vector<double> densityf;
-	vector<double>piplusdensf,piminusdensf,pi0densf;
 	double lambdaf; // Functions of T & sigma used for viscous corrections
 	// Same but with mu=0
 	double nhadronsf0,epsilonf0,Pf0,lambdaf0;
 	vector<double> densityf0,epsilonf0i,Pf0i,lambdaf0i;
-	vector<double> pidensf0,pi0densf0;
 
 	vector<double> maxweight;
 	double GenerateThermalMass(CresInfo *resinfo);
@@ -38,12 +36,12 @@ public:
 	void CalcLambdaF(); //  calculates lambda with mu !=0
 
 	void CalcDensitiesF();
-
 	void CalcDensitiesF0();
 
 	map<int,vector<Cpart*>> pmap;
 	map<int,double> DensityMap;
 	double totvol;
+	vector<double> dN_dp_p2;
 	map<double,double> dpmap;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
@@ -75,7 +73,7 @@ public:
 	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget);
 	void GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 	int MakeParts(Chyper *hyper);
-	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part);
+	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part,double T);
 
 	// Same as above with with rhoI != 0, I1 refers to |I_3|=1/2, I3 to 3/2...
 	void GetMuNH(double rhoBtarget,double rhoItarget,double &muB,double &muI,double &muS,double &nh); // Uses nh0_xxx, rhoB, rhoI and rhoS=0 to find muB/T, muI/T and muS/T, also finds total hadron density
