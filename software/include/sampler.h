@@ -30,7 +30,6 @@ public:
 	~Csampler();
 	void GetPars(CparameterMap *parmapset);
 	CpartMap *partmap;
-	double ETAMAX; // |maximum |spatial rapidity|
 	void CalcLambda(); // Deprecated
 	void CalcLambdaF0(); // Calculates lambda which is used for viscous corrections with mu=0
 	void CalcLambdaF(); //  calculates lambda with mu !=0
@@ -38,17 +37,14 @@ public:
 	void CalcDensitiesF();
 	void CalcDensitiesF0();
 
-	map<int,vector<Cpart*>> pmap;
 	map<int,double> DensityMap;
 	double totvol;
-	vector<double> dN_dp_p2;
-	map<double,double> dpmap;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
 
 	// Including Isospin (i refers to 2*I3)
-	// numberdensities
+	// number densities
 	double nh0_b0i0s0,nh0_b0i2s0,nh0_b0i1s1;
 	double nh0_b1i0s1,nh0_b1i0s3;
 	double nh0_b1i1s0,nh0_b1i1s2;
@@ -78,8 +74,6 @@ public:
 	// Same as above with with rhoI != 0, I1 refers to |I_3|=1/2, I3 to 3/2...
 	void GetMuNH(double rhoBtarget,double rhoItarget,double &muB,double &muI,double &muS,double &nh); // Uses nh0_xxx, rhoB, rhoI and rhoS=0 to find muB/T, muI/T and muS/T, also finds total hadron density
 	double RESWIDTH_ALPHA;
-	bool RESONANCE_DECAYS;
-	bool USEPOLEMASS;
 
 	static Crandy *randy;
 	static CresList *reslist;
