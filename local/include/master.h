@@ -26,7 +26,8 @@ public:
 	Crandy *randy;
 	double TFmin,TFmax;
 	double SIGMAFmin,SIGMAFmax;
-	int NTF,NSIGMAF,DELTF,DELSIGMAF;
+	int NTF,NSIGMAF;
+	double DELTF,DELSIGMAF;
 	bool VISCOUSCORRECTIONS,SETMU0;
 	double RESWIDTH_ALPHA;
 	double YMAX; // only for 2D sampler
