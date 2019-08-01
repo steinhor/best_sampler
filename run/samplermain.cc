@@ -24,7 +24,6 @@ int main(int argc, char *argv[]){
 	Eigen::VectorXd rho(4),rho1(4),rho2(4);
 	double rhoB,rhoI,rhoS,epsilon;
 
-	//This is Scott's, I don't know what it's for.
 	/*****************************************************************************************
 	// For testing---
 	double Tf=120.0;
@@ -56,73 +55,11 @@ int main(int argc, char *argv[]){
 	//exit(1);
 	****************************************************************************************/
 
-	//Test whether the densities of particles produced in MakeParts match the expected densities.
+	//Test densities with single hyper-element
 	/****************************************************************************************/
 	int nparts=0;
-	int temp;
-	int n=0;
-	double avg_rhoI=0.0;
-	double real_rhoI=0.0;
-	list<Chyper *>::iterator it;
-	map<int,double>::iterator itr;
-	map<int,double> MasterDensityMap;
-	double totvol=0.0;
-
-	for (int i=0;i<100;i++) { //for each sampler
-		if (i!=0) {
-			sampler=new Csampler(0.150,0.0930);
-			sampler->partmap=new CpartMap;
-		}
-		sampler->totvol=0.0;
-		for (it=ms.hyperlist.begin();it!=ms.hyperlist.end();it++) { //for each hyper element
-			hyper=*it;
-			if (it==ms.hyperlist.begin()) sampler->GetTfMuNH(hyper);
-			temp=sampler->MakeParts(hyper);
-			nparts+=temp;
-			n++;
-		}
-		//update master data
-		totvol+=sampler->totvol;
-		for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
-			int code=itr->first;
-			double dens=itr->second;
-			if (MasterDensityMap.count(code)==0) {
-				MasterDensityMap.insert(pair<int,double>(code,dens));
-			}
-			else MasterDensityMap[code]+=dens;
-		}
-	}
-
-	printf("code:\tDensityMap:\tdensityf:\n");
-	for (itr=MasterDensityMap.begin();itr!=MasterDensityMap.end();itr++) {
-		int code=itr->first;
-		double dens=itr->second;
-		dens=dens/totvol;
-
-		CresInfo *resinfo=sampler->reslist->GetResInfoPtr(code);
-		//double I=2*resinfo->charge-resinfo->baryon-resinfo->strange;
-		//real_rhoI+=I*dens;
-
-		printf("%d\t%lf\t%lf\n",code,dens,sampler->densityf[resinfo->ires]);
-	}
-	//printf("avg_rhoI=%lf\t real_rhoI=%lf\n",avg_rhoI,real_rhoI);
-	printf("nparts=%d\n",nparts);
-	printf("totvol=%lf\n",totvol);
-	printf("nhad=%lf\n",sampler->nhadronsf);
-	/****************************************************************************************/
-
-	//Test whether rhoI produced in GetTfMuNH matches rhoI produced in particles (single dummy hyper element)
-	/****************************************************************************************
-	int nparts=0;
-	double avg_rhoI=0.0;
-	double real_rhoI=0.0;
 	int N=50000*1000;
-	list<Chyper *>::iterator it;
 	map<int,double>::iterator itr;
-	map<int,double> MasterDensityMap;
-	double totvol=0.0;
-
-	sampler->totvol=0.0;
 
 	hyper->muB=0.0;
 	hyper->T=.080;
@@ -133,155 +70,23 @@ int main(int argc, char *argv[]){
 	hyper->rhoS=0.0;
 	hyper->udotdOmega=0.2;
 	sampler->GetTfMuNH(hyper);
-	avg_rhoI=hyper->rhoI;
 
 	for (int i=0;i<N;i++) {
 		nparts+=sampler->MakeParts(hyper);
-		totvol+=sampler->totvol;
-		for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
-			int code=itr->first;
-			double dens=itr->second;
-			if (MasterDensityMap.count(code)==0) {
-				MasterDensityMap.insert(pair<int,double>(code,dens));
-			}
-			else MasterDensityMap[code]+=dens;
-		}
 	}
 
-	printf("code:\tDensityMap:\tdensityf0:\n");
-	for (itr=MasterDensityMap.begin();itr!=MasterDensityMap.end();itr++) {
-		int code=itr->first;
-		double dens=itr->second;
-		dens=dens/totvol;
-
-		CresInfo *resinfo=sampler->reslist->GetResInfoPtr(code);
-		double I=2*resinfo->charge-resinfo->baryon-resinfo->strange;
-		real_rhoI+=I*dens;
-
-		printf("%d\t%lf\t%lf\n",code,dens,sampler->densityf0[resinfo->ires]);
-	}
-	printf("avg_rhoI=%lf\t real_rhoI=%lf\n",avg_rhoI,real_rhoI);
-	printf("nparts=%d\n",nparts);
-	printf("totvol=%lf\n",sampler->totvol);
+	//printf("code:\tDensityMap:\tdensityf:\n");
+	//for (itr=MasterDensityMap.begin();itr!=MasterDensityMap.end();itr++) {
+	//	itr->second=itr->second/sampler->totvol;
+	//	CresInfo *resinfo=sampler->reslist->GetResInfoPtr(code);
+	//	printf("%d\t%lf\t%lf\n",code,dens,sampler->densityf[resinfo->ires]);
+	//}
+	
+	printf("nparts=%d\t",nparts);
+	printf("totvol=%lf\t",sampler->totvol);
+	printf("nparts/totvol=%lf\t",nparts/sampler->totvol);
 	printf("nhad=%lf\n",sampler->nhadronsf0);
-	****************************************************************************************/
-
-	//Test viscous corrections
-	/*****************************************************************************************
-	int nparts=0;
-	int N=50000*100;
-	map<int,vector<Cpart*>>::iterator it;
-	vector<Cpart*>::iterator itr;
-	map<int,double>::iterator iter;
-	map<int,double> MasterDensityMap;
-	double totvol=0.0;
-
-
-	printf("test 7\n");
-
-	//dummy hyper element
-	hyper->tau=12;
-	hyper->muB=0.0;
-	hyper->T=.137;
-	hyper->sigma=93.0;
-	hyper->rhoB=0.07;
-	hyper->epsilon=.121;
-	hyper->rhoI=0.1*hyper->rhoB;
-	hyper->rhoS=0.0;
-	hyper->udotdOmega=0.2;
-	for (int i=0;i<4;i++) hyper->u[i]=0;
-	hyper->dOmega[0]=0.089;
-	hyper->dOmega[1]=-0.005;
-	hyper->dOmega[2]=0.0078;
-	hyper->dOmega[3]=0.0;
-	hyper->pitilde[0][0]=-0.000167;
-	hyper->pitilde[1][1]=-0.000380;
-	hyper->pitilde[2][2]=0.000033;
-	hyper->pitilde[1][2]=hyper->pitilde[2][1]=0.001156;
-	hyper->pitilde[3][3]=-0.000001;
-	hyper->pitilde[3][1]=hyper->pitilde[1][3]=0.0;
-	hyper->pitilde[3][2]=hyper->pitilde[2][3]=0.0;
-	hyper->pitilde[0][1]=hyper->pitilde[1][0]=0.000867;
-	hyper->pitilde[0][2]=hyper->pitilde[2][0]=-0.000102;
-	hyper->pitilde[0][3]=hyper->pitilde[3][0]=0.0;
-
-	sampler->GetTfMuNH(hyper);
-	sampler->CalcLambda();
-	printf("test 6\n");
-
-	for (int i=0;i<N;i++) {
-		nparts+=sampler->MakeParts(hyper);
-		totvol+=sampler->totvol;
-		for (iter=sampler->DensityMap.begin();iter!=sampler->DensityMap.end();iter++) {
-			int code=iter->first;
-			double dens=iter->second;
-			if (MasterDensityMap.count(code)==0) {
-				MasterDensityMap.insert(pair<int,double>(code,dens));
-			}
-			else MasterDensityMap[code]+=dens;
-		}
-	}
-	printf("totvol=%lf\n",totvol);
-	printf("test 5\n");
-	for (iter=MasterDensityMap.begin();iter!=MasterDensityMap.end();iter++) {
-		iter->second=iter->second/totvol;
-		printf("code=%d dens=%lf\n",iter->first,iter->second);
-	}
-	printf("test 4\n");
-	double dp=.001;
-	double p[4];
-	double ptot;
-	long double T[4][4];
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			T[i][j]=0.0;
-		}
-	}
-	double E;
-	int nsteps=10;
-	double avg;
-	Cpart *part;
-	CresInfo *resinfo;
-	double dens;
-	int code;
-	double temp;
-	for (it=sampler->pmap.begin();it!=sampler->pmap.end();it++) {//for each species
-		code=it->first;
-		if (MasterDensityMap.count(code)==1) {
-			dens=MasterDensityMap[code];
-		}
-		else dens=0.0;
-		for (itr=it->second.begin();itr!=it->second.end();itr++) { //for each part of a given species
-			part=*itr;
-			part->p[0]=(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3])/(2*pow(part->msquared,0.5));
-			for (int i=0;i<4;i++) { //row
-				for (int j=i;j<4;j++) { //column
-					temp=dens*(part->p[i]*part->p[j]/part->p[0])/nparts;
-					//printf("dens=%lf p[%d]=%lf p[%d]=%lf p[0]=%lf \n",dens,i,part->p[i],j,part->p[j],part->p[0]);
-					T[i][j]+=temp;
-				}
-			}
-		}
-	}
-	printf("T= \n");
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			printf("%Lf ",T[i][j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-	printf("T-P= \n");
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			if (i==j) T[i][j]-=sampler->Pf;
-			printf("%Lf ",T[i][j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-	printf("nparts=%d\n",nparts);
-	*****************************************************************************************/
+	/****************************************************************************************/
 
 	//Test GetTfMuNH with real hyper-elements
 	/*****************************************************************************************
@@ -324,7 +129,6 @@ int main(int argc, char *argv[]){
 	//}
 	*****************************************************************************************/
 
-	//This is Scott's, I don't know what it's for.
 	/*****************************************************************************************
 	long long int nparts=0;
 	int	nevents=parmap.getI("SAMPLER_NEVENTS",10);
