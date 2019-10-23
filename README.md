@@ -1,4 +1,4 @@
-#How to Set Up best_sampler
+# How to Set Up best_sampler
 
 Once you have a copy of best_sampler on your device, enter the directory and open the file "makefile_defs.mk". You will need to change the pathways in this file to match the location of the best_sampler directory on your device and the locations of eigen3 and gsl.
 
