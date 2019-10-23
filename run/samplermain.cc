@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 	//Test densities with single hyper-element
 	/****************************************************************************************/
 	int nparts=0;
-	int N=50000*1000;
+	int N=50000*100;
 	map<int,double>::iterator itr;
 
 	hyper->muB=0.0;
@@ -81,11 +81,11 @@ int main(int argc, char *argv[]){
 	//	CresInfo *resinfo=sampler->reslist->GetResInfoPtr(code);
 	//	printf("%d\t%lf\t%lf\n",code,dens,sampler->densityf[resinfo->ires]);
 	//}
-	
+
 	printf("nparts=%d\t",nparts);
 	printf("totvol=%lf\t",sampler->totvol);
 	printf("nparts/totvol=%lf\t",nparts/sampler->totvol);
-	printf("nhad=%lf\n",sampler->nhadronsf0);
+	printf("nhad=%lf\n",sampler->nhadronsf);
 	/****************************************************************************************/
 
 	//Test GetTfMuNH with real hyper-elements
