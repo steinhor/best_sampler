@@ -21,4 +21,6 @@ The output should be
 	nparts=503589	totvol=999999.999911	nparts/totvol=0.503589	nhad=0.503943
 	YIPPEE!!!!! We made it all the way through!
 
+## Changing Parameters
 
+There is a file in the run directory called `parameters.dat`. You can change the file from which the sampler reads resonance, decay, and hyper-cell information by changing the macros `RESONANCES_INFO_FILE`, `RESONANCES_DECAYS_FILE`, and `HYPER_INFO_FILE` respectively within `parameters.dat` to different file pathways. Bear in mind that the file reading is set up specifically for the format of the current resonance info and hyper-cell files. The sampler also creates different sampler objects depending on the value of the sigma field and the temperature--you can change the values of both of these in this same file; the variables for these are fairly self-explanatory.
