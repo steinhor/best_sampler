@@ -6,7 +6,11 @@ CparameterMap *Csampler::parmap=NULL;
 CmasterSampler *Csampler::mastersampler=NULL;
 
 Csampler::Csampler(double Tfset,double sigmafset){
-    Tf=Tfset;
+  bose_test_off=false;
+	bose_test=false;
+	viscous_test=false;
+
+  Tf=Tfset;
 	sigmaf=sigmafset;
 	muB=muS=muI=0.0;
 	int nres=reslist->massmap.size();

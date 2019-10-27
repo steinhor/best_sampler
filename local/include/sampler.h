@@ -43,9 +43,9 @@ public:
 	//some variables used only for testing
 	vector<double> dN_dp_p2;
 	double dp;
-	bool bose_test_off=false;
-	bool bose_test=false;
-	bool viscous_test=false;
+	bool bose_test_off;
+	bool bose_test;
+	bool viscous_test;
 	map<int,vector<Cpart*>> pmap;
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;

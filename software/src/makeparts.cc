@@ -114,18 +114,14 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part, d
     if(VISCOUSCORRECTIONS){
         for(alpha=1;alpha<4;alpha++){
             ptilde[alpha]=pnoviscous[alpha];
-            printf("ptilde[%d]=%lf\t",alpha,ptilde[alpha]);
             for(beta=1;beta<4;beta++){
-                if (hyper->pitilde[alpha][beta]!=0) {printf("pitilde[%d][%d]=%lf\t",alpha,beta,hyper->pitilde[alpha][beta]);}
                 if(mastersampler->SETMU0)
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf*(2*PI));
                 else
                     ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf*(2*PI));
             }
-            printf("ptilde[%d]=%lf\n",alpha,ptilde[alpha]);
         }
         ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);
-        printf("ptilde[0]=%lf\n\n",ptilde[0]);
     }
     else{
         for(alpha=0;alpha<4;alpha++)
@@ -152,8 +148,4 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part, d
         p[2]-=2.0*nhat[2]*nhatdotp;
     }
     Misc::Boost(hyper->u,ptilde,p);
-    printf("p=\t");
-    for (int i=0;i<4;i++){
-      printf("%lf\t",p[i]);
-    }
 }

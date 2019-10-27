@@ -190,7 +190,7 @@ void test::test_viscous() {
 	hyper->pitilde[0][0]=0.0;
 	hyper->pitilde[1][1]=0.0;
 	hyper->pitilde[2][2]=0.0;
-	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.5;
+	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.05;
 	hyper->pitilde[3][3]=0.0;
 	hyper->pitilde[3][1]=hyper->pitilde[1][3]=0.0;
 	hyper->pitilde[3][2]=hyper->pitilde[2][3]=0.0;
@@ -198,6 +198,7 @@ void test::test_viscous() {
 	hyper->pitilde[0][2]=hyper->pitilde[2][0]=0.0;
 	hyper->pitilde[0][3]=hyper->pitilde[3][0]=0.0;
 	sampler=new Csampler(hyper->T,hyper->sigma);
+  sampler->viscous_test=true;
 	for (int j=0;j<1;j++) {
 		hyper->rhoB=.007;
 		hyper->rhoI=0.1*hyper->rhoB;
@@ -237,14 +238,15 @@ void test::test_viscous() {
 	double Tcalc=0;
 	bool x=false;
 
-
 	for (it=sampler->pmap.begin();it!=sampler->pmap.end();it++) {//for each species
+    printf("test 1\n");
 		code=it->first;
 		if (sampler->DensityMap.count(code)==1) {
 			dens=sampler->DensityMap[code];
 		}
 		else dens=0.0;
 		for (itr=it->second.begin();itr!=it->second.end();itr++) { //for each part of a given species
+      printf("test 2\n");
 			part=*itr;
 			part->p[0]=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+part->msquared);
 			psquared=part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3];
@@ -255,12 +257,17 @@ void test::test_viscous() {
 			}
 			for (int i=0;i<4;i++) { //row
 				for (int j=i;j<4;j++) { //column
+          printf("test 3\n");
 					temp=sampler->nhadronsf*(part->p[i]*part->p[j]/part->p[0])/nparts;
 					if (!isnan(part->p[0])) T[i][j]+=temp;
+          printf("temp=%lf\n",temp);
 				}
 			}
 		}
 	}
+
+
+  /*
 	double pbound=2.5;
 	double ndp=100.0;
 	resinfo=sampler->reslist->GetResInfoPtr(321);
@@ -271,7 +278,7 @@ void test::test_viscous() {
 	for (long int i=0;i<N;i++) {
 		part=new Cpart;
 		sampler->randy->generate_boltzmann(m,Tf,part->p);
-    /*
+
 		for (double i=0;i<=pbound;i+=pbound/double(ndp)) {
 			if (part->p[0]>=i && part->p[0]<(i+pbound/ndp)) {
 				if (sampler->dpmap.count(i+pbound/(2*ndp))==0) sampler->dpmap.insert(pair<double,double>(i+pbound/(2*ndp),1));
@@ -280,8 +287,8 @@ void test::test_viscous() {
 				break;
 			}
 		}
-    */
-        //part->p[0]=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+m*m);
+
+    //part->p[0]=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+m*m);
 		//printf("p0calc=%lf\n",sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+m*m));
 
 		psquared=part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3];
@@ -298,7 +305,8 @@ void test::test_viscous() {
 	//for (map<double,double>::iterator it=sampler->dpmap.begin();it!=sampler->dpmap.end();it++) {
 		//printf("%lf %lf\n",it->first,it->second);
 	//}
-	P=Tcalc;
+  */
+	//P=Tcalc;
 
 	printf("T= \n");
 	for (int i=0;i<4;i++) {
