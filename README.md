@@ -1,5 +1,11 @@
 # How to Set Up best_sampler
 
+mkdir build
+cd build
+Try cmake .., if Eigen or GSL not found, manual way is
+cmake .. -DCMAKE_INSTALL_PREFIX=[...]/eigen-eigen-b3f3d4950030/ -DGSL_ROOT_DIR=[...]
+make -j
+
 Once you have a copy of best_sampler on your device, enter the directory and open the file "makefile_defs.mk". You will need to change the pathways in this file to match the location of the best_sampler directory on your device and the locations of eigen3 and gsl.
 
 Now enter `best_sampler/software` and type

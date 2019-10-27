@@ -1,4 +1,4 @@
-#include "master.h"
+#include "pratt_sampler/master.h"
 using namespace std;
 CmeanField *CmasterSampler::meanfield=NULL;
 
