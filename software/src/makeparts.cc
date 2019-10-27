@@ -1,4 +1,4 @@
-#include "sampler.h"
+#include "pratt_sampler/sampler.h"
 using namespace std;
 
 int Csampler::MakeParts(Chyper *hyper){

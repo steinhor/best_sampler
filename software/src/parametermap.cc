@@ -1,7 +1,7 @@
 #ifndef parameterMap_CC
 #define parameterMap_CC
 
-#include "parametermap.h" 
+#include "pratt_sampler/parametermap.h" 
 #include <iostream>
 
 //Returns an integer from the map.

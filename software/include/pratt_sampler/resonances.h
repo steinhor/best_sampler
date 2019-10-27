@@ -7,12 +7,12 @@
 #include <array>
 #include <fstream>
 #include <gsl/gsl_sf.h>
-#include <eigen3/Eigen/Dense>
-#include "parametermap.h"
-#include "randy.h"
-#include "classdefs.h"
-#include "misc.h"
-#include "constants.h"
+#include <Eigen/Dense>
+#include "pratt_sampler/parametermap.h"
+#include "pratt_sampler/randy.h"
+#include "pratt_sampler/classdefs.h"
+#include "pratt_sampler/misc.h"
+#include "pratt_sampler/constants.h"
 
 using namespace std;
 
