@@ -14,7 +14,10 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	TFmax=parmap->getD("SAMPLER_TFMAX",155.0);
 	SIGMAFmin=parmap->getD("SAMPLER_SIGMAFMIN",93.0);
 	SIGMAFmax=parmap->getD("SAMPLER_SIGMAFMAX",93.0);
-    SETMU0=parmap->getB("SAMPLER_SETMU0",false);
+	SETMU0=parmap->getB("SAMPLER_SETMU0",false);
+	CALCMU=parmap->getB("SAMPLER_CALCMU",false);
+	NEVENTS_TOT=parmap->getI("SAMPLER_NEVENTS_TOT",1);
+	NEVENTS=0;
 	if(NTF==1)
 		DELTF=0.0;
 	else
@@ -27,6 +30,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::mastersampler=this;
 	Csampler::reslist=reslist;
 	Csampler::parmap=parmap;
+	Csampler::CALCMU=CALCMU;
 	Cpart::reslist=reslist;
 	int it,isigma;
 	sampler.resize(NTF);
@@ -50,20 +54,26 @@ int CmasterSampler::MakeEvent(){
 	int nelements=hyperlist.size();
 	int ielement,nparts=0;
 	list<Chyper *>::iterator it;
+	long long int ih=0;
 	for(it=hyperlist.begin();it!=hyperlist.end();it++){
+		ih+=1;
 		Omega0Sum+=(*it)->dOmega[0];
-		np=0;
 		sampler=ChooseSampler(*it);
 		if(!SETMU0){
-			if(NEVENTS==0){
-				sampler->GetTfMuNH(*it);
+			if(NEVENTS==0 && CALCMU){
+				sampler->GetMuNH(*it);
 				sampler->CalcLambdaF();
+				//sampler->lambdaf=sampler->lambdaf0;
+				(*it)->lambda=sampler->lambdaf;
 				(*it)->muB=sampler->muB;
 				(*it)->muI=sampler->muI;
 				(*it)->muS=sampler->muS;
 				(*it)->nhadrons=sampler->nhadronsf;
 				(*it)->epsilon=sampler->epsilonf;
 				(*it)->lambda=sampler->lambdaf;
+			}
+			else if(NEVENTS==0 && !CALCMU){
+				sampler->GetNHadronsf(*it);
 			}
 			else{
 				sampler->muB=(*it)->muB;
@@ -72,10 +82,10 @@ int CmasterSampler::MakeEvent(){
 				sampler->nhadronsf=(*it)->nhadrons;
 				sampler->epsilonf=(*it)->epsilon;
 				sampler->lambdaf=(*it)->lambda;
-				sampler->Pf=sampler->nhadronsf*sampler->Tf;
+				sampler->Pf=(*it)->nhadrons*sampler->Tf;
 			}
 		}
-		np+=sampler->MakeParts(*it);
+		np=sampler->MakeParts(*it);
 		nparts+=np;
 	}
 	NEVENTS+=1;

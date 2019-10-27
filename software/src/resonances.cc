@@ -229,7 +229,7 @@
 			//antiparticle creation
 			if(resinfo->baryon!=0) {
 				resinfo=new CresInfo();
-				n++;
+				n+=1;
 
 				//get antiparticle values from dummy variables created by original particle
 				resinfo->code=-d_code;
@@ -521,9 +521,11 @@
 	            		} // end of if statement for decaying daughters
 	            		else{
 	                		k=sqrt(abs(pow((E*E-m1*m1-m2*m2),2.0)-(4.0*m1*m1*m2*m2)))/(2.0*E);
-	                		if(spin_deg<1.001)
-	                			 { gamma=reswidth*(resmass/E)*(k/kr);}
-	                		else { gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC)); }
+	                		if(spin_deg<1.001){
+												gamma=reswidth*(resmass/E)*(k/kr);}
+	                		else{
+												gamma=reswidth*(resmass/E)*((k*k*k)/(kr*kr*kr))*((kr*kr+HBARC*HBARC)/(k*k+HBARC*HBARC));
+											}
 	            		}
 	            		rho=(2.0)/(reswidth*PI)*0.25*gamma*gamma/((0.25*gamma*gamma)+(resmass-E)*(resmass-E));
 	    				spectmap.insert(pair<double,double>(E,rho));

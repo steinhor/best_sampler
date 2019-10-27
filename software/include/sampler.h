@@ -16,9 +16,8 @@ public:
 	double muB,muI,muS;
 	double nhadronsf,epsilonf,Pf;
 	vector<double> densityf;
-	double lambdaf; // Functions of T & sigma used for viscous corrections
 	// Same but with mu=0
-	double nhadronsf0,epsilonf0,Pf0,lambdaf0;
+	double nhadronsf0,epsilonf0,Pf0,lambdaf0,lambdaf;
 	vector<double> densityf0,epsilonf0i,Pf0i,lambdaf0i;
 
 	vector<double> maxweight;
@@ -42,6 +41,8 @@ public:
 
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
+	bool bose_corr;
+	int n_bose_corr;
 
 	// Including Isospin (i refers to 2*I3)
 	// number densities
@@ -61,10 +62,11 @@ public:
 	double dedth0_b1i0s1,dedth0_b1i0s3;
 	double dedth0_b1i1s0,dedth0_b1i1s2;
 	double dedth0_b1i2s1,dedth0_b1i3s0;
-    double dedth0_b2i0s0;
+	double dedth0_b2i0s0;
 
 	void GetNH0(); // Calculates above quantities
 	void GetMuNH(Chyper *hyper);
+	void GetNHadronsf(Chyper *hyper);
 	void GetTfMuNH(Chyper *hyper);
 	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget);
 	void GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
@@ -79,6 +81,7 @@ public:
 	static CresList *reslist;
 	static CparameterMap *parmap;
 	static CmasterSampler *mastersampler;
+	static bool CALCMU;
 };
 
 #endif

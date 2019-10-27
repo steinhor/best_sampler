@@ -28,10 +28,10 @@ public:
 	double SIGMAFmin,SIGMAFmax;
 	int NTF,NSIGMAF;
 	double DELTF,DELSIGMAF;
-	bool VISCOUSCORRECTIONS,SETMU0;
+	bool VISCOUSCORRECTIONS,SETMU0,CALCMU;
 	double RESWIDTH_ALPHA;
 	double YMAX; // only for 2D sampler
-	int NEVENTS;
+	int NEVENTS,NEVENTS_TOT;
 	int nelements;
 
 	list<Chyper *> hyperlist;

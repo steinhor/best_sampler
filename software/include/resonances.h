@@ -43,7 +43,7 @@ public:
 	bool decay; //false if stable, true if can decay. check if true
 	CbranchList branchlist;
 	CbranchInfo	*bptr_minmass;
-    map<double,double> spectmap;
+	map<double,double> spectmap;
 	void Print();
 	void DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo);
 	void DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo);
@@ -60,11 +60,11 @@ public:
 /*
 class Cmerge{
 public:
-	Cmerge(CresInfo *resinfo,double branching, int L);
-	CresInfo *resinfo;
-	int L;
-	double branching;
-	Cmerge *next;
+Cmerge(CresInfo *resinfo,double branching, int L);
+CresInfo *resinfo;
+int L;
+double branching;
+Cmerge *next;
 };
 */
 
@@ -79,7 +79,7 @@ public:
 	//double **SigmaMaxArray;
 	CresInfo *GetResInfoPtr(int pid);
 	void ReadResInfo();
-    void FillSpectMap(CresInfo *resinfo);
+	void FillSpectMap(CresInfo *resinfo);
 	//bool RESONANCE_DECAYS;
 	CparameterMap *parmap;
 };

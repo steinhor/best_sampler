@@ -83,7 +83,6 @@ namespace CoulWave{
   void SphericalCWprime(int L,double x,double eta,double *FL,double *GL,
 			double *FLprime,double *GLprime);
 
-
 };
 
 //! Cartesian Harmonics

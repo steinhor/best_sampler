@@ -26,6 +26,4 @@ typedef multimap<long int,Cpart *> CpartMap;
 typedef pair<long int,Cpart*> CpartPair;
 typedef double FourVector[4];
 
-
-
 #endif
