@@ -40,6 +40,14 @@ public:
 	map<int,double> DensityMap;
 	double totvol;
 
+	//some variables used only for testing
+	vector<double> dN_dp_p2;
+	double dp;
+	bool bose_test_off=false;
+	bool bose_test=false;
+	bool viscous_test=false;
+	map<int,vector<Cpart*>> pmap;
+
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
 

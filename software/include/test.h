@@ -8,6 +8,8 @@ namespace test{
   void n_hyperlist(CmasterSampler ms,int nsamplers);
   void n_dummy(CmasterSampler ms);
   void bose_terms();
+  void calc_bose(Csampler *sampler,Chyper *hyper, FILE *file);
+  void test_viscous();
 
 };
 
