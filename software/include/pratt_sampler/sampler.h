@@ -1,10 +1,10 @@
 #ifndef __SAMPLER_H__
 #define __SAMPLER_H__
-#include "resonances.h"
-#include "part.h"
-#include <eigen3/Eigen/Dense>
-#include "classdefs.h"
-#include "master.h"
+#include "pratt_sampler/resonances.h"
+#include "pratt_sampler/part.h"
+#include <Eigen/Dense>
+#include "pratt_sampler/classdefs.h"
+#include "pratt_sampler/master.h"
 
 using namespace std;
 
