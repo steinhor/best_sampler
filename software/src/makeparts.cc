@@ -7,7 +7,7 @@ int Csampler::MakeParts(Chyper *hyper){
     Cpart *part;
     double udotdOmega=hyper->udotdOmega;
     double dN=0,dNtot=0,dNprime=0,xx=1.0,mutot=0,I3;
-    //double nptemp;
+    double nptemp;
 
     CresMassMap::iterator iter;
     if(mastersampler->SETMU0)
@@ -22,7 +22,7 @@ int Csampler::MakeParts(Chyper *hyper){
             resinfo=iter->second;
             if(resinfo->code!=22) {
                 if((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && parmap->getB("BOSE_CORR",false)) {
-                    //nptemp=0;
+                    nptemp=0;
                     for (int i=1;i<=parmap->getI("N_BOSE_CORR",1);i++) {
                         dN=npidens[resinfo->code][i-1]*udotdOmega;
                         randy->increment_netprob(dN);
@@ -30,8 +30,13 @@ int Csampler::MakeParts(Chyper *hyper){
                         while (randy->test_threshold(0.0)){
                             part=new Cpart();
                             GetP(hyper,resinfo,part->p,part,Tf/i);
+
+                            //p=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]);
+                            //ibin=floorl(p/dp);
+                            //dN_dp_p2[ibin]+=(2*PI*PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+
                             nparts++;
-                            //nptemp++;
+                            nptemp++;
                             randy->increase_threshold();
                         }
                     }
@@ -41,18 +46,18 @@ int Csampler::MakeParts(Chyper *hyper){
                     else dN=densityf[ires]*udotdOmega;
                     randy->increment_netprob(dN);
                     dNprime-=dN;
-                    //nptemp=0;
+                    nptemp=0;
                     while(randy->test_threshold(0.0)){
                         part=new Cpart();
                         GetP(hyper,resinfo,part->p,part,Tf);
                         nparts++;
-                        //nptemp++;
+                        nptemp++;
                         randy->increase_threshold();
                     }
                 }
 
-                //if (DensityMap.count(resinfo->code)==0) DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
-                //else DensityMap[resinfo->code]+=nptemp;
+                if (DensityMap.count(resinfo->code)==0) DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
+                else DensityMap[resinfo->code]+=nptemp;
 
                 if(!(randy->test_threshold(dNprime))){
                     randy->increment_netprob(dNprime);

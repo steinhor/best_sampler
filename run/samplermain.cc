@@ -1,4 +1,5 @@
 #include "master.h"
+#include "test.h"
 using namespace std;
 
 int main(int argc, char *argv[]){
@@ -54,96 +55,6 @@ int main(int argc, char *argv[]){
 	printf("-----------------------------\n");
 	//exit(1);
 	****************************************************************************************/
-
-	//Test whether the densities of particles produced in MakeParts match the expected densities.
-	/****************************************************************************************
-	int nparts=0;
-	int temp;
-	int n=0;
-	double avg_rhoI=0.0;
-	double real_rhoI=0.0;
-	list<Chyper *>::iterator it;
-	map<int,double>::iterator itr;
-	map<int,double> MasterDensityMap;
-	double totvol=0.0;
-
-	for (int i=0;i<1;i++) { //for each sampler
-		if (i!=0) {
-			sampler=new Csampler(0.135,0.0930);
-			sampler->partmap=new CpartMap;
-		}
-		sampler->totvol=0.0;
-		for (it=ms.hyperlist.begin();it!=ms.hyperlist.end();it++) { //for each hyper element
-			hyper=*it;
-			sampler->GetTfMuNH(hyper);
-			temp=sampler->MakeParts(hyper);
-			nparts+=temp;
-			n++;
-		}
-		//update master data
-		totvol+=sampler->totvol;
-		for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
-			int code=itr->first;
-			double dens=itr->second;
-			if (MasterDensityMap.count(code)==0) {
-				MasterDensityMap.insert(pair<int,double>(code,dens));
-			}
-			else MasterDensityMap[code]+=dens;
-		}
-	}
-
-	printf("code:\tDensityMap:\tdensityf:\n");
-	for (itr=MasterDensityMap.begin();itr!=MasterDensityMap.end();itr++) {
-		int code=itr->first;
-		double dens=itr->second;
-		dens=dens/totvol;
-
-		CresInfo *resinfo=sampler->reslist->GetResInfoPtr(code);
-		//double I=2*resinfo->charge-resinfo->baryon-resinfo->strange;
-		//real_rhoI+=I*dens;
-
-		printf("%d\t%lf\t%lf\n",code,dens,sampler->densityf[resinfo->ires]);
-	}
-	//printf("avg_rhoI=%lf\t real_rhoI=%lf\n",avg_rhoI,real_rhoI);
-	printf("nparts=%d\n",nparts);
-	printf("totvol=%lf\n",totvol);
-	printf("nhad=%lf\n",sampler->nhadronsf);
-	****************************************************************************************/
-
-	//Test densities with fake hyper element
-	/****************************************************************************************/
-	int nparts=0;
-	int N=50000*100;
-	map<int,double>::iterator itr;
-	CresInfo *resinfo;
-
-	sampler->totvol=0.0;
-	hyper->muB=0.0;
-	hyper->T=.140;
-	hyper->sigma=93.0;
-	hyper->rhoB=0.07;
-	hyper->epsilon=(50+1000*hyper->rhoB+750.0*7/15)/1000;
-	hyper->rhoI=0.1*hyper->rhoB;
-	hyper->rhoS=0.0;
-	hyper->udotdOmega=0.2;
-	sampler->GetTfMuNH(hyper);
-
-	for (int i=0;i<N;i++) {
-		nparts+=sampler->MakeParts(hyper);
-	}
-
-	//printf("code: dens: densityf: ires:\n");
-	//for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
-	//	itr->second=itr->second/sampler->totvol;
-	//	resinfo=sampler->reslist->GetResInfoPtr(itr->first);
-	//	printf("%d %lf %lf %d\n",itr->first,itr->second,sampler->densityf[resinfo->ires],resinfo->ires);
-	//}
-
-	printf("nparts=%d\t",nparts);
-	printf("totvol=%lf\t",sampler->totvol);
-	printf("nparts/totvol=%lf\t",nparts/sampler->totvol);
-	printf("nhad=%lf\n",sampler->nhadronsf);
-	/****************************************************************************************/
 
 	//produce data for graph to test bose corrections
 	/*****************************************************************************************

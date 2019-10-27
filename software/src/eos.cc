@@ -91,10 +91,7 @@ void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npie
 
             temp=prefactor*(3.0*m2*t2*k0+(m3*Ti+6.0*m*t3)*k1);
             epsilon+=temp;
-            if(pion) {
-                //printf("npiepsilon[code][%d]=%lf\n",i-1,npiepsilon[resinfo->code][i-1]);
-                npiepsilon[resinfo->code].push_back(temp);
-            }
+            if(pion) npiepsilon[resinfo->code].push_back(temp);
 
             k0prime=-k1;
             k1prime=-k0-k1/z;
@@ -108,7 +105,6 @@ void EOS::freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npie
         I1=pow(m,1.5)*pow(T,3.5)*7.5*sqrt(2.0*PI);
         I2=24.0*pow(T,5);
         sigma2=Iomega*(I1+I2+0.5*sqrt(I1*I2));  // this is an approximation (+/-2%) to messy integral
-        //printf("___z=%g,m=%g,T=%g ___\n",z,m,T);
     }
 }
 

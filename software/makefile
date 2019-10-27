@@ -1,8 +1,8 @@
 include ../makefile_defs.mk
 
-install : installdirs ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/classdefs.h ${SAMPLER_INSTALLDIR}/include/randy.h ${SAMPLER_INSTALLDIR}/include/sampler.h ${SAMPLER_INSTALLDIR}/include/constants.h ${SAMPLER_INSTALLDIR}/include/parametermap.h ${SAMPLER_INSTALLDIR}/include/resonances.h ${SAMPLER_INSTALLDIR}/include/sf.h ${SAMPLER_INSTALLDIR}/include/master.h ${SAMPLER_INSTALLDIR}/include/part.h ${SAMPLER_INSTALLDIR}/include/misc.h ${SAMPLER_INSTALLDIR}/include/hyper.h ${SAMPLER_INSTALLDIR}/include/meanfield.h ${SAMPLER_INSTALLDIR}/include/eos.h
+install : installdirs ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/classdefs.h ${SAMPLER_INSTALLDIR}/include/randy.h ${SAMPLER_INSTALLDIR}/include/sampler.h ${SAMPLER_INSTALLDIR}/include/constants.h ${SAMPLER_INSTALLDIR}/include/parametermap.h ${SAMPLER_INSTALLDIR}/include/resonances.h ${SAMPLER_INSTALLDIR}/include/sf.h ${SAMPLER_INSTALLDIR}/include/master.h ${SAMPLER_INSTALLDIR}/include/part.h ${SAMPLER_INSTALLDIR}/include/misc.h ${SAMPLER_INSTALLDIR}/include/hyper.h ${SAMPLER_INSTALLDIR}/include/meanfield.h ${SAMPLER_INSTALLDIR}/include/eos.h ${SAMPLER_INSTALLDIR}/include/test.h
 
-installdirs : 
+installdirs :
 	mkdir -p ${SAMPLER_INSTALLDIR}/include;\
 	mkdir -p ${SAMPLER_INSTALLDIR}/lib;\
 
@@ -12,11 +12,11 @@ clean :
 INC=-I include -I ${EIGEN_HOME}
 
 uninstall :
-	rm -f ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/classdefs.h ${SAMPLER_INSTALLDIR}/include/parametermap.h ${SAMPLER_INSTALLDIR}/include/randy.h ${SAMPLER_INSTALLDIR}/include/sampler.h ${SAMPLER_INSTALLDIR}/include/master.h ${SAMPLER_INSTALLDIR}/include/part.h ${SAMPLER_INSTALLDIR}/include/misc.h ${SAMPLER_INSTALLDIR}/include/hyper.h ${SAMPLER_INSTALLDIR}/include/meanfield.h ${SAMPLER_INSTALLDIR}/include/eos.h
+	rm -f ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/classdefs.h ${SAMPLER_INSTALLDIR}/include/parametermap.h ${SAMPLER_INSTALLDIR}/include/randy.h ${SAMPLER_INSTALLDIR}/include/sampler.h ${SAMPLER_INSTALLDIR}/include/master.h ${SAMPLER_INSTALLDIR}/include/part.h ${SAMPLER_INSTALLDIR}/include/misc.h ${SAMPLER_INSTALLDIR}/include/hyper.h ${SAMPLER_INSTALLDIR}/include/meanfield.h ${SAMPLER_INSTALLDIR}/include/eos.h ${SAMPLER_INSTALLDIR}/include/test.h
 
-SAMPLER_HFILES = include/sampler.h include/classdefs.h include/parametermap.h include/randy.h include/constants.h include/misc.h include/part.h include/sf.h include/master.h include/meanfield.h include/eos.h
+SAMPLER_HFILES = include/sampler.h include/classdefs.h include/parametermap.h include/randy.h include/constants.h include/misc.h include/part.h include/sf.h include/master.h include/meanfield.h include/eos.h include/test.h
 
-SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o
+SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o build/test.o
 
 ####################
 
@@ -25,7 +25,7 @@ ${SAMPLER_INSTALLDIR}/include/master.h : include/master.h
 
 ${SAMPLER_INSTALLDIR}/include/sampler.h : include/sampler.h
 	cp -f include/sampler.h ${SAMPLER_INSTALLDIR}/include/
-	
+
 ${SAMPLER_INSTALLDIR}/include/classdefs.h : include/classdefs.h
 	cp -f include/classdefs.h ${SAMPLER_INSTALLDIR}/include/
 
@@ -58,7 +58,10 @@ ${SAMPLER_INSTALLDIR}/include/meanfield.h : include/meanfield.h
 
 ${SAMPLER_INSTALLDIR}/include/eos.h : include/eos.h
 	cp -f include/eos.h ${SAMPLER_INSTALLDIR}/include/
-		
+
+${SAMPLER_INSTALLDIR}/include/test.h : include/test.h
+	cp -f include/test.h ${SAMPLER_INSTALLDIR}/include/
+
 ${SAMPLER_INSTALLDIR}/lib/libsampler.a : lib/libsampler.a
 	cp -r lib/libsampler.a ${SAMPLER_INSTALLDIR}/lib/
 
@@ -96,12 +99,15 @@ build/bess.o : src/bess.cc include/sf.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/bess.o src/bess.cc
 
 build/meanfield.o : src/meanfield.cc include/meanfield.h
-	${CPP} -c ${CFLAGS} ${INC} -o build/meanfield.o src/meanfield.cc	
+	${CPP} -c ${CFLAGS} ${INC} -o build/meanfield.o src/meanfield.cc
 
 build/hyper.o : src/hyper.cc include/hyper.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/hyper.o src/hyper.cc
 
 build/eos.o : src/eos.cc include/eos.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/eos.o src/eos.cc
-			
+
+build/test.o : src/test.cc include/test.h
+	${CPP} -c ${CFLAGS} ${INC} -o build/test.o src/test.cc
+
 ############
