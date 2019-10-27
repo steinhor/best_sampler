@@ -1,4 +1,4 @@
-#include "pratt_sampler/randy.h"
+#include "randy.h"
 
 using namespace std;
 
@@ -84,7 +84,7 @@ void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
 void Crandy::generate_boltzmann(double mass,double T,FourVector &p){
     const double PI=4.0*atan(1.0);
     double r1,r2,r3,a,b,c;
-    double pmag,ctheta,stheta,phi,pgauss;
+    double pmag,ctheta,stheta,phi;
     if(T/mass>0.6){
         do {
             r1=ran();

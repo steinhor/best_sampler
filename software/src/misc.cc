@@ -1,6 +1,6 @@
 #ifndef __INCLUDE_MISC_CC
 #define __INCLUDE_MISC_CC
-#include "pratt_sampler/misc.h"
+#include "misc.h"
 
 bool Misc::comparestrings(char *s1,char *s2){
 	int length1,length2,ic;
@@ -37,7 +37,7 @@ void Misc::lorentz(FourVector &u,FourVector &p,FourVector &pprime){
 
 void Misc::Boost(FourVector &u,FourVector &p,FourVector &pprime){
 	int alpha;
-	if (::isnan(pprime[1]*pprime[2]*pprime[3])) printf("3 p= %lf %lf %lf %lf\n",pprime[0],pprime[1],pprime[2],pprime[3]);
+	if (isnan(pprime[1]*pprime[2]*pprime[3])) printf("3 p= %lf %lf %lf %lf\n",pprime[0],pprime[1],pprime[2],pprime[3]);
 	double pdotu=p[0]*u[0]-p[1]*u[1]-p[2]*u[2]-p[3]*u[3];
 	double A=-(pdotu+p[0])/(1.0+u[0]);
 	//printf("A=%lf\n",A);

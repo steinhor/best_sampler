@@ -1,7 +1,7 @@
 #ifndef __PART_CC__
 #define __PART_CC__
 
-#include "pratt_sampler/part.h"
+#include "part.h"
 
 CresList *Cpart::reslist=NULL;
 
