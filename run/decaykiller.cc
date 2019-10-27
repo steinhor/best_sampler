@@ -6,9 +6,6 @@
 #include <iostream>
 #include <sstream>
 
-const double PI=3.14159265358979323844;
-const double HBARC=197.3269602;
-
 using namespace std;
 
 int main(){
