@@ -1,6 +1,6 @@
 #ifndef __EOS_CC
 #define __EOS_CC
-#include "eos.h"
+#include "pratt_sampler/eos.h"
 
 void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass,double m1, double m2, double reswidth_alpha,
                                               double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
