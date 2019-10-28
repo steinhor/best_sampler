@@ -22,7 +22,7 @@ int CparameterMap::getI(string key,int def)
 //Returns an bool from the map.
 bool CparameterMap::getB(string key,bool def)
 {
-  bool param;
+  bool param=false;
   string pstring,ppstring;
   stringstream ss;
   map<string,string>::iterator itr;
@@ -33,8 +33,10 @@ bool CparameterMap::getB(string key,bool def)
     char tf[10];
     strncpy(tf,pstring.c_str(),1);
     //printf("tf=%s\n",tf);
-    if(tf[0]=='t' || tf[0]=='1') param=true;
-    else if(tf[0]=='f' || tf[0]=='0') param=false;
+    if(tf[0]=='t' || tf[0]=='1')
+			param=true;
+    else if(tf[0]=='f' || tf[0]=='0')
+			param=false;
     else{
       printf("parameterMap::getB(), boolean parameter with key %s read in with value %s, set to false\n",key.c_str(),pstring.c_str());
     }

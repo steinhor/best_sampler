@@ -51,8 +51,7 @@ int CmasterSampler::MakeEvent(){
 	int np;
 	Csampler *sampler;
 	double Omega0Sum=0.0;
-	int nelements=hyperlist.size();
-	int ielement,nparts=0;
+	int nparts=0;
 	list<Chyper *>::iterator it;
 	long long int ih=0;
 	for(it=hyperlist.begin();it!=hyperlist.end();it++){
@@ -93,7 +92,7 @@ int CmasterSampler::MakeEvent(){
 }
 
 Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
-	double T,sigma,rhoB,rhoI,T0,T1;
+	double T,sigma;
 	int it,isigma;
 	if(NTF==1){
 		it=0;
@@ -168,7 +167,7 @@ void CmasterSampler::ReadHyper2D(){
 	double PIbulk;
 	int ielement=0;
 	double u0,ux,uy,x,y,udotdOmega,dOmega0,dOmegaX,dOmegaY,pitildexx,pitildeyy,pitildexy,tau,epsilonf;
-	double eta,dOmegaZ,uz,Edec,Tdec,muB,muS,muC,Pdec;
+	double eta,dOmegaZ,uz,Tdec,muB,muS,muC,Pdec;
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;

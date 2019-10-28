@@ -141,21 +141,20 @@
 
 	void CresList::ReadResInfo(){
 		//Cmerge *merge;
-		int mothercode,code,decay,strange,charge,baryon,NResonances;
-		double mass,mothermass,spin,width,bsum,netm,bmax;
-		int ires,ichannel,nchannels,ibody,nbodies;
-		int netq,netb,nets,netg;
+		int mothercode,code,decay;
+		double bsum,netm,bmax;
+		int ires,ichannel,ibody,nbodies;
+		int netq,netb,nets;
 		string name, filename;
 		CresInfo *resinfo=NULL,*aresinfo=NULL,*temp=NULL;
 		CbranchInfo *bptr=NULL,*firstbptr=NULL,*abptr=NULL,*firstabptr=NULL;
 		FILE *resinfofile;
 		FILE *decayinfofile;
-		char dummy[200],cname[200];
+		char cname[200];
 		bool antip;
 
 		//dummy variables for decay info in resinfofile
 		double gisospin;
-		double gspin;
 		int dummy_int;
 		int decays_Npart[20];
 		double decays_branchratio[20];

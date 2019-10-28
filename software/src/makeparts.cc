@@ -4,7 +4,7 @@ using namespace std;
 int Csampler::MakeParts(Chyper *hyper){
 	int nparts=0,ires;
 	CresInfo *resinfo;
-	Cpart *part;
+	Cpart part;
 	double udotdOmega=hyper->udotdOmega;
 	double dN=0,dNtot=0,dNtotprime=0,mutot=0,I3;
 	double dNcheck=0.0;
@@ -32,8 +32,7 @@ int Csampler::MakeParts(Chyper *hyper){
 						randy->increment_netprob(dN);
 						dNtotprime-=dN;
 						while (randy->test_threshold(0.0)){
-							part=new Cpart();
-							GetP(hyper,resinfo,part->p,part,Tf/i);
+							GetP(hyper,resinfo,part.p,&part,Tf/i);
 							nparts++;
 							//nptemp++;
 							randy->increase_threshold();
@@ -54,8 +53,7 @@ int Csampler::MakeParts(Chyper *hyper){
 					dNtotprime-=dN;
 					//nptemp=0;
 					while(randy->test_threshold(0.0)){
-						part=new Cpart();
-						GetP(hyper,resinfo,part->p,part,Tf);
+						GetP(hyper,resinfo,part.p,&part,Tf);
 						nparts++;
 						//nptemp++;
 						randy->increase_threshold();
@@ -84,13 +82,13 @@ int Csampler::MakeParts(Chyper *hyper){
 void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part, double T){
 	bool VISCOUSCORRECTIONS=true;
 	bool reflect;
-	double weight,pdotdOmega,nhatnorm,nhatdotp,wreflect;
+	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
 	FourVector dOmegaTilde,ptilde;
 	for (int i=0;i<4;i++) {
 		ptilde[i]=0;
 	}
 	int alpha,beta;
-	FourVector pnoviscous,u;
+	FourVector pnoviscous;
 	double m,nhat[4]={0.0};
 	double mw;
 	mw=maxweight[resinfo->ires];

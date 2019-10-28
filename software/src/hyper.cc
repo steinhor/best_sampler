@@ -13,10 +13,4 @@ void Chyper::Print(){
 			printf("%10.3e %10.3e %10.3e %10.3e\n",
 			pitilde[alpha][0],pitilde[alpha][1],pitilde[alpha][2],pitilde[alpha][3]);
 	}
-	double T,sigma,rhoB,rhoI;
-	FourVector dOmega; // hyper volume
-	FourVector u;  // collective velocity
-	FourVector r; // position
-	double tau,eta; // Bjorken tau and spatial rapidity
-	double pitilde[4][4]; // shear tensor
 }

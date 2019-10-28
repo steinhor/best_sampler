@@ -9,7 +9,6 @@ void EOS::freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,Cb
     double sum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
     int Ncounter = 0;
     double width=resinfo->width;
-    double minmass=resinfo->minmass;
     maxweight=0.0;
     res_dens=gsl_sf_bessel_Kn(2,resmass/T)*resmass*resmass*T/(2*PI*PI*pow(HBARC,3.0));
 
