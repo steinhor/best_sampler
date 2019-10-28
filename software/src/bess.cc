@@ -1,6 +1,6 @@
 #ifndef __INCLUDE_GSLBESS_CC__
 #define __INCLUDE_GSLBESS_CC__
-#include "pratt_sampler/sf.h"
+#include "sf.h"
 
 using namespace std;
 

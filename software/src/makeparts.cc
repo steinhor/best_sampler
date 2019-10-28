@@ -1,10 +1,10 @@
-#include "pratt_sampler/sampler.h"
+#include "sampler.h"
 using namespace std;
 
 int Csampler::MakeParts(Chyper *hyper){
-	int nparts=0,ires;
+	int nparts=0,ires,alpha;
 	CresInfo *resinfo;
-	Cpart part;
+	Cpart *part;
 	double udotdOmega=hyper->udotdOmega;
 	double dN=0,dNtot=0,dNtotprime=0,mutot=0,I3;
 	double dNcheck=0.0;
@@ -21,20 +21,21 @@ int Csampler::MakeParts(Chyper *hyper){
 		dNcheck=0.0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
 			resinfo=iter->second;
-			//printf("------ pid=%d\n",resinfo->code);
 			if(resinfo->code!=22) {
 				I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 				mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
 				if((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && bose_corr) {
-					//nptemp=0;
 					for (int i=1;i<=n_bose_corr;i++){
 						dN=pow(exp(mutot),i)*npidens[resinfo->code][i-1]*udotdOmega;
 						randy->increment_netprob(dN);
 						dNtotprime-=dN;
 						while (randy->test_threshold(0.0)){
-							GetP(hyper,resinfo,part.p,&part,Tf/i);
-							nparts++;
-							//nptemp++;
+							part=new Cpart();
+							mastersampler->part.push_back(part);
+							GetP(hyper,resinfo,part,Tf/i);
+							for(alpha=0;alpha<4;alpha++)
+								part->r[alpha]=hyper->r[alpha];
+							nparts+=1;
 							randy->increase_threshold();
 						}
 					}
@@ -51,18 +52,16 @@ int Csampler::MakeParts(Chyper *hyper){
 					}
 					randy->increment_netprob(dN);
 					dNtotprime-=dN;
-					//nptemp=0;
 					while(randy->test_threshold(0.0)){
-						GetP(hyper,resinfo,part.p,&part,Tf);
-						nparts++;
-						//nptemp++;
+						part=new Cpart();
+						mastersampler->part.push_back(part);
+						GetP(hyper,resinfo,part,Tf);
+						for(alpha=0;alpha<4;alpha++)
+							part->r[alpha]=hyper->r[alpha];
+						nparts+=1;
 						randy->increase_threshold();
 					}
 				}
-
-				//if (DensityMap.count(resinfo->code)==0) DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
-				//else DensityMap[resinfo->code]+=nptemp;
-
 				if(!(randy->test_threshold(dNtotprime))){
 					randy->increment_netprob(dNtotprime);
 					goto NoMoreParts;
@@ -79,7 +78,8 @@ int Csampler::MakeParts(Chyper *hyper){
 	}
 }
 
-void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part, double T){
+void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,Cpart *part, double T){
+	FourVector *p=&(part->p);
 	bool VISCOUSCORRECTIONS=true;
 	bool reflect;
 	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
@@ -133,9 +133,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part, d
 		nhatnorm=sqrt(dOmegaTilde[1]*dOmegaTilde[1]+dOmegaTilde[2]*dOmegaTilde[2]);
 		nhat[1]=dOmegaTilde[1]/nhatnorm;
 		nhat[2]=dOmegaTilde[2]/nhatnorm;
-		nhatdotp=nhat[1]*p[1]+nhat[2]*p[2];
-		p[1]-=2.0*nhat[1]*nhatdotp;
-		p[2]-=2.0*nhat[2]*nhatdotp;
+		nhatdotp=nhat[1]**p[1]+nhat[2]**p[2];
+		*p[1]-=2.0*nhat[1]*nhatdotp;
+		*p[2]-=2.0*nhat[2]*nhatdotp;
 	}
-	Misc::Boost(hyper->u,ptilde,p);
+	Misc::Boost(hyper->u,ptilde,*p);
 }

@@ -1,4 +1,4 @@
-#include "pratt_sampler/sampler.h"
+#include "sampler.h"
 using namespace std;
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;
@@ -90,7 +90,7 @@ void Csampler::CalcLambdaF0(){
 	const int nmax=70;
 	double G[nmax+5];
 	double m,degen,z,Ipp=0.0,dIpp,J,nfact,sign,temp;
-	double lambdafact,I3;
+	double lambdafact;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
 
@@ -141,10 +141,8 @@ void Csampler::CalcLambdaF0(){
 }
 
 void Csampler::CalcLambdaF(){
-	int n,ires=0;
-	const int nmax=70;
-	double G[nmax+5];
-	double m,degen,z,Ipp=0.0,dIpp,J,nfact,sign;
+	int ires=0;
+	double Ipp=0.0,dIpp;
 	double lambdafact,mutot,I3;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
@@ -755,9 +753,8 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 	double mw;
 	int nfail=0,nfailmax=1000;
 	mw=maxweight[resinfo->ires];
-	double E,m1,m2,kr,k2mr,r1,r2,k,gamma,rho,lor,k2,weight,mass,width;
+	double E,k2mr,r1,r2,rho,lor,k2,weight,mass,width;
 	bool success;
-	double alpha=mastersampler->RESWIDTH_ALPHA;
 	CmeanField *mf=mastersampler->meanfield;
 	double decay=resinfo->decay;
 	decay=false;
@@ -832,7 +829,7 @@ void Csampler::CalcDensitiesF0(){
 void Csampler::CalcDensitiesF(){
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
-	double I3,mutot,xx,Pi,epsiloni,densi,dedti,maxweighti,dm;
+	double I3,mutot,xx,Pi,epsiloni,densi,dedti,maxweighti;
 	int ires=0;
 	nhadronsf=Pf=epsilonf=0.0;
 

@@ -1,6 +1,6 @@
 	#ifndef __RESONANCES_CC__
 	#define __RESONANCES_CC__
-	#include "pratt_sampler/resonances.h"
+	#include "resonances.h"
 
 	Crandy *CresInfo::randy=NULL;
 
@@ -13,9 +13,10 @@
 		while(rpos!=resmap.end()){
 			resinfo=rpos->second;
 			resmap.erase(rpos);
-			delete resinfo;
 			rpos=resmap.begin();
+			delete resinfo;
 		}
+		resmap.clear();
 		massmap.clear();
 	}
 

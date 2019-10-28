@@ -1,4 +1,4 @@
-#include "pratt_sampler/hyper.h"
+#include "hyper.h"
 
 Chyper::Chyper(){
 	muB=muI=muS=0.0;

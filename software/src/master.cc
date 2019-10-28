@@ -1,4 +1,4 @@
-#include "pratt_sampler/master.h"
+#include "master.h"
 using namespace std;
 CmeanField *CmasterSampler::meanfield=NULL;
 
@@ -44,12 +44,31 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 }
 
 CmasterSampler::~CmasterSampler(){
-	//printf("MasterSampler ending, NEVENTS=%d\n",NEVENTS);
+	ClearParts();
+	list<Chyper *>::iterator ith;
+	for(ith=hyperlist.begin();ith!=hyperlist.end();ith++){
+		delete *ith;
+	}
+	hyperlist.clear();
+	
+	int it,isigma;
+	for(it=0;it<NTF;it++){
+		sampler[it].resize(NSIGMAF);
+		for(isigma=0;isigma<NSIGMAF;isigma++){
+			//printf("it=%d TFmin=%lf DELTF=%lf TFmin+(it+0.5)*DELTF=%lf\n",it,TFmin,DELTF,TFmin+(it+0.5)*DELTF);
+			delete sampler[it][isigma];
+		}
+		sampler[it].clear();
+	}
+	sampler.clear();
+	delete reslist;
+	delete randy;
 }
 
 int CmasterSampler::MakeEvent(){
 	int np;
 	Csampler *sampler;
+	ClearParts();
 	double Omega0Sum=0.0;
 	int nparts=0;
 	list<Chyper *>::iterator it;
@@ -89,6 +108,13 @@ int CmasterSampler::MakeEvent(){
 	}
 	NEVENTS+=1;
 	return nparts;
+}
+
+void CmasterSampler::ClearParts(){
+	int nparts=part.size();
+	for(int ipart=0;ipart<nparts;ipart++)
+		delete part[ipart];
+	part.clear();
 }
 
 Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
