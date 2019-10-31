@@ -64,6 +64,12 @@ int Csampler::MakeParts(Chyper *hyper){
                           pmap[resinfo->code].push_back(part);
                         }
 
+                        if (bose_test==true && (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111)) { //only runs when testing bose
+                          p=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]);
+                          ibin=floorl(p/dp);
+                          dN_dp_p2[ibin]+=(2*PI*PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+                        }
+
                         nparts++;
                         nptemp++;
                         randy->increase_threshold();

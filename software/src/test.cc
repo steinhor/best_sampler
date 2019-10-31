@@ -56,7 +56,7 @@ void test::n_hyperlist(CmasterSampler ms,int nsamplers) {
 
 }
 
-void test::n_dummy(CmasterSampler ms) {
+void test::n_dummy(bool readout) {
   Csampler *sampler=new Csampler(0.150,0.0930);
   Chyper *hyper=new Chyper();
 
@@ -80,12 +80,14 @@ void test::n_dummy(CmasterSampler ms) {
 		nparts+=sampler->MakeParts(hyper);
 	}
 
-	printf("code: dens: densityf: ires:\n");
-	for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
-		itr->second=itr->second/sampler->totvol;
-		resinfo=sampler->reslist->GetResInfoPtr(itr->first);
-		printf("%d %lf %lf %d\n",itr->first,itr->second,sampler->densityf[resinfo->ires],resinfo->ires);
-	}
+  if(readout) {
+  	printf("code: dens: densityf: ires:\n");
+  	for (itr=sampler->DensityMap.begin();itr!=sampler->DensityMap.end();itr++) {
+  		itr->second=itr->second/sampler->totvol;
+  		resinfo=sampler->reslist->GetResInfoPtr(itr->first);
+  		printf("%d %lf %lf %d\n",itr->first,itr->second,sampler->densityf[resinfo->ires],resinfo->ires);
+  	}
+  }
 
 	printf("nparts=%d\t",nparts);
 	printf("totvol=%lf\t",sampler->totvol);
@@ -127,7 +129,10 @@ void test::calc_bose(Csampler *sampler,Chyper *hyper, FILE *file) {
   vector<double> dN_dp_p2;
 
 	sampler->GetTfMuNH(hyper);
+  bool bose_off=sampler->bose_test_off;
 	sampler=new Csampler(hyper->T,hyper->sigma);
+  sampler->bose_test=true;
+  if (bose_off) sampler->bose_test_off=true;
 	sampler->GetTfMuNH(hyper);
 	sampler->CalcLambdaF();
 
@@ -158,21 +163,29 @@ void test::calc_bose(Csampler *sampler,Chyper *hyper, FILE *file) {
 }
 
 void test::test_viscous() {
-  Csampler *sampler=new Csampler(0.150,0.0930);
-  sampler->viscous_test=true;
-  Chyper *hyper=new Chyper();
-
   int nparts=0;
 	int N=50000*10;
 	map<int,vector<Cpart*>>::iterator it;
 	vector<Cpart*>::iterator itr;
-	map<int,double>::iterator iter;
-	map<double,double>::iterator itt;
-	map<int,double> MasterDensityMap;
 	double totvol=0.0;
-	CresInfo *resinfo;
+
+  double p[4];
+	double T[4][4];
+	for (int i=0;i<4;i++) {
+		for (int j=0;j<4;j++) {
+			T[i][j]=0.0;
+		}
+	}
+	Cpart *part;
+	double dens;
+	int code;
+	double temp;
+	double psquared;
+	double P;
+	double Tcalc=0;
 
 	//dummy hyper element
+  Chyper *hyper=new Chyper();
 	hyper->tau=12;
 	hyper->muB=0.0;
 	hyper->muI=0.0;
@@ -190,15 +203,17 @@ void test::test_viscous() {
 	hyper->pitilde[0][0]=0.0;
 	hyper->pitilde[1][1]=0.0;
 	hyper->pitilde[2][2]=0.0;
-	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.05;
+	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.005;
 	hyper->pitilde[3][3]=0.0;
 	hyper->pitilde[3][1]=hyper->pitilde[1][3]=0.0;
 	hyper->pitilde[3][2]=hyper->pitilde[2][3]=0.0;
 	hyper->pitilde[0][1]=hyper->pitilde[1][0]=0.0;
 	hyper->pitilde[0][2]=hyper->pitilde[2][0]=0.0;
 	hyper->pitilde[0][3]=hyper->pitilde[3][0]=0.0;
-	sampler=new Csampler(hyper->T,hyper->sigma);
+
+	Csampler *sampler=new Csampler(hyper->T,hyper->sigma);
   sampler->viscous_test=true;
+
 	for (int j=0;j<1;j++) {
 		hyper->rhoB=.007;
 		hyper->rhoI=0.1*hyper->rhoB;
@@ -213,40 +228,14 @@ void test::test_viscous() {
 		}
 	}
 	totvol=sampler->totvol;
-	//for (itt=sampler->dpmap.begin();itt!=sampler->dpmap.end();itt++) {
-	//	printf("%lf %lf\n",itt->first,itt->second*(2*PI*PI*pow(HBARC,3))/totvol);
-	//}
-	for (iter=sampler->DensityMap.begin();iter!=sampler->DensityMap.end();iter++) {
-		iter->second=iter->second/totvol;
-		//resinfo=sampler->reslist->GetResInfoPtr(iter->first);
-		//printf("code=%d dens=%lf densityf=%lf ires=%d\n",iter->first,iter->second,sampler->densityf[resinfo->ires],resinfo->ires);
-	}
-	double p[4];
-	double ptot;
-	double T[4][4];
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			T[i][j]=0.0;
-		}
-	}
-	Cpart *part;
-	double dens;
-	int code;
-	double temp;
-	double psquared;
-	double P;
-	double Tcalc=0;
-	bool x=false;
 
 	for (it=sampler->pmap.begin();it!=sampler->pmap.end();it++) {//for each species
-    printf("test 1\n");
 		code=it->first;
 		if (sampler->DensityMap.count(code)==1) {
 			dens=sampler->DensityMap[code];
 		}
 		else dens=0.0;
 		for (itr=it->second.begin();itr!=it->second.end();itr++) { //for each part of a given species
-      printf("test 2\n");
 			part=*itr;
 			part->p[0]=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+part->msquared);
 			psquared=part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3];
@@ -257,66 +246,13 @@ void test::test_viscous() {
 			}
 			for (int i=0;i<4;i++) { //row
 				for (int j=i;j<4;j++) { //column
-          printf("test 3\n");
 					temp=sampler->nhadronsf*(part->p[i]*part->p[j]/part->p[0])/nparts;
 					if (!isnan(part->p[0])) T[i][j]+=temp;
-          printf("temp=%lf\n",temp);
 				}
 			}
 		}
 	}
 
-
-  /*
-	double pbound=2.5;
-	double ndp=100.0;
-	resinfo=sampler->reslist->GetResInfoPtr(321);
-	double m=resinfo->mass;
-	double Tf=0.144;
-	int alpha,beta;
-	FourVector pnovisc;
-	for (long int i=0;i<N;i++) {
-		part=new Cpart;
-		sampler->randy->generate_boltzmann(m,Tf,part->p);
-
-		for (double i=0;i<=pbound;i+=pbound/double(ndp)) {
-			if (part->p[0]>=i && part->p[0]<(i+pbound/ndp)) {
-				if (sampler->dpmap.count(i+pbound/(2*ndp))==0) sampler->dpmap.insert(pair<double,double>(i+pbound/(2*ndp),1));
-				else sampler->dpmap[i+pbound/(2*ndp)]+=1;
-				//printf("binned! i=%lf\n",i);
-				break;
-			}
-		}
-
-    //part->p[0]=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+m*m);
-		//printf("p0calc=%lf\n",sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]+m*m));
-
-		psquared=part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3];
-		//P+=sampler->nhadronsf*(psquared/(3*part->p[0]))/N;
-		Tcalc+=(psquared/(3*part->p[0]))/N;
-		for (int i=0;i<4;i++) { //row
-			for (int j=i;j<4;j++) { //column
-				temp=(part->p[i]*part->p[j]/part->p[0])/N; //sampler->nhadronsf
-				//printf("dens=%lf p[%d]=%lf p[%d]=%lf p[0]=%lf \n",dens,i,part->p[i],j,part->p[j],part->p[0]);
-				T[i][j]+=temp;
-			}
-		}
-	}
-	//for (map<double,double>::iterator it=sampler->dpmap.begin();it!=sampler->dpmap.end();it++) {
-		//printf("%lf %lf\n",it->first,it->second);
-	//}
-  */
-	//P=Tcalc;
-
-	printf("T= \n");
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			printf("%lf ",T[i][j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-	printf("P=%lf\tsampler->Pf=%lf\tTcalc=%lf\tTsampler=%lf\n\n",P,sampler->Pf,Tcalc,sampler->Pf/sampler->nhadronsf);
 	printf("\n");
 	printf("T-Pcalc= \n");
 	for (int i=0;i<4;i++) {
@@ -330,4 +266,87 @@ void test::test_viscous() {
 	printf("totvol=%lf densityf=%lf\n",totvol,sampler->nhadronsf);
 	printf("nparts=%d\n",nparts);
 
+}
+
+void test::newton_method_hyperlist(CmasterSampler ms) {
+  Csampler *sampler=new Csampler(0.150,0.0930);
+  Chyper *hyper=new Chyper();
+  list<Chyper *>::iterator itr;
+	int n=0;
+	int nparts=0;
+	for (itr=ms.hyperlist.begin();itr!=ms.hyperlist.end();itr++){
+		if (n%500==0) {
+			hyper=*itr;
+			printf("epsilon=%g, rhoB=%6.4f, rhoI=%6.4f, rhoS=%6.4f, T=%7.3f\n",hyper->epsilon,hyper->rhoB,hyper->rhoI,hyper->rhoS,hyper->T);
+			sampler->GetTfMuNH(hyper);
+			printf("nhadrons=%7.4f, T=%7.3f, muB=%7.4f, muI=%7.4f, muS=%7.4f \n\n",hyper->nhadrons,hyper->T,hyper->muB,hyper->muI,hyper->muS);
+		}
+		n++;
+	}
+}
+
+void test::newton_method_dummy() {
+  Csampler *sampler=new Csampler(0.150,0.0930);
+  Chyper *hyper=new Chyper();
+  const int NHYPER=15;
+
+  for(int ihyper=0;ihyper<=NHYPER;ihyper++){
+		hyper->muB=0.0;
+		hyper->T=.080;
+		hyper->sigma=93.0;
+		for(int jhyper=0;jhyper<=NHYPER;jhyper++){
+			hyper->rhoB=jhyper*0.15/double(NHYPER);
+			hyper->epsilon=(50+1000*hyper->rhoB+750.0*ihyper/double(NHYPER))/1000;
+			hyper->rhoI=0.1*hyper->rhoB;
+			hyper->rhoS=0.0;
+			sampler->GetTfMuNH(hyper);
+			sampler->CalcLambda();
+			printf("epsilon=%g, rhoB=%6.4f, nhadrons=%7.4f, T=%7.3f, muB=%7.4f, muI=%7.4f, muS=%7.4f \n",hyper->epsilon,hyper->rhoB,hyper->nhadrons,hyper->T,hyper->muB,hyper->muI,hyper->muS);
+			printf("lambdaf=%lf\n",sampler->lambdaf);
+		}
+		printf("--------------------------------------------------------------------------------------------\n");
+	}
+	printf("------ hyper elements created ----------- \n");
+	//for (int i=0; i<493; i++) {
+	//	printf("%d\t%lf\n",i,sampler->densityf0[i]);
+	//}
+}
+
+void test::eps_rho_derivs() {
+  Csampler *sampler=new Csampler(0.150,0.0930);
+
+  Eigen::MatrixXd A(4,4);
+	Eigen::MatrixXd B(4,4);
+	Eigen::VectorXd dmu(4);
+	dmu[0]=0.05; dmu[1]=dmu[2]=dmu[3]=0.002;
+	Eigen::VectorXd mu(4);
+	Eigen::VectorXd rho(4),rho1(4),rho2(4);
+	double rhoB,rhoI,rhoS,epsilon;
+
+  double Tf=120.0;
+	double muB=12.0,muI=0.0,muS=0.0;
+	mu[0]=Tf; mu[1]=muB; mu[2]=muI; mu[2]=mu[3];
+	sampler->Tf=mu[0]; sampler->muB=mu[1]; sampler->muI=mu[2]; sampler->muS=mu[3];
+	sampler->GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
+	rho[0]=epsilon; rho[1]=rhoB; rho[2]=rhoI; rho[3]=rhoS;
+	printf("epsilon=%g, rhoB=%g, rhoI=%g, rhoS=%g\n",epsilon,rhoB,rhoI,rhoS);
+	cout << A << endl;
+	printf("-----------------------------\n");
+
+	int i,j;
+	for(j=0;j<4;j++){
+		mu[j]+=0.5*dmu[j];
+		sampler->Tf=mu[0]; sampler->muB=mu[1]; sampler->muI=mu[2]; sampler->muS=mu[3];
+		sampler->GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
+		rho2[0]=epsilon; rho2[1]=rhoB; rho2[2]=rhoI; rho2[3]=rhoS;
+		mu[j]-=dmu[j];
+		sampler->Tf=mu[0]; sampler->muB=mu[1]; sampler->muI=mu[2]; sampler->muS=mu[3];
+		sampler->GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
+		rho1[0]=epsilon; rho1[1]=rhoB; rho1[2]=rhoI; rho1[3]=rhoS;
+		mu[j]+=0.5*dmu[j];
+		for(i=0;i<4;i++)
+			B(i,j)=(rho2[i]-rho1[i])/dmu[j];
+	}
+	cout << B << endl;
+	printf("-----------------------------\n");
 }
