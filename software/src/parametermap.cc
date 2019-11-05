@@ -1,7 +1,7 @@
 #ifndef parameterMap_CC
 #define parameterMap_CC
 
-#include "parametermap.h" 
+#include "pratt_sampler/parametermap.h" 
 #include <iostream>
 
 //Returns an integer from the map.
@@ -9,12 +9,12 @@ int CparameterMap::getI(string key,int def)
 {
   int param;
   map<string,string>::iterator itr;
-  itr = this->find(key); 
+  itr = this->find(key);
   if(itr!=this->end()){
-    stringstream ss(itr->second); 
-    ss>>param; 
+    stringstream ss(itr->second);
+    ss>>param;
   }else{
-    param = def; 
+    param = def;
   }
   return param;
 }
@@ -26,7 +26,7 @@ bool CparameterMap::getB(string key,bool def)
   string pstring,ppstring;
   stringstream ss;
   map<string,string>::iterator itr;
-  itr = this->find(key); 
+  itr = this->find(key);
   if(itr!=this->end()){
     pstring=itr->second;
     //printf("pstring=%s\n",pstring.c_str());
@@ -52,7 +52,7 @@ bool CparameterMap::getB(string key,bool def)
 string CparameterMap::getS(string key,string def)
 {
   string param;
-  map<string,string>::iterator itr; 
+  map<string,string>::iterator itr;
   itr = this->find(key);  //find the value associated with string "key" in the parameter map
   if(itr!=this->end()){
     param = itr->second;
@@ -67,12 +67,12 @@ double CparameterMap::getD(string key,double def)
 {
   double param;
   map<string,string>::iterator itr;
-  itr = this->find(key); 
+  itr = this->find(key);
   if(itr!=this->end()){
-    stringstream ss(itr->second); 
-    ss>>param; 
+    stringstream ss(itr->second);
+    ss>>param;
   }else{
-    param = def; 
+    param = def;
   }
   return param;
 }
@@ -81,8 +81,8 @@ double CparameterMap::getD(string key,double def)
 vector< double > CparameterMap::getV( string key, string def){
   vector< double > vec;
   double tmp;
-  map<string,string>::iterator itr; 
-  itr = this->find(key); 
+  map<string,string>::iterator itr;
+  itr = this->find(key);
   if(itr!=this->end()){
     stringstream ss(itr->second);
     while (ss>>tmp){vec.push_back(tmp);}
@@ -106,8 +106,8 @@ vector< double > CparameterMap::getV( string key, string def){
 vector< string > CparameterMap::getVS( string key, string def){
   vector< string > vec;
   string tmp;
-  map<string,string>::iterator itr; 
-  itr = this->find(key); 
+  map<string,string>::iterator itr;
+  itr = this->find(key);
   if(itr!=this->end()){
     stringstream ss(itr->second);
     while (ss>>tmp){vec.push_back(tmp);}
@@ -131,24 +131,24 @@ vector< string > CparameterMap::getVS( string key, string def){
 void CparameterMap::set(string key,double val)
 {
   string sval;
-  stringstream ss; 
-  ss<<val;ss>>sval; 
+  stringstream ss;
+  ss<<val;ss>>sval;
   set(key,sval);
 }
 //Adds an int to the map.
 void CparameterMap::set(string key,int val)
 {
   string sval;
-  stringstream ss; 
-  ss<<val;ss>>sval; 
+  stringstream ss;
+  ss<<val;ss>>sval;
   set(key,sval);
 }
 //Adds a bool to the map.
 void CparameterMap::set(string key,bool val)
 {
   string sval;
-  stringstream ss; 
-  ss<<val;ss>>sval; 
+  stringstream ss;
+  ss<<val;ss>>sval;
   set(key,sval);
 }
 //Adds a char* to the map.
@@ -202,7 +202,7 @@ void CparameterMap::ReadParsFromFile(const char *filename){
     printf("attempting to read non-existent parameter file %s\n",filename);
     exit(1);
   }
-	
+
   while(!parsfile.eof()){
 		//uses a string instead of a c string, removes line length limitation
     getline(parsfile, line, '\n');
@@ -215,11 +215,11 @@ void CparameterMap::ReadParsFromFile(const char *filename){
 				ss >> key;
 			else
 				key=type;
-			
+
 			//these lines allow for vector data to be read in, in the form of a set of delimited values.
 			//this line sets value to be a string that is the rest of the line.
       value = ss.str().substr(ss.tellg());
-			
+
 			//these lines strip out any leading or trailing whitespace from the strings.
       size_t beginning = value.find_first_not_of(" \t");
       if(beginning == string::npos){
@@ -229,7 +229,7 @@ void CparameterMap::ReadParsFromFile(const char *filename){
       size_t end = value.find_last_not_of(" \t");
       size_t range = end-beginning + 1;
       value = value.substr(beginning, range);
-			
+
 			// cout << "Storing:" << endl;
 			// cout << "Key:" << key << endl;
 			// cout << "Value:" << value << endl;
@@ -263,15 +263,15 @@ void CparameterMap::PrintPars(){
 vector< vector< double > > CparameterMap::getM( string key, double def){
   vector< vector< double > > mtx;
   double tmp;
-  map<string,string>::iterator itr; 
-  itr = this->find(key); 
+  map<string,string>::iterator itr;
+  itr = this->find(key);
   if(itr!=this->end()){
     stringstream ss(itr->second);
     string line("");
     while (ss.good()){
       vector< double > vec;
       while ((line=="")&&ss.good()) {
-        getline(ss,line); 
+        getline(ss,line);
         stringstream buf(line);
         while (buf>>tmp) {vec.push_back(tmp);}
       }
@@ -279,8 +279,8 @@ vector< vector< double > > CparameterMap::getM( string key, double def){
       if (vec.size()!=0) mtx.push_back(vec);
     }
   }else{
-    vector< double > vec(1,0.); 
-    mtx.push_back(vec); 
+    vector< double > vec(1,0.);
+    mtx.push_back(vec);
   }
   return mtx;
 }

@@ -1,4 +1,4 @@
-#include "sampler.h"
+#include "pratt_sampler/sampler.h"
 using namespace std;
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;
@@ -7,7 +7,11 @@ CmasterSampler *Csampler::mastersampler=NULL;
 bool Csampler::CALCMU=false;
 
 Csampler::Csampler(double Tfset,double sigmafset){
-	Tf=Tfset;
+  bose_test_off=false;
+	bose_test=false;
+	viscous_test=false;
+
+  Tf=Tfset;
 	sigmaf=sigmafset;
 	bose_corr=parmap->getB("BOSE_CORR",false);
 	n_bose_corr=parmap->getI("N_BOSE_CORR",1);
@@ -322,7 +326,7 @@ void Csampler::GetNHadronsf(Chyper *hyper){
 		}
 	}
 	hyper->nhadrons=nhadronsf;
-	
+
 	int ires=0;
 	double mutot,dNcheck=0.0,I3;
 	CresInfo *resinfo;
@@ -506,7 +510,6 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		}
 		smb=sinh(muB);
 		cmb=cosh(muB);
-
 		GetEpsilonRhoDerivatives(epsilon,rhoB,rhoI,rhoS,A);
 		for(int i=0;i<4;i++){
 			A(i,1)=A(i,1)/cmb;
@@ -803,7 +806,6 @@ void Csampler::CalcDensitiesF0(){
 		resinfo=rpos->second;
 		if(resinfo->code!=22){
 			I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-
 			GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,maxweighti);
 			densityf0[ires]=densi;
 			epsilonf0i[ires]=epsiloni;
@@ -875,6 +877,11 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsilon
 	m=mf->GetMass(resinfo,sigmaf);
 	width=resinfo->width;
 	minmass=resinfo->minmass;
+
+  if(Tf==0) {
+    printf("%d",resinfo->code);
+    exit(1);
+  }
 
 	if((minmass>0.0) && (width>0.00001) && decay){
 		m1=mf->GetMass(resinfo->branchlist[0]->resinfo[0],sigmaf);

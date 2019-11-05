@@ -1,4 +1,4 @@
-#include "master.h"
+#include "pratt_sampler/master.h"
 using namespace std;
 CmeanField *CmasterSampler::meanfield=NULL;
 
@@ -50,7 +50,7 @@ CmasterSampler::~CmasterSampler(){
 		delete *ith;
 	}
 	hyperlist.clear();
-	
+
 	int it,isigma;
 	for(it=0;it<NTF;it++){
 		sampler[it].resize(NSIGMAF);

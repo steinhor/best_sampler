@@ -1,81 +1,113 @@
-#include "sampler.h"
+#include "pratt_sampler/sampler.h"
 using namespace std;
 
 int Csampler::MakeParts(Chyper *hyper){
-	int nparts=0,ires,alpha;
-	CresInfo *resinfo;
-	Cpart *part;
-	double udotdOmega=hyper->udotdOmega;
-	double dN=0,dNtot=0,dNtotprime=0,mutot=0,I3;
-	double dNcheck=0.0;
+    int nparts=0,ires,ibin,alpha;
+    CresInfo *resinfo;
+    Cpart *part;
+    double udotdOmega=hyper->udotdOmega;
+    double dN=0,dNtot=0,dNprime=0,xx=1.0,mutot=0,I3;
+    double nptemp,p;
+		double dNcheck=0.0;
 
-	CresMassMap::iterator iter;
-	if(mastersampler->SETMU0)
-		dNtot=dNtotprime=udotdOmega*nhadronsf0;
-	else
-		dNtot=dNtotprime=udotdOmega*hyper->nhadrons;
-	totvol+=udotdOmega;
-	
-	if(randy->test_threshold(dNtot)){
-		ires=0;
-		dNcheck=0.0;
-		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
-			resinfo=iter->second;
-			if(resinfo->code!=22) {
-				I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
-				mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-				if((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && bose_corr) {
-					for (int i=1;i<=n_bose_corr;i++){
-						dN=pow(exp(mutot),i)*npidens[resinfo->code][i-1]*udotdOmega;
-						randy->increment_netprob(dN);
-						dNtotprime-=dN;
-						while (randy->test_threshold(0.0)){
-							part=new Cpart();
-							mastersampler->part.push_back(part);
-							GetP(hyper,resinfo,part,Tf/i);
-							for(alpha=0;alpha<4;alpha++)
-								part->r[alpha]=hyper->r[alpha];
-							nparts+=1;
-							randy->increase_threshold();
-						}
-					}
-				}
-				else {
-					if(mastersampler->SETMU0)
-						dN=densityf0[ires]*udotdOmega;
-					else
-						dN=exp(mutot)*densityf0[ires]*udotdOmega;
-					dNcheck+=dN;
-					if(dNcheck>dNtot*1.001){
-						printf("Inside Csampler::MakeParts dNcheck=%g > dNtot=%g\n",dNcheck,dNtot);
-						exit(1);
-					}
-					randy->increment_netprob(dN);
-					dNtotprime-=dN;
-					while(randy->test_threshold(0.0)){
-						part=new Cpart();
-						mastersampler->part.push_back(part);
-						GetP(hyper,resinfo,part,Tf);
-						for(alpha=0;alpha<4;alpha++)
-							part->r[alpha]=hyper->r[alpha];
-						nparts+=1;
-						randy->increase_threshold();
-					}
-				}
-				if(!(randy->test_threshold(dNtotprime))){
-					randy->increment_netprob(dNtotprime);
-					goto NoMoreParts;
-				}
-				ires++;
-			}
-		}
-		NoMoreParts:
-		return nparts;
-	}
-	else{
-		randy->increment_netprob(dNtot);
-		return 0;
-	}
+    CresMassMap::iterator iter;
+    if(mastersampler->SETMU0)
+        dNtot=dNprime=udotdOmega*nhadronsf0;
+    else
+        dNtot=dNprime=udotdOmega*nhadronsf;
+
+    totvol+=udotdOmega;
+    if(randy->test_threshold(dNtot)){
+        ires=0;
+				dNcheck=0.0;
+        for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
+            resinfo=iter->second;
+            if(resinfo->code!=22) {
+								I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
+								mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
+                if((resinfo->code==211 || resinfo->code==-211 || resinfo->code==111) && parmap->getB("BOSE_CORR",false) && bose_test_off==false) {
+                    nptemp=0;
+
+                    for (int i=1;i<=parmap->getI("N_BOSE_CORR",1);i++) {
+                        dN=pow(exp(mutot),i)*npidens[resinfo->code][i-1]*udotdOmega;
+
+                        randy->increment_netprob(dN);
+                        dNprime-=dN;
+                        while (randy->test_threshold(0.0)){
+                            part=new Cpart();
+														mastersampler->part.push_back(part);
+                            GetP(hyper,resinfo,part,Tf/i);
+                            if (viscous_test==true) { //only runs when testing viscous corrections
+                              pmap[resinfo->code].push_back(part);
+                            }
+
+                            if (bose_test==true) { //only runs when testing bose
+                              p=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]);
+                              ibin=floorl(p/dp);
+                              dN_dp_p2[ibin]+=(2*PI*PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+                            }
+
+														for(alpha=0;alpha<4;alpha++)
+																part->r[alpha]=hyper->r[alpha];
+
+                            nparts++;
+                            nptemp++;
+                            randy->increase_threshold();
+                        }
+                    }
+                }
+                else {
+                    if(mastersampler->SETMU0) dN=densityf0[ires]*udotdOmega;
+                    else dN=densityf[ires]*udotdOmega;
+										dNcheck+=dN;
+										if(dNcheck>dNtot*1.001){
+												printf("Inside Csampler::MakeParts dNcheck=%g > dNtot=%g\n",dNcheck,dNtot);
+												exit(1);
+										}
+                    randy->increment_netprob(dN);
+                    dNprime-=dN;
+                    nptemp=0;
+                    while(randy->test_threshold(0.0)){
+                        part=new Cpart();
+												mastersampler->part.push_back(part);
+                        GetP(hyper,resinfo,part,Tf);
+
+                        if (viscous_test==true) { //only runs when testing viscous corrections
+                          pmap[resinfo->code].push_back(part);
+                        }
+
+                        if (bose_test==true && (resinfo->code==211 || resinfo->code==-211 || resinfo->code==111)) { //only runs when testing bose
+                          p=sqrt(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3]);
+                          ibin=floorl(p/dp);
+                          dN_dp_p2[ibin]+=(2*PI*PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+                        }
+
+												for(alpha=0;alpha<4;alpha++)
+														part->r[alpha]=hyper->r[alpha];
+
+                        nparts++;
+                        nptemp++;
+                        randy->increase_threshold();
+                    }
+                }
+
+                if (DensityMap.count(resinfo->code)==0) DensityMap.insert(pair<int,double>(resinfo->code,nptemp));
+                else DensityMap[resinfo->code]+=nptemp;
+
+                if(!(randy->test_threshold(dNprime))){
+                    randy->increment_netprob(dNprime);
+                    goto NoMoreParts;
+                }
+                ires++;
+            }
+        }
+    NoMoreParts:
+        return nparts;
+    }
+    else{
+        randy->increment_netprob(dNtot);
+        return 0;
+    }
 }
 
 void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,Cpart *part, double T){
@@ -106,9 +138,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,Cpart *part, double T){
 			ptilde[alpha]=pnoviscous[alpha];
 			for(beta=1;beta<4;beta++){
 				if(mastersampler->SETMU0)
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*hyper->lambda*(2*PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf0+Pf0)*lambdaf*(2*PI));
 				else
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*hyper->lambda*(2*PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilonf+Pf)*lambdaf*(2*PI));
 			}
 		}
 		ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);

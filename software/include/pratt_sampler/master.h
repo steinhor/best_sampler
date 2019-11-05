@@ -44,6 +44,7 @@ public:
 	Csampler* ChooseSampler(Chyper *hyper);
 	void ChooseSampler(double Tf,double sigmaf,int &itf,int &isigmaf);
 	void WriteParts();
+	void ClearParts();
 	static CmeanField *meanfield;
 };
 

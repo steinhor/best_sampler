@@ -39,6 +39,14 @@ public:
 	map<int,double> DensityMap;
 	double totvol;
 
+	//some variables used only for testing
+	vector<double> dN_dp_p2;
+	double dp;
+	bool bose_test_off;
+	bool bose_test;
+	bool viscous_test;
+	map<int,vector<Cpart*>> pmap;
+
 	CboseMap npidens, npiP, npiepsilon, npidedt;
 	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
 	bool bose_corr;
@@ -71,7 +79,7 @@ public:
 	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget);
 	void GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 	int MakeParts(Chyper *hyper);
-	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,Cpart *part,double T);
+	void GetP(Chyper *hyper,CresInfo *resinfo,Cpart *part,double T);
 
 	// Same as above with with rhoI != 0, I1 refers to |I_3|=1/2, I3 to 3/2...
 	void GetMuNH(double rhoBtarget,double rhoItarget,double &muB,double &muI,double &muS,double &nh); // Uses nh0_xxx, rhoB, rhoI and rhoS=0 to find muB/T, muI/T and muS/T, also finds total hadron density
