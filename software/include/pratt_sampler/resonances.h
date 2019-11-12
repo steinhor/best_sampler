@@ -7,12 +7,12 @@
 #include <array>
 #include <fstream>
 #include <gsl/gsl_sf.h>
-#include <Eigen/Dense>
-#include "pratt_sampler/parametermap.h"
-#include "pratt_sampler/randy.h"
-#include "pratt_sampler/classdefs.h"
-#include "pratt_sampler/misc.h"
-#include "pratt_sampler/constants.h"
+#include <eigen3/Eigen/Dense>
+#include "parametermap.h"
+#include "randy.h"
+#include "classdefs.h"
+#include "misc.h"
+#include "constants.h"
 
 using namespace std;
 
@@ -27,11 +27,11 @@ class CresInfo{
 public:
 	int ires;
 	double mass;
-	double spin;
+	double degen;
 	double width;
 	double minmass;
 	string name;
-	int code;
+	int pid;
 	int charge;
 	int strange;
 	int baryon;
@@ -43,11 +43,12 @@ public:
 	bool decay; //false if stable, true if can decay. check if true
 	CbranchList branchlist;
 	CbranchInfo	*bptr_minmass;
-	map<double,double> spectmap;
+	//map<double,double> spectmap;
+	vector<double> spectvec;
 	void Print();
 	void DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo);
 	void DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo);
-	bool CheckForDaughters(int code);
+	bool CheckForDaughters(int pid);
 	bool CheckForNeutral();
 	double GenerateMass();
 	double ChiInt(double T,double vmax); // Integral used by ChiOmega
@@ -56,6 +57,20 @@ public:
 	static Crandy *randy;
 	static CresList *reslist;
 	static double **ChiA; // stored array used by ChiOmegaInt
+	void CalcSpectralFunction();
+	double GetSpectralFunction(double E);
+	double GetEofN(int n); // return energy for middle of spectral function bin n
+	double GetMeshE(double E); // returns E at middle of mesh cell
+	void PrintSpectralFunction();
+	double GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b);
+	double GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo *resinfo_b);  // form factor for generating spectral functions
+	double GetBL2(double k); // factor used to generate spectral functions in arXiv:1606642v2
+	double GetBW(double E,double Mr,double Gamma);  // relativistic Breit Wigner
+	double GetBW_base(double E,double Mr,double Gamma); // simple non-rel. fixed gamma BW, used as base for Monte Carlo
+	double GetDecayMomentum(double M,double ma,double mb);
+	void NormalizeSF();  //normalizes spectral function
+	bool SFcalculated;
+	static int NSPECTRAL;  // number of points in spectral function
 };
 /*
 class Cmerge{
@@ -80,6 +95,7 @@ public:
 	CresInfo *GetResInfoPtr(int pid);
 	void ReadResInfo();
 	void FillSpectMap(CresInfo *resinfo);
+	void CalcSpectralFunctions();
 	//bool RESONANCE_DECAYS;
 	CparameterMap *parmap;
 };

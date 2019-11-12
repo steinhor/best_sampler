@@ -11,6 +11,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/pratt_sampler.dir/software/src/part.cc.o"
   "CMakeFiles/pratt_sampler.dir/software/src/randy.cc.o"
   "CMakeFiles/pratt_sampler.dir/software/src/resonances.cc.o"
+  "CMakeFiles/pratt_sampler.dir/software/src/resonances_spectral.cc.o"
   "CMakeFiles/pratt_sampler.dir/software/src/sampler.cc.o"
   "CMakeFiles/pratt_sampler.dir/software/src/test.cc.o"
   "pratt_sampler.pdb"

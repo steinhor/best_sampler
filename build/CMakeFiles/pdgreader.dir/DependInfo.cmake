@@ -16,6 +16,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/steinhor/frib/.git/best_sampler/software/src/part.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/part.cc.o"
   "/home/steinhor/frib/.git/best_sampler/software/src/randy.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/randy.cc.o"
   "/home/steinhor/frib/.git/best_sampler/software/src/resonances.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/resonances.cc.o"
+  "/home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/resonances_spectral.cc.o"
   "/home/steinhor/frib/.git/best_sampler/software/src/sampler.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/sampler.cc.o"
   "/home/steinhor/frib/.git/best_sampler/software/src/test.cc" "/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir/software/src/test.cc.o"
   )

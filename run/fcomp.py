@@ -17,7 +17,7 @@ fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
 x = np.linspace(0, 1.0, 100)
-T=.144536
+T=.133294
 m=.138
 ax1.plot(x, np.exp(-np.sqrt(x**2+m*m)/T)/(1-np.exp(-np.sqrt(x**2+m*m)/T)))
 ax1.plot(x, np.exp(-np.sqrt(x**2+m*m)/T))

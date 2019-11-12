@@ -321,9 +321,33 @@ CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o.provides: CMake
 CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o.provides.build: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o
 
 
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o: CMakeFiles/pratt_sampler_shared.dir/flags.make
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o: ../software/src/resonances_spectral.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc
+
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc > CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.i
+
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc -o CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.s
+
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.requires:
+
+.PHONY : CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.requires
+
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.provides: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.requires
+	$(MAKE) -f CMakeFiles/pratt_sampler_shared.dir/build.make CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.provides.build
+.PHONY : CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.provides
+
+CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.provides.build: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o
+
+
 CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o: CMakeFiles/pratt_sampler_shared.dir/flags.make
 CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o: ../software/src/sampler.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/sampler.cc
 
 CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.i: cmake_force
@@ -347,7 +371,7 @@ CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o.provides.build: CM
 
 CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o: CMakeFiles/pratt_sampler_shared.dir/flags.make
 CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o: ../software/src/test.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/test.cc
 
 CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.i: cmake_force
@@ -382,6 +406,7 @@ pratt_sampler_shared_OBJECTS = \
 "CMakeFiles/pratt_sampler_shared.dir/software/src/part.cc.o" \
 "CMakeFiles/pratt_sampler_shared.dir/software/src/randy.cc.o" \
 "CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o" \
+"CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o" \
 "CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o" \
 "CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o"
 
@@ -399,6 +424,7 @@ libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/par
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/part.cc.o
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/randy.cc.o
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o
+libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/build.make
@@ -408,7 +434,7 @@ libpratt_sampler_shared.so: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
 libpratt_sampler_shared.so: /usr/lib/x86_64-linux-gnu/libboost_math_c99.so
 libpratt_sampler_shared.so: /usr/lib/x86_64-linux-gnu/libboost_system.so
 libpratt_sampler_shared.so: CMakeFiles/pratt_sampler_shared.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX shared library libpratt_sampler_shared.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking CXX shared library libpratt_sampler_shared.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/pratt_sampler_shared.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -427,6 +453,7 @@ CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.di
 CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/part.cc.o.requires
 CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/randy.cc.o.requires
 CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances.cc.o.requires
+CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o.requires
 CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/sampler.cc.o.requires
 CMakeFiles/pratt_sampler_shared.dir/requires: CMakeFiles/pratt_sampler_shared.dir/software/src/test.cc.o.requires
 

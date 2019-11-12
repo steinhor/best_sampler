@@ -9,5 +9,5 @@ SAMPLER_NEVENTS 1
 RESONANCES_INFO_FILE ../local/resinfo/pdg-SMASH.dat
 RESONANCES_DECAYS_FILE ../local/resinfo/pdg-SMASH.dat
 HYPER_INFO_FILE ../local/include/surface_2D.dat
-BOSE_CORR true
-N_BOSE_CORR 5
+SAMPLER_BOSE_CORR true
+SAMPLER_N_BOSE_CORR 5

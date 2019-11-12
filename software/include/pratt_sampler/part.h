@@ -22,36 +22,34 @@ class Cpart{
 public:
 	Cpart();
 	~Cpart();
-	double tau0;
-	double y,eta,msquared;
+	int pid;
+	double msquared;
 	FourVector p,r;
- 	CresInfo *resinfo;
-	
-	void Init(int pid,double x,double y,double tau,double eta,double px,double py,double mass,double rapidity);
-	void Setp0();
-	void SetMass();
-	void Copy(Cpart *part);
-	void CopyPositionInfo(Cpart *part);
-	void CopyMomentumInfo(Cpart *part);
-	double GetMass();
-	void SetInitialKey();
-	void Kill();
 	void Print();
-	void BjorkenTranslate();
-	void BjorkenUnTranslate();
+	double GetMass();
+	void AddPart(int pid,FourVector &p,FourVector &r);
+	void Setp0();
+	void SetMsquared();
 	void Boost(FourVector &u);
 	void BoostP(FourVector &u);
 	void BoostR(FourVector &u);
-	double GetEta(double tau);
-	double GetPseudoRapidity();
-	double GetRapidity();
-	double GetMT();
-	void SetY();
-	void SetEta(double neweta);
-	void GetHBTPars(double &t,double &rout,double &rside,double &rlong);
-	CpartMap::iterator GetPos(CpartMap *pmap);
-	CpartMap::iterator DeleteFromMap(CpartMap *partmap);
-	static CresList *reslist;
+};
+
+
+class CpartList{
+public:
+	CpartList(CparameterMap *parmap);
+	~CpartList();
+	int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
+	vector<Cpart> partvec;
+	Cpart *GetPart();
+	void Kill(); // set nparts=0 and frees memory
+	void Reset();     // just sets nparts=0
+	void WriteParts(string filename);
+	int CountResonances(int pid);
+	double SumEnergy();
+	double SumEnergy(int pid);
+	void AddPart(int pidset,FourVector &pset,FourVector &rset);
 };
 
 #endif

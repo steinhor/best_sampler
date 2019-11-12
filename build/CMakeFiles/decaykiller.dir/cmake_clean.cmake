@@ -11,6 +11,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/decaykiller.dir/software/src/part.cc.o"
   "CMakeFiles/decaykiller.dir/software/src/randy.cc.o"
   "CMakeFiles/decaykiller.dir/software/src/resonances.cc.o"
+  "CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o"
   "CMakeFiles/decaykiller.dir/software/src/sampler.cc.o"
   "CMakeFiles/decaykiller.dir/software/src/test.cc.o"
   "decaykiller.pdb"

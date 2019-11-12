@@ -16,7 +16,6 @@ class Chyper;
 class CmasterSampler;
 class CmeanField;
 
-typedef map<int,vector<double>> CboseMap;
 typedef map<long int,CresInfo *> CresInfoMap;
 typedef multimap<double,CresInfo *> CresMassMap;
 typedef pair<long int, CresInfo*> CresInfoPair;

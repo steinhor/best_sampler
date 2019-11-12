@@ -345,9 +345,33 @@ CMakeFiles/decaykiller.dir/software/src/resonances.cc.o.provides: CMakeFiles/dec
 CMakeFiles/decaykiller.dir/software/src/resonances.cc.o.provides.build: CMakeFiles/decaykiller.dir/software/src/resonances.cc.o
 
 
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o: CMakeFiles/decaykiller.dir/flags.make
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o: ../software/src/resonances_spectral.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc
+
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc > CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.i
+
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/steinhor/frib/.git/best_sampler/software/src/resonances_spectral.cc -o CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.s
+
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.requires:
+
+.PHONY : CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.requires
+
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.provides: CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.requires
+	$(MAKE) -f CMakeFiles/decaykiller.dir/build.make CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.provides.build
+.PHONY : CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.provides
+
+CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.provides.build: CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o
+
+
 CMakeFiles/decaykiller.dir/software/src/sampler.cc.o: CMakeFiles/decaykiller.dir/flags.make
 CMakeFiles/decaykiller.dir/software/src/sampler.cc.o: ../software/src/sampler.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/decaykiller.dir/software/src/sampler.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/decaykiller.dir/software/src/sampler.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/decaykiller.dir/software/src/sampler.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/sampler.cc
 
 CMakeFiles/decaykiller.dir/software/src/sampler.cc.i: cmake_force
@@ -371,7 +395,7 @@ CMakeFiles/decaykiller.dir/software/src/sampler.cc.o.provides.build: CMakeFiles/
 
 CMakeFiles/decaykiller.dir/software/src/test.cc.o: CMakeFiles/decaykiller.dir/flags.make
 CMakeFiles/decaykiller.dir/software/src/test.cc.o: ../software/src/test.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/decaykiller.dir/software/src/test.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/decaykiller.dir/software/src/test.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/decaykiller.dir/software/src/test.cc.o -c /home/steinhor/frib/.git/best_sampler/software/src/test.cc
 
 CMakeFiles/decaykiller.dir/software/src/test.cc.i: cmake_force
@@ -407,6 +431,7 @@ decaykiller_OBJECTS = \
 "CMakeFiles/decaykiller.dir/software/src/part.cc.o" \
 "CMakeFiles/decaykiller.dir/software/src/randy.cc.o" \
 "CMakeFiles/decaykiller.dir/software/src/resonances.cc.o" \
+"CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o" \
 "CMakeFiles/decaykiller.dir/software/src/sampler.cc.o" \
 "CMakeFiles/decaykiller.dir/software/src/test.cc.o"
 
@@ -425,6 +450,7 @@ decaykiller: CMakeFiles/decaykiller.dir/software/src/parametermap.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/software/src/part.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/software/src/randy.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/software/src/resonances.cc.o
+decaykiller: CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/software/src/sampler.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/software/src/test.cc.o
 decaykiller: CMakeFiles/decaykiller.dir/build.make
@@ -434,7 +460,7 @@ decaykiller: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
 decaykiller: /usr/lib/x86_64-linux-gnu/libboost_math_c99.so
 decaykiller: /usr/lib/x86_64-linux-gnu/libboost_system.so
 decaykiller: CMakeFiles/decaykiller.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking CXX executable decaykiller"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/steinhor/frib/.git/best_sampler/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable decaykiller"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/decaykiller.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -454,6 +480,7 @@ CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/par
 CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/part.cc.o.requires
 CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/randy.cc.o.requires
 CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/resonances.cc.o.requires
+CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o.requires
 CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/sampler.cc.o.requires
 CMakeFiles/decaykiller.dir/requires: CMakeFiles/decaykiller.dir/software/src/test.cc.o.requires
 

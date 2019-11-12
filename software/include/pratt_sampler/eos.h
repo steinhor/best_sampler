@@ -22,10 +22,8 @@
 using namespace std;
 
 namespace EOS{
-    void freegascalc_onespecies(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
-    void freegascalc_onespecies_finitewidth(CboseMap &npidens,CboseMap &npiP,CboseMap &npiepsilon,CboseMap &npidedt,CparameterMap *parmap,CresInfo *resinfo,double T,double resmass,double m1, double m2, double reswidth_alpha, 
-                                            double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight);
-
+    void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
+    void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight);
 };
 
 #endif

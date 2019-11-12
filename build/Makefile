@@ -639,6 +639,42 @@ software/src/resonances.cc.s:
 	$(MAKE) -f CMakeFiles/pratt_sampler.dir/build.make CMakeFiles/pratt_sampler.dir/software/src/resonances.cc.s
 .PHONY : software/src/resonances.cc.s
 
+software/src/resonances_spectral.o: software/src/resonances_spectral.cc.o
+
+.PHONY : software/src/resonances_spectral.o
+
+# target to build an object file
+software/src/resonances_spectral.cc.o:
+	$(MAKE) -f CMakeFiles/decaykiller.dir/build.make CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.o
+	$(MAKE) -f CMakeFiles/pdgreader.dir/build.make CMakeFiles/pdgreader.dir/software/src/resonances_spectral.cc.o
+	$(MAKE) -f CMakeFiles/pratt_sampler_shared.dir/build.make CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.o
+	$(MAKE) -f CMakeFiles/pratt_sampler.dir/build.make CMakeFiles/pratt_sampler.dir/software/src/resonances_spectral.cc.o
+.PHONY : software/src/resonances_spectral.cc.o
+
+software/src/resonances_spectral.i: software/src/resonances_spectral.cc.i
+
+.PHONY : software/src/resonances_spectral.i
+
+# target to preprocess a source file
+software/src/resonances_spectral.cc.i:
+	$(MAKE) -f CMakeFiles/decaykiller.dir/build.make CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.i
+	$(MAKE) -f CMakeFiles/pdgreader.dir/build.make CMakeFiles/pdgreader.dir/software/src/resonances_spectral.cc.i
+	$(MAKE) -f CMakeFiles/pratt_sampler_shared.dir/build.make CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.i
+	$(MAKE) -f CMakeFiles/pratt_sampler.dir/build.make CMakeFiles/pratt_sampler.dir/software/src/resonances_spectral.cc.i
+.PHONY : software/src/resonances_spectral.cc.i
+
+software/src/resonances_spectral.s: software/src/resonances_spectral.cc.s
+
+.PHONY : software/src/resonances_spectral.s
+
+# target to generate assembly for a file
+software/src/resonances_spectral.cc.s:
+	$(MAKE) -f CMakeFiles/decaykiller.dir/build.make CMakeFiles/decaykiller.dir/software/src/resonances_spectral.cc.s
+	$(MAKE) -f CMakeFiles/pdgreader.dir/build.make CMakeFiles/pdgreader.dir/software/src/resonances_spectral.cc.s
+	$(MAKE) -f CMakeFiles/pratt_sampler_shared.dir/build.make CMakeFiles/pratt_sampler_shared.dir/software/src/resonances_spectral.cc.s
+	$(MAKE) -f CMakeFiles/pratt_sampler.dir/build.make CMakeFiles/pratt_sampler.dir/software/src/resonances_spectral.cc.s
+.PHONY : software/src/resonances_spectral.cc.s
+
 software/src/sampler.o: software/src/sampler.cc.o
 
 .PHONY : software/src/sampler.o
@@ -765,6 +801,9 @@ help:
 	@echo "... software/src/resonances.o"
 	@echo "... software/src/resonances.i"
 	@echo "... software/src/resonances.s"
+	@echo "... software/src/resonances_spectral.o"
+	@echo "... software/src/resonances_spectral.i"
+	@echo "... software/src/resonances_spectral.s"
 	@echo "... software/src/sampler.o"
 	@echo "... software/src/sampler.i"
 	@echo "... software/src/sampler.s"

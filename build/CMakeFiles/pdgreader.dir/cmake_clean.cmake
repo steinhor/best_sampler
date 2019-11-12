@@ -11,6 +11,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/pdgreader.dir/software/src/part.cc.o"
   "CMakeFiles/pdgreader.dir/software/src/randy.cc.o"
   "CMakeFiles/pdgreader.dir/software/src/resonances.cc.o"
+  "CMakeFiles/pdgreader.dir/software/src/resonances_spectral.cc.o"
   "CMakeFiles/pdgreader.dir/software/src/sampler.cc.o"
   "CMakeFiles/pdgreader.dir/software/src/test.cc.o"
   "pdgreader.pdb"

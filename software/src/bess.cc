@@ -29,15 +29,24 @@ double Bessel::Yn(int n,double x){
 }
 
 double Bessel::K0(double x){
-  return gsl_sf_bessel_K0(x);
+	if(x>60.0)
+		return 0.0;
+	else
+		return gsl_sf_bessel_K0(x);
 }
 
 double Bessel::K1(double x){
-  return gsl_sf_bessel_K1(x);
+	if(x>60.0)
+		return 0.0;
+	else
+		return gsl_sf_bessel_K1(x);
 }
 
 double Bessel::Kn(int n,double x){
-  return gsl_sf_bessel_Kn(n,x);
+	if(x>60 || x<0.0)
+		return 0.0;
+	else
+		return gsl_sf_bessel_Kn(n,x);
 }
 
 double Bessel::I0(double x){

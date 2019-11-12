@@ -16,49 +16,57 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	SIGMAFmax=parmap->getD("SAMPLER_SIGMAFMAX",93.0);
 	SETMU0=parmap->getB("SAMPLER_SETMU0",false);
 	CALCMU=parmap->getB("SAMPLER_CALCMU",false);
+	FINDT=parmap->getB("SAMPLER_FINDT", false);
 	NEVENTS_TOT=parmap->getI("SAMPLER_NEVENTS_TOT",1);
-	NEVENTS=0;
-	if(NTF==1)
+	NEVENTS=0; // running count of events
+	DELTF=(TFmax-TFmin)/double(NTF);
+	if(NTF==0)
 		DELTF=0.0;
-	else
-		DELTF=(TFmax-TFmin)/double(NTF);
-	if(NSIGMAF==1)
+	DELSIGMAF=(SIGMAFmax-SIGMAFmin)/double(NSIGMAF);
+	if(NSIGMAF==0)
 		DELSIGMAF=0.0;
-	else
-		DELSIGMAF=(SIGMAFmax-SIGMAFmin)/double(NSIGMAF);
+	MEANFIELD=parmap->getS("SAMPLER_MEANFIELD","simple");
+	if(MEANFIELD=="simple")
+		meanfield=new CmeanField_Simple(parmap);
+	else{
+		printf("Don't recognize SAMPLER_MEANFIELD from parameter map=%s\n",MEANFIELD.c_str());
+		exit(1);
+	}
 	Csampler::randy=randy;
 	Csampler::mastersampler=this;
 	Csampler::reslist=reslist;
 	Csampler::parmap=parmap;
 	Csampler::CALCMU=CALCMU;
-	Cpart::reslist=reslist;
+	Csampler::bose_corr=parmap->getB("SAMPLER_BOSE_CORR",false);
+	Csampler::n_bose_corr=parmap->getI("SAMPLER_N_BOSE_CORR",1);
 	int it,isigma;
-	sampler.resize(NTF);
-	for(it=0;it<NTF;it++){
-		sampler[it].resize(NSIGMAF);
-		for(isigma=0;isigma<NSIGMAF;isigma++){
-			//printf("it=%d TFmin=%lf DELTF=%lf TFmin+(it+0.5)*DELTF=%lf\n",it,TFmin,DELTF,TFmin+(it+0.5)*DELTF);
-			sampler[it][isigma]=new Csampler(TFmin+(it+0.5)*DELTF,SIGMAFmin+isigma*DELSIGMAF);
+	hyperlist.clear();
+	sampler.resize(NTF+1);
+	for(it=0;it<=NTF;it++){
+		sampler[it].resize(NSIGMAF+1);
+		for(isigma=0;isigma<=NSIGMAF;isigma++){
+			//printf("calling Csampler()\n");
+			sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
 		}
 	}
 }
 
 CmasterSampler::~CmasterSampler(){
-	ClearParts();
-	list<Chyper *>::iterator ith;
-	for(ith=hyperlist.begin();ith!=hyperlist.end();ith++){
-		delete *ith;
-	}
+	for(auto p : hyperlist)
+		delete p;
 	hyperlist.clear();
 
-	int it,isigma;
-	for(it=0;it<NTF;it++){
-		sampler[it].resize(NSIGMAF);
+	Csampler *sampleri;
+	int iT,isigma;
+	for(iT=0;iT<NTF;iT++){
+		sampler[iT].resize(NSIGMAF);
 		for(isigma=0;isigma<NSIGMAF;isigma++){
 			//printf("it=%d TFmin=%lf DELTF=%lf TFmin+(it+0.5)*DELTF=%lf\n",it,TFmin,DELTF,TFmin+(it+0.5)*DELTF);
-			delete sampler[it][isigma];
+			sampleri=sampler[iT][isigma];
+			delete sampleri;
 		}
-		sampler[it].clear();
+		sampler[iT].clear();
+		sampler[iT].shrink_to_fit();
 	}
 	sampler.clear();
 	delete reslist;
@@ -66,126 +74,93 @@ CmasterSampler::~CmasterSampler(){
 }
 
 int CmasterSampler::MakeEvent(){
-	int np;
+	int np,nparts=0;
+	Chyper *hyper;
 	Csampler *sampler;
-	ClearParts();
 	double Omega0Sum=0.0;
-	int nparts=0;
+	partlist->Reset();
+	Csampler *samplertemp;
 	list<Chyper *>::iterator it;
-	long long int ih=0;
+	if(FINDT && NEVENTS==0){
+		samplertemp=new Csampler(150.0,0.093);
+	}
 	for(it=hyperlist.begin();it!=hyperlist.end();it++){
-		ih+=1;
-		Omega0Sum+=(*it)->dOmega[0];
-		sampler=ChooseSampler(*it);
-		if(!SETMU0){
-			if(NEVENTS==0 && CALCMU){
-				sampler->GetMuNH(*it);
-				sampler->CalcLambdaF();
-				//sampler->lambdaf=sampler->lambdaf0;
-				(*it)->lambda=sampler->lambdaf;
-				(*it)->muB=sampler->muB;
-				(*it)->muI=sampler->muI;
-				(*it)->muS=sampler->muS;
-				(*it)->nhadrons=sampler->nhadronsf;
-				(*it)->epsilon=sampler->epsilonf;
-				(*it)->lambda=sampler->lambdaf;
+		hyper=*it;
+		Omega0Sum+=hyper->dOmega[0];
+		if(NEVENTS==0 && FINDT){
+			samplertemp->GetTfMuNH(hyper);
+			hyper->T=samplertemp->Tf;
+		}
+		sampler=ChooseSampler(hyper);
+		if(sampler->FIRSTCALL){
+			hyper->T=sampler->Tf;
+			sampler->GetNHMu0();
+			sampler->CalcDensitiesMu0();
+			sampler->CalcLambdaMu0();
+			sampler->FIRSTCALL=false;
+		}
+		if(NEVENTS==0){
+			if(!SETMU0 && CALCMU){
+				sampler->GetMuNH(hyper);
+				sampler->GetNHadronsEpsilonPF(hyper);
+				hyper->lambda=sampler->CalcLambdaF(hyper);
 			}
-			else if(NEVENTS==0 && !CALCMU){
-				sampler->GetNHadronsf(*it);
+			if(!SETMU0 && !CALCMU){
+				sampler->GetNHadronsEpsilonPF(hyper);
+				hyper->lambda=sampler->CalcLambdaF(hyper);
 			}
-			else{
-				sampler->muB=(*it)->muB;
-				sampler->muI=(*it)->muI;
-				sampler->muS=(*it)->muS;
-				sampler->nhadronsf=(*it)->nhadrons;
-				sampler->epsilonf=(*it)->epsilon;
-				sampler->lambdaf=(*it)->lambda;
-				sampler->Pf=(*it)->nhadrons*sampler->Tf;
+			if(SETMU0){
+				hyper->lambda=sampler->lambda0;
 			}
 		}
-		np=sampler->MakeParts(*it);
+		np=sampler->MakeParts(hyper);
 		nparts+=np;
 	}
 	NEVENTS+=1;
+	if(FINDT && NEVENTS==0){
+		delete samplertemp;
+	}
 	return nparts;
 }
 
-void CmasterSampler::ClearParts(){
-	int nparts=part.size();
-	for(int ipart=0;ipart<nparts;ipart++)
-		delete part[ipart];
-	part.clear();
-}
-
 Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
-	double T,sigma;
+	double T,sigma,del;
 	int it,isigma;
-	if(NTF==1){
+	if(NTF==0){
 		it=0;
 	}
 	else{
 		T=hyper->T;
-		it=lrint((T-TFmin-0.5*DELTF)/DELTF);
+		it=floorl((T-TFmin)/DELTF);
+		del=T-(TFmin+it*DELTF);
+		if(randy->ran()<del/DELTF)
+			it+=1;
 		if(it<0)
 			it=0;
-		if(it>=NTF)
-			it=NTF-1;
+		if(it>NTF)
+			it=NTF;
 	}
-	if(NSIGMAF==1){
+	if(NSIGMAF==0){
 		isigma=0;
 	}
 	else{
 		sigma=hyper->sigma;
-		isigma=lrint((sigma-SIGMAFmin-0.5*DELSIGMAF)/DELSIGMAF);
+		isigma=floorl((sigma-SIGMAFmin)/DELSIGMAF);
+		del=sigma-(SIGMAFmin+isigma*DELSIGMAF);
+		if(randy->ran()<del/DELSIGMAF)
+			isigma+=1;
 		if(isigma<0)
 			isigma=0;
 		if(isigma>=NSIGMAF)
-			sigma=NSIGMAF-1;
+			isigma=NSIGMAF-1;
 	}
 	return sampler[it][isigma];
 }
 
-/*
-void CmasterSampler::CalcPiFromParts(){
-	double pi[4][4]={0.0};
-	CpartMap::iterator ppos;
-	CPart *part;
-	double *p,pressure,Ptest=0.0,etest=0.0;
-	int ipart,alpha,beta;
-	double volume=nelements*hyper[0].Omega[0];
-	for(ppos=b3d->DeadPartMap.begin();ppos!=b3d->PartMap.end();ppos++){
-		part=ppos->second;
-		pressure=(part->p[1]*part->p[1]+part->p[2]*part->p[2]+part->p[3]*part->p[3])/(3.0*part->p[0]);
-		Ptest+=pressure;
-		etest+=p[0];
-		for(alpha=1;alpha<4;alpha++){
-			pi[alpha][alpha]-=pressure;
-			for(beta=1;beta<4;beta++){
-				pi[alpha][beta]+=p[alpha]*p[beta]/p[0];
-			}
-		}
-	}
-	printf("----From particle momenta  -----\n");
-	printf("epsilon=%10.4f, P=%10.4f\n",etest/volume,Ptest/volume);
-	printf("pi_ij/P\n");
-	for(alpha=1;alpha<4;alpha++){
-		for(beta=1;beta<4;beta++){
-			pi[alpha][beta]=pi[alpha][beta]/volume;
-			printf("%9.6f ",pi[alpha][beta]/hyper[0].P);
-		}
-		printf("\n");
-	}
-	printf("---- From pi_ij  input -------\n");
-	printf("epsilon=%10.4f, P=%10.4f\n",hyper[0].epsilon,hyper[0].P);
-	printf("pi_ij/P\n");
-	for(alpha=1;alpha<4;alpha++){
-		for(beta=1;beta<4;beta++){
-			printf("%9.6f ",hyper[0].pitilde[alpha][beta]/hyper[0].P);
-		}
-		printf("\n");
-	}
+void CmasterSampler::MakeDummyHyper(){
+	Chyper *hyper=new Chyper();
+	hyperlist.push_back(hyper);
 }
-*/
 
 void CmasterSampler::ReadHyper2D(){
 	string filename;
@@ -207,8 +182,6 @@ void CmasterSampler::ReadHyper2D(){
 
 	while(!feof(fptr)){
 		elem=new Chyper();
-		elem->ihyp=ielement;
-
 		//read from binary file
 		float array[34];
 		fread(array, sizeof(array),1,fptr);
@@ -225,6 +198,7 @@ void CmasterSampler::ReadHyper2D(){
 		ux = array[9];
 		uy = array[10];
 		uz = array[11]/tau;
+		u0=sqrt(1.0+ux*ux+uy*uy+uz*uz);
 
 		epsilonf = array[12]*HBARC; //was labeled Edec--guessed this was epsilon
 		Tdec = array[13]*HBARC;
@@ -265,7 +239,7 @@ void CmasterSampler::ReadHyper2D(){
 
 			elem->r[1]=x;
 			elem->r[2]=y;
-			elem->u[0]=u0;
+			elem->u[0]=sqrt(1.0+ux*ux+uy*uy+uz*uz);
 			elem->u[1]=ux;
 			elem->u[2]=uy;
 			elem->u[3]=uz;
@@ -297,6 +271,7 @@ void CmasterSampler::ReadHyper2D(){
 			hyperlist.push_back(elem);
 			TotalVolume+=udotdOmega;
 			ielement+=1;
+
 		}
 	}
 	nelements=ielement;

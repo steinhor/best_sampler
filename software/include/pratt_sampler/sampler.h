@@ -1,10 +1,10 @@
 #ifndef __SAMPLER_H__
 #define __SAMPLER_H__
-#include "pratt_sampler/resonances.h"
-#include "pratt_sampler/part.h"
-#include <Eigen/Dense>
-#include "pratt_sampler/classdefs.h"
-#include "pratt_sampler/master.h"
+#include "resonances.h"
+#include "part.h"
+#include <eigen3/Eigen/Dense>
+#include "classdefs.h"
+#include "master.h"
 
 using namespace std;
 
@@ -13,14 +13,13 @@ public:
 	// Vary for each Csampler instance
 	double Tf,sigmaf;
 	// functions of Tf,sigma, mu
-	double muB,muI,muS;
-	double nhadronsf,epsilonf,Pf;
-	vector<double> densityf;
 	// Same but with mu=0
-	double nhadronsf0,epsilonf0,Pf0,lambdaf0,lambdaf;
-	vector<double> densityf0,epsilonf0i,Pf0i,lambdaf0i;
+	double nhadrons0,epsilon0,P0,lambda0;
+	vector<double> density0i,epsilon0i,P0i,lambda0i;
+	bool FIRSTCALL;
+	int ntest;
 
-	vector<double> maxweight;
+	vector<double> maxweighti;
 	double GenerateThermalMass(CresInfo *resinfo);
 	void GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
 
@@ -29,15 +28,14 @@ public:
 	~Csampler();
 	void GetPars(CparameterMap *parmapset);
 	CpartMap *partmap;
-	void CalcLambda(); // Deprecated
-	void CalcLambdaF0(); // Calculates lambda which is used for viscous corrections with mu=0
-	void CalcLambdaF(); //  calculates lambda with mu !=0
-
+	void CalcLambdaMu0(); // Calculates lambda which is used for viscous corrections with mu=0
+	double CalcLambdaF(Chyper *hyper);
+	double CalcLambdaF(double muB,double muI,double muS,double Pf); //  calculates lambda with mu !=0
 	void CalcDensitiesF();
-	void CalcDensitiesF0();
+	void CalcDensitiesMu0();
 
-	map<int,double> DensityMap;
 	double totvol;
+	vector<double> pibose_dens0,pibose_P0,pibose_epsilon0,pibose_lambda0,pibose_dedt0;
 
 	//some variables used only for testing
 	vector<double> dN_dp_p2;
@@ -46,11 +44,7 @@ public:
 	bool bose_test;
 	bool viscous_test;
 	map<int,vector<Cpart*>> pmap;
-
-	CboseMap npidens, npiP, npiepsilon, npidedt;
-	CboseMap npidens0, npiP0, npiepsilon0, npilambda0;
-	bool bose_corr;
-	int n_bose_corr;
+	map<int,double> DensityMap;
 
 	// Including Isospin (i refers to 2*I3)
 	// number densities
@@ -72,24 +66,26 @@ public:
 	double dedth0_b1i2s1,dedth0_b1i3s0;
 	double dedth0_b2i0s0;
 
-	void GetNH0(); // Calculates above quantities
+	void GetNHMu0(); // Calculates above quantities
 	void GetMuNH(Chyper *hyper);
-	void GetNHadronsf(Chyper *hyper);
+	void GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS);
+	void GetNHadronsEpsilonPF(Chyper *hyper);
+	void GetNHadronsEpsilonPF(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf);
+	double GetDIppForLambda(CresInfo *resinfo,double TT);
 	void GetTfMuNH(Chyper *hyper);
-	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget);
-	void GetEpsilonRhoDerivatives(double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
+	void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS);
+	void GetEpsilonRhoDerivatives(double T,double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 	int MakeParts(Chyper *hyper);
-	void GetP(Chyper *hyper,CresInfo *resinfo,Cpart *part,double T);
-
-	// Same as above with with rhoI != 0, I1 refers to |I_3|=1/2, I3 to 3/2...
-	void GetMuNH(double rhoBtarget,double rhoItarget,double &muB,double &muI,double &muS,double &nh); // Uses nh0_xxx, rhoB, rhoI and rhoS=0 to find muB/T, muI/T and muS/T, also finds total hadron density
-	double RESWIDTH_ALPHA;
+	int CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper);
+	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T);
 
 	static Crandy *randy;
 	static CresList *reslist;
 	static CparameterMap *parmap;
 	static CmasterSampler *mastersampler;
 	static bool CALCMU;
+	static bool bose_corr;
+	static int n_bose_corr;
 };
 
 #endif

@@ -11,6 +11,8 @@ int main(int argc, char *argv[]){
 
 	CmasterSampler::meanfield=new CmeanField_Simple(&parmap);
 	CmasterSampler ms(&parmap);
+	CpartList pl=CpartList(&parmap);
+	ms.partlist=&pl;
 
 	ms.ReadHyper2D();
 
@@ -21,11 +23,9 @@ int main(int argc, char *argv[]){
 		for (int i=1;i<argc;i++) {
 			if (!strncmp(argv[i],"n_hyperlist",10)) test::n_hyperlist(ms,100);
 			else if (!strncmp(argv[i],"n_dummy",10)) test::n_dummy(true);
-			else if (!strncmp(argv[i],"bose_terms",10)) test::bose_terms();
-			else if (!strncmp(argv[i],"test_viscous",10)) test::test_viscous();
+			else if (!strncmp(argv[i],"bose_terms",10)) test::bose_terms(&ms);
 			else if (!strncmp(argv[i],"newton_method_hyperlist",10)) test::newton_method_hyperlist(ms);
 			else if (!strncmp(argv[i],"newton_method_dummy",10)) test::newton_method_dummy();
-			else if (!strncmp(argv[i],"eps_rho_derivs",10)) test::eps_rho_derivs();
 		}
 	}
 

@@ -25,6 +25,7 @@ public:
 	CresList *reslist;
 	Crandy *randy;
 	double TFmin,TFmax;
+	string MEANFIELD;
 	double SIGMAFmin,SIGMAFmax;
 	int NTF,NSIGMAF;
 	double DELTF,DELSIGMAF;
@@ -33,19 +34,20 @@ public:
 	double YMAX; // only for 2D sampler
 	int NEVENTS,NEVENTS_TOT;
 	int nelements;
+	bool FINDT;  // true if you need to find T(epsilon) in hyper elements
 
 	list<Chyper *> hyperlist;
 	vector<vector<Csampler *>> sampler;  // array of samplers indexed by T and sigma
-	vector<Cpart *> part;
+	CpartList *partlist;
 
 	void ReadHyper2D();
 	void DeleteVolumeElements();
 	int MakeEvent(); // returns number of parts
 	Csampler* ChooseSampler(Chyper *hyper);
 	void ChooseSampler(double Tf,double sigmaf,int &itf,int &isigmaf);
-	void WriteParts();
-	void ClearParts();
+	void MakeDummyHyper();
 	static CmeanField *meanfield;
 };
+
 
 #endif
