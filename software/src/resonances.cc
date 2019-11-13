@@ -1,6 +1,6 @@
 #ifndef __RESONANCES_CC__
 #define __RESONANCES_CC__
-#include "pratt_sampler/resonances.h"
+#include "resonances.h"
 Crandy *CresInfo::randy=NULL;
 int CresInfo::NSPECTRAL=100;
 

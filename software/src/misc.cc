@@ -1,6 +1,6 @@
 #ifndef __INCLUDE_MISC_CC
 #define __INCLUDE_MISC_CC
-#include "pratt_sampler/misc.h"
+#include "misc.h"
 
 bool Misc::comparestrings(char *s1,char *s2){
 	int length1,length2,ic;

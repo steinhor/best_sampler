@@ -1,4 +1,4 @@
-#include "pratt_sampler/randy.h"
+#include "randy.h"
 
 using namespace std;
 

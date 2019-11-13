@@ -1,4 +1,4 @@
-#include "pratt_sampler/sampler.h"
+#include "sampler.h"
 using namespace std;
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;
@@ -592,7 +592,7 @@ void Csampler::GetEpsilonRhoDerivatives(double T,double muB,double muI,double mu
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
 	double mw=maxweighti[resinfo->ires];
 	map<double,double>::iterator it;
-	int nfail=0,nfailmax=3*CresInfo::NSPECTRAL;
+	int nfail=0,nfailmax=2*CresInfo::NSPECTRAL;
 	double E,Emesh,k2mr,r1,r2,rho,k2,weight,mass,width;
 	bool success;
 	CmeanField *mf=mastersampler->meanfield;
@@ -606,7 +606,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		do{
 			do{
 				r1 = randy->ran(); // get random numbers
-				E = ((width/2)*tan(PI*(r1 - .5))) + mass;// generate random mass value proportional to the lorentz distribution
+				E=resinfo->GenerateMass_base(); // generate random mass value proportional to the BW distribution
 			}while(E < resinfo->minmass);
 			//k2 = E*E*gsl_sf_bessel_Kn(2,(E/Tf)); // K2 value
 			Emesh=resinfo->GetMeshE(E);
@@ -627,7 +627,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 			if(nfail==nfailmax){
         //printf("weight=%lf rho=%lf k2=%lf k2mr=%lf mw=%lf r2=%lf\n",weight, rho,k2,k2mr,mw,r2);
 				printf("struggling to find mass, pid=%d, nfail=%d\n",resinfo->pid,nfail);
-				nfailmax+=100;
+				nfailmax+=nfailmax;
 			}
 		}while(!success && nfail<nfailmax);
 	}

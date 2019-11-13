@@ -1,6 +1,6 @@
 #ifndef __RESONANCES_SPECTRAL_CC__
 #define __RESONANCES_SPECTRAL_CC__
-#include "pratt_sampler/resonances.h"
+#include "resonances.h"
 
 void CresList::CalcSpectralFunctions(){
 	CresMassMap::iterator rpos;
@@ -164,7 +164,7 @@ double CresInfo::GetBL2(double k){
 	double BL2;
 	double x2=pow(k*R/HBARC,2);
 	BL2=1.0;
-	if(degen>0.1)
+	if(degen>1.1)
 		BL2=x2/(1.0+x2);
 	return BL2;
 }
@@ -176,6 +176,11 @@ double CresInfo::GetBW(double E,double M0,double Gamma){
 double CresInfo::GetBW_base(double E,double M0,double Gamma0){ // simple lorentzian used for MC weights
 	return (0.5*Gamma0/PI)/((E-M0)*(E-M0)+0.25*Gamma0*Gamma0);
 	//return (2.0*E*E*Gamma0/PI)/(pow(E*E-M0*M0,2)+E*E*Gamma0*Gamma0);
+}
+
+double CresInfo::GenerateMass_base(){
+	double r1=randy->ran();
+	return ((width/2)*tan(PI*(r1-0.5))) + mass;  // mass according to BW distribution
 }
 
 void CresInfo::NormalizeSF(){
@@ -191,14 +196,19 @@ void CresInfo::NormalizeSF(){
 
 void CresInfo::PrintSpectralFunction(){
 	int n;
-	double E;
+	double E,k2,k2mr,Tf=0.150,basedist;
 	printf("- Spectral Function for pid=%d -\n",pid);
-	printf("___ E ____ A/A_BW ____ A ___\n");
+	printf("__ E ___ A/A_BW ___ A _ (A/A_BW)*dens(M)/dens(M0) _ A*dens(M)/dens(M0) \n");
+	k2mr=mass*mass*Bessel::Kn(2,mass/Tf);
 	for(n=0;n<NSPECTRAL;n++){
 		E=GetEofN(n);
-		printf("%8.4f %8.4f %8.4f\n",E,spectvec[n],spectvec[n]*GetBW_base(E,mass,width));
+		k2=E*E*Bessel::Kn(2,E/Tf);
+		basedist=GetBW_base(E,mass,width);
+		printf("%8.4f %8.4f %8.4f %8.4f %8.4f\n",
+		E,spectvec[n],spectvec[n]*basedist,spectvec[n]*k2/k2mr,spectvec[n]*k2*basedist/k2mr);
 	}
 }
+
 
 double CresInfo::GetDecayMomentum(double M,double ma,double mb){ // Gives relative momentum
 	if(ma+mb<M)
