@@ -1,7 +1,7 @@
 #ifndef __PART_CC__
 #define __PART_CC__
 
-#include "part.h"
+#include "pratt_sampler/part.h"
 
 Cpart::Cpart(){
 	msquared=0.0;

@@ -1,6 +1,6 @@
 #ifndef __RESONANCES_SPECTRAL_CC__
 #define __RESONANCES_SPECTRAL_CC__
-#include "resonances.h"
+#include "pratt_sampler/resonances.h"
 
 void CresList::CalcSpectralFunctions(){
 	CresMassMap::iterator rpos;
