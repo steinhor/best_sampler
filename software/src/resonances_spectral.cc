@@ -162,10 +162,10 @@ double CresInfo::GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo
 double CresInfo::GetBL2(double k){
 	const double R=1.0;
 	double BL2;
+	int L;
 	double x2=pow(k*R/HBARC,2);
-	BL2=1.0;
-	if(degen>1.1)
-		BL2=x2/(1.0+x2);
+	L=1;
+	BL2=pow(x2/(1.0+x2),4);
 	return BL2;
 }
 
