@@ -20,6 +20,7 @@ class CbranchInfo{
 public:
 	vector<CresInfo *> resinfo; //pointers for resinfo
 	double branching;
+	int L;
 	CbranchInfo();
 };
 
@@ -62,9 +63,9 @@ public:
 	double GetEofN(int n); // return energy for middle of spectral function bin n
 	double GetMeshE(double E); // returns E at middle of mesh cell
 	void PrintSpectralFunction();
-	double GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b);
+	double GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,int L);
 	double GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo *resinfo_b);  // form factor for generating spectral functions
-	double GetBL2(double k); // factor used to generate spectral functions in arXiv:1606642v2
+	double GetBL2(double k,int L); // factor used to generate spectral functions in arXiv:1606642v2
 	double GetBW(double E,double Mr,double Gamma);  // relativistic Breit Wigner
 	double GetBW_base(double E,double Mr,double Gamma); // simple non-rel. fixed gamma BW, used as base for Monte Carlo
 	double GenerateMass_base();
