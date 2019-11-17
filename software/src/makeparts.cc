@@ -105,6 +105,7 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 	double pmag;
 	FourVector p,r;
 	randy->increment_netprob(dN);
+	bose_test=false;
 	while(randy->test_threshold(0.0)){
 		GetP(hyper,resinfo,p,T);
 		if (bose_test==true && (resinfo->pid==211||resinfo->pid==-211||resinfo->pid==111)) { //only runs when testing bose
@@ -117,8 +118,7 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 		mastersampler->partlist->AddPart(resinfo->pid,p,r);
 		dnparts+=1;
 		randy->increase_threshold();
-	}
-	return dnparts;
+	}	return dnparts;
 }
 
 void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
@@ -159,7 +159,6 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 			ptilde[alpha]=pnoviscous[alpha];
 	}
 	Misc::BoostToCM(hyper->u,hyper->dOmega,dOmegaTilde);  //dOmegaTilde is dOmega in fluid (u=0) frame
-
 	pdotdOmega=ptilde[0]*dOmegaTilde[0]-ptilde[1]*dOmegaTilde[1]-ptilde[2]*dOmegaTilde[2];
 	wreflect=pdotdOmega/(ptilde[0]*dOmegaTilde[0]);
 	reflect=false;

@@ -33,6 +33,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 		exit(1);
 	}
 	Csampler::randy=randy;
+	CresInfo::randy=randy;
 	Csampler::mastersampler=this;
 	Csampler::reslist=reslist;
 	Csampler::parmap=parmap;

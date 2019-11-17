@@ -74,7 +74,8 @@ void CresInfo::CalcSpectralFunction(){
 		//if(pid==229 && E>minmass)
 		//	printf("\n");
 		A=GetBW(E,M0,Gamma);
-		spectvec[n]=A/GetBW_base(E,M0,Gamma0);
+		spectvec[n]=A/GetBW_base(E,M0,width);
+		//spectvec[n]=GetBW(E,M0,width)/GetBW_base(E,M0,width);
 	}
 	NormalizeSF();
 	SFcalculated=true;
