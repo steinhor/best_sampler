@@ -22,7 +22,7 @@ Csampler::Csampler(double Tfset,double sigmafset){
 	epsilon0i.resize(nres);
 	P0i.resize(nres);
 	lambda0i.resize(nres);
-	maxweighti.resize(nres);
+	sfdens0imap.resize(nres);
 	if(bose_corr){
 		pibose_P0.resize(n_bose_corr+1);
 		pibose_epsilon0.resize(n_bose_corr+1);
@@ -43,26 +43,23 @@ Csampler::~Csampler(){
 void Csampler::CalcDensitiesMu0(){
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
-	double Pi,epsiloni,densi,dedti,mwi,dummy;
-	int ires=0;
+	double Pi,epsiloni,densi,dedti,dummy;
+	int ires;
 	nhadrons0=P0=epsilon0=0.0;
 
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->pid!=22){
-			GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,mwi);
+			GetDensPMax(resinfo,densi,epsiloni,Pi,dedti);
+			ires=resinfo->ires;
 			density0i[ires]=densi;
-			if(ires!=resinfo->ires){
-				printf("ires=%d != %d\n",ires,resinfo->ires);
-				exit(1);
-			}
 			epsilon0i[ires]=epsiloni;
 			P0i[ires]=Pi;
-			maxweighti[ires]=mwi;
 			nhadrons0+=density0i[ires];
 			epsilon0+=epsiloni;
 			P0+=Pi;
-			ires+=1;
+			if(resinfo->decay)
+				CalcSFDensMap(resinfo,Tf,sfdens0imap[ires]);
 		}
 	}
 	if(bose_corr){
@@ -80,7 +77,7 @@ void Csampler::CalcDensitiesMu0(){
 void Csampler::GetNHMu0(){
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
-	double Pi,epsiloni,densi,dedti,maxweighti,dummy;
+	double Pi,epsiloni,densi,dedti,dummy;
 	int B,S,II,Q;
 
 	nh0_b0i0s0=nh0_b0i2s0=nh0_b0i1s1=0.0;
@@ -105,7 +102,7 @@ void Csampler::GetNHMu0(){
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
 		resinfo=rpos->second;
 		if(resinfo->pid!=22){
-			GetDensPMaxWeight(resinfo,densi,epsiloni,Pi,dedti,maxweighti);
+			GetDensPMax(resinfo,densi,epsiloni,Pi,dedti);
 
 			B=resinfo->baryon;
 			S=resinfo->strange;
@@ -588,63 +585,43 @@ void Csampler::GetEpsilonRhoDerivatives(double T,double muB,double muI,double mu
 	//exit(1);
 }
 
-// For sampling, generates mass of resonances (uses GetDensPMaxWeight below)
+// For sampling, generates mass of resonances (uses GetDensPMax below)
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
-	double mw=maxweighti[resinfo->ires];
-	map<double,double>::iterator it;
-	int nfail=0,nfailmax=2*CresInfo::NSPECTRAL;
-	double E,Emesh,k2mr,r1,r2,rho,k2,weight,mass,width;
-	bool success;
-	CmeanField *mf=mastersampler->meanfield;
-	double decay=resinfo->decay;
-	if(decay){
-		mass=mf->GetMass(resinfo,sigmaf);
-		width=resinfo->width;
-		//k2mr = mass*mass*gsl_sf_bessel_Kn(2,(mass/Tf)); // K2 for resmass
-		k2mr=mass*mass*Bessel::Kn(2,mass/Tf);
-		success=false; // for use in while loop
-		do{
-			do{
-				r1 = randy->ran(); // get random numbers
-				E=resinfo->GenerateMass_base(); // generate random mass value proportional to the BW distribution
-			}while(E < resinfo->minmass);
-			//k2 = E*E*gsl_sf_bessel_Kn(2,(E/Tf)); // K2 value
-			Emesh=resinfo->GetMeshE(E);
-			k2=Emesh*Emesh*Bessel::Kn(2,Emesh/Tf);
-			rho=resinfo->GetSpectralFunction(E);
-			weight=rho*k2/(k2mr*mw);
-			if(weight>1.0){
-				int n=floorl(CresInfo::NSPECTRAL*(0.5+atan2(E-mass,0.5*resinfo->width)/PI));
-				printf("------ yikes, weight>1.0, =%g\n",weight);
-				printf("pid=%d: E-m=%g, n=%d, k2=%g, k2mr=%g, rho=%g, k2*rho/k2mr=%g, mw=%g\n",
-				resinfo->pid,E-resinfo->mass,n,k2,k2mr,rho,k2*rho/k2mr,mw);
-
-			}
-			r2 = randy->ran(); // between [0, 1]
-			if (r2 < weight)
-				success=true; // success
-			else nfail+=1;
-			if(nfail==nfailmax){
-        //printf("weight=%lf rho=%lf k2=%lf k2mr=%lf mw=%lf r2=%lf\n",weight, rho,k2,k2mr,mw,r2);
-				printf("struggling to find mass, pid=%d, nfail=%d\n",resinfo->pid,nfail);
-				nfailmax+=nfailmax;
-			}
-		}while(!success && nfail<nfailmax);
-	}
+	map<double,double>::iterator it1,it2;
+	double E,E1,E2;
+	int ires=resinfo->ires;
+	double p1,p2,netprob=randy->ran();
+	if(!resinfo->decay)
+		E=resinfo->mass;
 	else{
-		E=resinfo->mass;
+		it1=sfdens0imap[ires].lower_bound(netprob);
+		if(it1==sfdens0imap[ires].end()){
+			printf("it1 already at end of map\n");
+			exit(1);
+		}
+		--it1;
+		it2=it1; it2++;
+		p1=it1->first;
+		p2=it2->first;
+		E1=it1->second;
+		E2=it2->second;
+		E=((netprob-p1)*E2+(p2-netprob)*E1)/(p2-p1);		
 	}
-	if(nfail==nfailmax){
-		printf("failed in GenerateThermalMass(), pid=%d, mw=%g, weight=%g\n",resinfo->pid,mw,weight);
-		resinfo->Print();
-		E=resinfo->mass;
+	if(E<resinfo->minmass || E1>E || E2<E){
+		printf("something odd, E=%g, (E1,E2)=(%g,%g), (p1,p2)=(%g,%g), minmass=%g, netprob=%g\n",E,E1, E2,p1,p2,resinfo->minmass,netprob);
+		resinfo->PrintBranchInfo();
+		resinfo->PrintSpectralFunction();
+		map<double,double>::iterator it;
+		for(it=sfdens0imap[ires].begin();it!=sfdens0imap[ires].end();++it){
+			printf("Emap=%g, netdens=%g\n",it->second,it->first);
+		}
 		exit(1);
 	}
-	return E; //returns a random mass proportional to n0*L'
+	return E; //returns a random mass proportional to dens*SF'
 }
 
-// Calculates density, pressure, energy density, de/dt and maxweight(for MC mass choice) for individual resonances
-void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti){
+// Calculates density, pressure, energy density, de/dt (for MC mass choice) for individual resonances
+void Csampler::GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti){
 	double degen,width,m,minmass,sigma2;
 	CmeanField *mf=mastersampler->meanfield;
 	bool decay=resinfo->decay;
@@ -655,11 +632,10 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsilon
 	minmass=resinfo->minmass;
 
 	if((minmass>-0.001) && (width>0.000000001) && decay){
-		EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,epsiloni,Pi,densi,sigma2,dedti,maxweighti);
+		EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,epsiloni,Pi,densi,sigma2,dedti);
 	}
 	else{
 		EOS::freegascalc_onespecies(Tf,m,epsiloni,Pi,densi,sigma2,dedti);
-		maxweighti=1.0;
 	}
 	epsiloni*=degen;
 	Pi*=degen;
@@ -671,6 +647,7 @@ void Csampler::GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsilon
 void Csampler::GetNHadronsEpsilonPF(Chyper *hyper){
 	GetNHadronsEpsilonPF(hyper->muB,hyper->muI,hyper->muS,hyper->nhadrons,hyper->epsilon,hyper->P);
 }
+
 void Csampler::GetNHadronsEpsilonPF(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf){
 	double xB,xI,xS,xxB,xxI,xxS,xbose;
 	int nbose;
@@ -717,3 +694,35 @@ void Csampler::GetNHadronsEpsilonPF(double muB,double muI,double muS,double &nha
 		}
 	}
 }
+
+void Csampler::CalcSFDensMap(CresInfo *resinfo,double T,map<double,double> &sfdensmap){
+	int iE,nE;
+	double z,E,E2,sfnorm,netprob,k1,k0;
+	vector<double> dens;
+	nE=resinfo->SpectVec.size();
+	dens.resize(nE);
+	sfnorm=0.0;
+	for(iE=0;iE<nE;iE++){
+		E=resinfo->SpectEVec[iE];
+		z=E/T;
+		k0=Bessel::K0(z);
+		k1=Bessel::K1(z);
+		dens[iE]=E*E*k0+2.0*E*T*k1;
+		sfnorm+=resinfo->SpectVec[iE]*dens[iE];
+	}
+	netprob=0.0;
+	sfdensmap.insert(pair<double,double>(netprob,resinfo->minmass));
+	for(iE=0;iE<nE;iE++){
+		E=resinfo->SpectEVec[iE];
+		netprob+=resinfo->SpectVec[iE]*dens[iE]/sfnorm;
+		if(iE!=nE-1)
+			E2=0.5*(resinfo->SpectEVec[iE]+resinfo->SpectEVec[iE+1]);
+		else
+			E2=2.0*resinfo->SpectEVec[iE]-resinfo->SpectEVec[iE-1];
+		sfdensmap.insert(pair<double,double>(netprob,E2));
+	}
+	dens.clear();
+}	
+
+
+

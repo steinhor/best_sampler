@@ -16,12 +16,12 @@ public:
 	// Same but with mu=0
 	double nhadrons0,epsilon0,P0,lambda0;
 	vector<double> density0i,epsilon0i,P0i,lambda0i;
+	vector<map<double,double>> sfdens0imap;
 	bool FIRSTCALL;
 	int ntest;
 
-	vector<double> maxweighti;
 	double GenerateThermalMass(CresInfo *resinfo);
-	void GetDensPMaxWeight(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &maxweighti);
+	void GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti);
 
 	bool VISCOUSCORRECTIONS;
 	Csampler(double Tfset,double sigmafset); // Constructor
@@ -78,6 +78,7 @@ public:
 	int MakeParts(Chyper *hyper);
 	int CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper);
 	void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T);
+	void CalcSFDensMap(CresInfo *resinfo,double T,map<double,double> &sfdensmap);
 
 	static Crandy *randy;
 	static CresList *reslist;

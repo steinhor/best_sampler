@@ -132,9 +132,7 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 	int alpha,beta;
 	FourVector pnoviscous;
 	double m,nhat[4]={0.0};
-	double mw;
-	mw=maxweighti[resinfo->ires];
-	if(mw<0.0 || resinfo->width<0.0001){
+	if((!resinfo->decay) || resinfo->width<0.0001){
 		m=resinfo->mass;
 		randy->generate_boltzmann(m,T,pnoviscous);
 	}
