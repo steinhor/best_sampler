@@ -6,6 +6,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	parmap=parmapin;
 	randy=new Crandy(-1234);
 	reslist=new CresList(parmap);
+	printf("test 6\n");
 	NEVENTS=0;
 	RESWIDTH_ALPHA=parmap->getD("SAMPLER_RESWIDTH_ALPHA",0.5);
 	NTF=parmap->getI("SAMPLER_NTF",1);
@@ -33,6 +34,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 		exit(1);
 	}
 	Csampler::randy=randy;
+	CresInfo::randy=randy;
 	Csampler::mastersampler=this;
 	Csampler::reslist=reslist;
 	Csampler::parmap=parmap;

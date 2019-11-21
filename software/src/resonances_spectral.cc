@@ -13,7 +13,6 @@ void CresList::CalcSpectralFunctions(){
 		else
 			resinfo->SFcalculated=true;
 	}
-	printf("------- Finished CresList::CalcSpectralFunctions()\n");
 }
 
 void CresInfo::CalcSpectralFunction(){
@@ -31,6 +30,8 @@ void CresInfo::CalcSpectralFunction(){
 	for(n=0;n<NSPECTRAL;n++){
 		E=GetEofN(n);
 		Gamma=0;
+		//if(pid==229 && E>minmass)
+			//printf("E=%6.4f ",E);
 		for(ibranch=0;ibranch<branchlist.size();ibranch++){
 			Gamma0=width*branchlist[ibranch]->branching;
 			resinfo_a=branchlist[ibranch]->resinfo[0];
@@ -41,10 +42,12 @@ void CresInfo::CalcSpectralFunction(){
 					resinfo_a=resinfo_b;
 					resinfo_b=resinfoswitch;
 				}
-				rho_ab0=GetRhoAB(mass,resinfo_a,resinfo_b);
+				rho_ab0=GetRhoAB(mass,resinfo_a,resinfo_b,branchlist[ibranch]->L);
 				if(E>minmass && rho_ab0>1.0E-5){
-					rho_ab=GetRhoAB(E,resinfo_a,resinfo_b);
+					rho_ab=GetRhoAB(E,resinfo_a,resinfo_b,branchlist[ibranch]->L);
 					rhoratio=rho_ab/rho_ab0;
+					//if(pid==229)
+						//printf("%8.4f ",rhoratio);
 					/*
 					if(rhoratio>300.0){
 						printf("--------------------------------------\n");
@@ -68,8 +71,11 @@ void CresInfo::CalcSpectralFunction(){
 				}
 			}
 		}
+		//if(pid==229 && E>minmass)
+		//	printf("\n");
 		A=GetBW(E,M0,Gamma);
-		spectvec[n]=A/GetBW_base(E,M0,Gamma0);
+		spectvec[n]=A/GetBW_base(E,M0,width);
+		//spectvec[n]=GetBW(E,M0,width)/GetBW_base(E,M0,width);
 	}
 	NormalizeSF();
 	SFcalculated=true;
@@ -90,7 +96,7 @@ double CresInfo::GetMeshE(double E){
 	return GetEofN(n);
 }
 
-double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b){
+double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,int L){
 	//printf("CHECK, starting CresInfo::GetRhoAB()\n");
 	double pf=0.0,rho_ab=0.0,drho=0.0;
 	double Ea,Aa,Eb,Ab;
@@ -98,7 +104,7 @@ double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b){
 	map<double,double>::iterator ita,itb;
 	if(!resinfo_a->decay){  // both a & b stable
 		pf=GetDecayMomentum(E,resinfo_a->mass,resinfo_b->mass);
-		rho_ab=(pf/E)*GetBL2(pf)*GetFF(E,resinfo_a->mass,resinfo_b->mass,resinfo_a,resinfo_b);
+		rho_ab=(pf/E)*GetBL2(pf,L)*GetFF(E,resinfo_a->mass,resinfo_b->mass,resinfo_a,resinfo_b);
 	}
 	else if(!resinfo_b->decay){ // a is unstable, b is stable
 		if(!(resinfo_a->SFcalculated))
@@ -108,7 +114,7 @@ double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b){
 			if(Ea>=resinfo_a->minmass){
 				Aa=resinfo_a->spectvec[na];
 				pf=GetDecayMomentum(E,Ea,resinfo_b->mass);
-				drho=Aa*(pf/E)*GetBL2(pf)*GetFF(E,Ea,resinfo_b->mass,resinfo_a,resinfo_b);
+				drho=Aa*(pf/E)*GetBL2(pf,L)*GetFF(E,Ea,resinfo_b->mass,resinfo_a,resinfo_b);
 				rho_ab+=drho;
 			}
 		}
@@ -127,7 +133,7 @@ double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b){
 					if(Ea+Eb<E && Eb>=resinfo_b->minmass){
 						Ab=resinfo_b->spectvec[nb];
 						pf=GetDecayMomentum(E,Ea,Eb);
-						drho=Aa*Ab*(pf/E)*GetBL2(pf)*GetFF(E,Ea,Eb,resinfo_a,resinfo_b);
+						drho=Aa*Ab*(pf/E)*GetBL2(pf,L)*GetFF(E,Ea,Eb,resinfo_a,resinfo_b);
 						rho_ab+=drho;
 					}
 				}
@@ -156,16 +162,20 @@ double CresInfo::GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo
 
 	FF=(pow(lambda,4)+0.25*pow(s0-mass*mass,2))
 		/(pow(lambda,4)+pow( E*E-0.5*(s0+mass*mass),2));
+	FF=1.0;
 	return FF*FF;
 }
 
-double CresInfo::GetBL2(double k){
+double CresInfo::GetBL2(double k,int L){
 	const double R=1.0;
 	double BL2;
-	double x2=pow(k*R/HBARC,2);
-	BL2=1.0;
-	if(degen>1.1)
-		BL2=x2/(1.0+x2);
+	double x2;
+	if(L==0)
+		return 1.0;
+	else{
+		x2=pow(k*R/HBARC,2);
+		BL2=pow(x2/(1.0+x2),L);
+	}
 	return BL2;
 }
 
@@ -178,8 +188,8 @@ double CresInfo::GetBW_base(double E,double M0,double Gamma0){ // simple lorentz
 	//return (2.0*E*E*Gamma0/PI)/(pow(E*E-M0*M0,2)+E*E*Gamma0*Gamma0);
 }
 
-double CresInfo::GenerateMass_base(double r1){
-	//double r1=randy->ran();
+double CresInfo::GenerateMass_base(){
+	double r1=randy->ran();
 	return ((width/2)*tan(PI*(r1-0.5))) + mass;  // mass according to BW distribution
 }
 

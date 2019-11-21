@@ -1,6 +1,6 @@
 include ../makefile_defs.mk
 
-install : installdirs ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/pratt_sampler/classdefs.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/randy.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sampler.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/constants.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/parametermap.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/resonances.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sf.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/master.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/part.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/misc.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/hyper.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/meanfield.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/eos.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/test.h
+install : installdirs ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/pratt_sampler/classdefs.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/randy.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sampler.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/constants.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/parametermap.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/resonances.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sf.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/master.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/part.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/misc.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/hyper.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/meanfield.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/eos.h
 
 installdirs :
 	mkdir -p ${SAMPLER_INSTALLDIR}/include;\
@@ -12,11 +12,11 @@ clean :
 INC=-I include -I ${EIGEN_HOME}
 
 uninstall :
-	rm -f ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/pratt_sampler/classdefs.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/parametermap.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/randy.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sampler.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/master.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/part.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/misc.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/hyper.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/meanfield.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/eos.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/test.h
+	rm -f ${SAMPLER_INSTALLDIR}/lib/libsampler.a ${SAMPLER_INSTALLDIR}/include/pratt_sampler/classdefs.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/parametermap.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/randy.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/sampler.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/master.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/part.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/misc.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/hyper.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/meanfield.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/eos.h
 
-SAMPLER_HFILES = include/pratt_sampler/sampler.h include/pratt_sampler/classdefs.h include/pratt_sampler/parametermap.h include/pratt_sampler/randy.h include/pratt_sampler/constants.h include/pratt_sampler/misc.h include/pratt_sampler/part.h include/pratt_sampler/sf.h include/pratt_sampler/master.h include/pratt_sampler/meanfield.h include/pratt_sampler/eos.h include/pratt_sampler/test.h
+SAMPLER_HFILES = include/pratt_sampler/sampler.h include/pratt_sampler/classdefs.h include/pratt_sampler/parametermap.h include/pratt_sampler/randy.h include/pratt_sampler/constants.h include/pratt_sampler/misc.h include/pratt_sampler/part.h include/pratt_sampler/sf.h include/pratt_sampler/master.h include/pratt_sampler/meanfield.h include/pratt_sampler/eos.h
 
-SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/resonances_spectral.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o build/test.o
+SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o build/resonances_spectral.o
 
 ####################
 
@@ -58,9 +58,6 @@ ${SAMPLER_INSTALLDIR}/include/pratt_sampler/meanfield.h : include/pratt_sampler/
 
 ${SAMPLER_INSTALLDIR}/include/pratt_sampler/eos.h : include/pratt_sampler/eos.h
 	cp -f include/pratt_sampler/eos.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/
-
-${SAMPLER_INSTALLDIR}/include/pratt_sampler/test.h : include/pratt_sampler/test.h
-	cp -f include/pratt_sampler/test.h ${SAMPLER_INSTALLDIR}/include/pratt_sampler/
 
 ${SAMPLER_INSTALLDIR}/lib/libsampler.a : lib/libsampler.a
 	cp -r lib/libsampler.a ${SAMPLER_INSTALLDIR}/lib/
@@ -110,7 +107,5 @@ build/hyper.o : src/hyper.cc include/pratt_sampler/hyper.h
 build/eos.o : src/eos.cc include/pratt_sampler/eos.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/eos.o src/eos.cc
 
-build/test.o : src/test.cc include/pratt_sampler/test.h
-	${CPP} -c ${CFLAGS} ${INC} -o build/test.o src/test.cc
 
 ############

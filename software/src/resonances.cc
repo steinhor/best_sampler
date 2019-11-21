@@ -24,7 +24,9 @@ CresList::CresList(CparameterMap* parmap_in){
 	parmap=parmap_in;
 	CresInfo::NSPECTRAL=parmap->getI("SAMPLER_NSPECTRAL",100);
 	//RESONANCE_DECAYS=parmap->getB("RESONANCE_DECAYS",true);
+	printf("test 1\n");
 	ReadResInfo();
+	printf("test 2\n");
 	CalcSpectralFunctions();
 }
 
@@ -170,7 +172,7 @@ void CresList::ReadResInfo(){
 	double d_mass, d_width, d_gspin;
 	int d_baryon, d_strange, d_charm, d_bottom;
 	double d_gisospin;
-	int d_charge,d_pid;
+	int d_charge,d_pid,d_L;
 
 	filename=parmap->getS("RESONANCES_INFO_FILE",string("../local/resinfo/pdg-SMASH.dat"));
 	printf("will read res info from %s\n",filename.c_str());
@@ -210,7 +212,7 @@ void CresList::ReadResInfo(){
 
 		//decay reading
 		for (int j=0; j<decay; j++) { //reads into dummy variables: will read for decay info later
-			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d", &dummy_int,&decays_Npart[j],&decays_branchratio[j],&decays_part[j][0],&decays_part[j][1],&decays_part[j][2],&decays_part[j][3],&decays_part[j][4]);
+			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d %d", &dummy_int,&decays_Npart[j],&decays_branchratio[j],&decays_part[j][0],&decays_part[j][1],&decays_part[j][2],&decays_part[j][3],&decays_part[j][4],&d_L);
 		}
 
 		if(resinfo->pid!=22){ //copied from old pid
@@ -267,7 +269,6 @@ void CresList::ReadResInfo(){
 			resmap.insert(CresInfoPair(resinfo->pid,resinfo));
 			massmap.insert(CresMassPair(resinfo->mass,resinfo));
 		}
-
 		resinfo=new CresInfo();
 	}
 	printf("NResonances:%d\n",n);
@@ -289,6 +290,7 @@ void CresList::ReadResInfo(){
 		fscanf(decayinfofile, " %d", &decay);
 		//decay is the number of channels
 		resinfo=GetResInfoPtr(motherpid);
+		resinfo->Print();
 		resinfo->minmass=1.0E10;
 
 		if (resinfo->baryon!=0){ //check if antiparticle exists
@@ -346,6 +348,8 @@ void CresList::ReadResInfo(){
 			for (ibody=nbodies; ibody<5; ibody++) { //get rid of zeroes after real products
 				fscanf(resinfofile, " %d", &dummy_int);
 			}
+			fscanf(resinfofile,"%d",&d_L); // angular momentum of decay
+			bptr->L=d_L;
 
 			//total charge and baryon number should be conserved, and shouldn't be larger than single strangeness
 			if(netq!=0 || netb!=0 || abs(nets)>1){
@@ -389,6 +393,7 @@ void CresList::ReadResInfo(){
 		}  //out of channel loops
 	}
 	fclose(decayinfofile);
+	printf("test 3\n");
 }
 
 CresInfo* CresList::GetResInfoPtr(int pid){

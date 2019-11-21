@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
 	ms.ReadHyper2D();
 
   int nparts=0;
-	int N=50000*10;
+	int N=50000*100;
 	vector<Cpart>::iterator it;
 	double totvol=0.0;
 
@@ -98,11 +98,16 @@ int main(int argc, char *argv[]){
   }
 
   printf("\n");
-	printf("T-Pcalc= \n");
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
+	printf("shear tensor from particles=\t\t\tshear tensor from input=\n");
+	for (int i=1;i<4;i++) {
+		for (int j=1;j<4;j++) {
 			if (i==j) T[i][j]-=P;
-			printf("%lf ",T[i][j]);
+			if (T[i][j]==0) T[i][j]=T[j][i];
+			printf("%8lf",T[i][j]);
+		}
+		printf("\t");
+		for (int j=1;j<4;j++) {
+			printf("%8lf",hyper->pitilde[i][j]);
 		}
 		printf("\n");
 	}

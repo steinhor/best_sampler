@@ -1,5 +1,4 @@
 #include "pratt_sampler/master.h"
-#include "pratt_sampler/test.h"
 #include <cstring>
 using namespace std;
 
