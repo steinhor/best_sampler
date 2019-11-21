@@ -67,7 +67,7 @@ public:
 	double GetBL2(double k); // factor used to generate spectral functions in arXiv:1606642v2
 	double GetBW(double E,double Mr,double Gamma);  // relativistic Breit Wigner
 	double GetBW_base(double E,double Mr,double Gamma); // simple non-rel. fixed gamma BW, used as base for Monte Carlo
-	double GenerateMass_base();
+	double GenerateMass_base(double r1);
 	double GetDecayMomentum(double M,double ma,double mb);
 	void NormalizeSF();  //normalizes spectral function
 	bool SFcalculated;

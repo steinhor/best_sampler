@@ -14,11 +14,11 @@
 using namespace std;
 
 //---------------------------------------------------------------
-//This code helps one parse the map that contains configuration 
+//This code helps one parse the map that contains configuration
 // parameters.
 //
 //Example:
-// 
+//
 // MyCoolClass(parameterMap m){  //m has the parameters and is passed in
 // int importantParameter = parameter::getI(m,"nameOfParameter",-1);
 //  ...

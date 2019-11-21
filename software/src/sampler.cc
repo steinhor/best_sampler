@@ -606,7 +606,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		do{
 			do{
 				r1 = randy->ran(); // get random numbers
-				E=resinfo->GenerateMass_base(); // generate random mass value proportional to the BW distribution
+				E=resinfo->GenerateMass_base(r1); // generate random mass value proportional to the BW distribution
 			}while(E < resinfo->minmass);
 			//k2 = E*E*gsl_sf_bessel_Kn(2,(E/Tf)); // K2 value
 			Emesh=resinfo->GetMeshE(E);

@@ -16,7 +16,7 @@ uninstall :
 
 SAMPLER_HFILES = include/pratt_sampler/sampler.h include/pratt_sampler/classdefs.h include/pratt_sampler/parametermap.h include/pratt_sampler/randy.h include/pratt_sampler/constants.h include/pratt_sampler/misc.h include/pratt_sampler/part.h include/pratt_sampler/sf.h include/pratt_sampler/master.h include/pratt_sampler/meanfield.h include/pratt_sampler/eos.h include/pratt_sampler/test.h
 
-SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o build/test.o
+SAMPLER_OBJFILES = build/sampler.o build/randy.o build/parametermap.o build/resonances.o build/resonances_spectral.o build/misc.o build/part.o build/bess.o build/master.o build/makeparts.o build/meanfield.o build/hyper.o build/eos.o build/test.o
 
 ####################
 
@@ -88,6 +88,9 @@ build/parametermap.o : src/parametermap.cc include/pratt_sampler/parametermap.h
 
 build/resonances.o : src/resonances.cc include/pratt_sampler/resonances.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/resonances.o src/resonances.cc
+
+build/resonances_spectral.o : src/resonances_spectral.cc include/pratt_sampler/resonances.h
+	${CPP} -c ${CFLAGS} ${INC} -o build/resonances_spectral.o src/resonances_spectral.cc
 
 build/misc.o : src/misc.cc include/pratt_sampler/misc.h
 	${CPP} -c ${CFLAGS} ${INC} -o build/misc.o src/misc.cc

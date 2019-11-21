@@ -147,9 +147,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 			ptilde[alpha]=pnoviscous[alpha];
 			for(beta=1;beta<4;beta++){
 				if(mastersampler->SETMU0)
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilon0+P0)*hyper->lambda*(2*PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilon0+P0)*hyper->lambda*(PI));
 				else
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((hyper->epsilon+hyper->P)*hyper->lambda*(2*PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((hyper->epsilon+hyper->P)*hyper->lambda*(PI));
 			}
 		}
 		ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);
@@ -159,7 +159,6 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 			ptilde[alpha]=pnoviscous[alpha];
 	}
 	Misc::BoostToCM(hyper->u,hyper->dOmega,dOmegaTilde);  //dOmegaTilde is dOmega in fluid (u=0) frame
-
 	pdotdOmega=ptilde[0]*dOmegaTilde[0]-ptilde[1]*dOmegaTilde[1]-ptilde[2]*dOmegaTilde[2];
 	wreflect=pdotdOmega/(ptilde[0]*dOmegaTilde[0]);
 	reflect=false;

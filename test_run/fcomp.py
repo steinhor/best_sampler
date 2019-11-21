@@ -10,8 +10,8 @@ y2=[]
 x3=[]
 y3=[]
 
-x2 , y2 = np.loadtxt('../build/corrections.txt', delimiter=' ', unpack=True)
-x3 , y3 = np.loadtxt('../build/no_corrections.txt', delimiter=' ', unpack=True)
+x2 , y2 = np.loadtxt('corrections.txt', delimiter=' ', unpack=True)
+x3 , y3 = np.loadtxt('no_corrections.txt', delimiter=' ', unpack=True)
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
@@ -30,5 +30,5 @@ plt.xlabel('p')
 plt.ylabel('f')
 plt.show()
 
-os.remove("../build/corrections.txt")
-os.remove("../build/no_corrections.txt")
+os.remove("corrections.txt")
+os.remove("no_corrections.txt")

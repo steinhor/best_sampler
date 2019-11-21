@@ -178,8 +178,8 @@ double CresInfo::GetBW_base(double E,double M0,double Gamma0){ // simple lorentz
 	//return (2.0*E*E*Gamma0/PI)/(pow(E*E-M0*M0,2)+E*E*Gamma0*Gamma0);
 }
 
-double CresInfo::GenerateMass_base(){
-	double r1=randy->ran();
+double CresInfo::GenerateMass_base(double r1){
+	//double r1=randy->ran();
 	return ((width/2)*tan(PI*(r1-0.5))) + mass;  // mass according to BW distribution
 }
 
