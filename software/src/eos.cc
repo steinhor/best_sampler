@@ -6,10 +6,10 @@ void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &
 	int iE,nE;
 	double E,rho;
 	double rhosum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
-	nE=resinfo->spectvec.size();
+	nE=resinfo->SpectVec.size();
 	for(iE=0;iE<nE;iE++){
-		E=resinfo->spectEvec[iE];
-		rho=resinfo->spectvec[iE];
+		E=resinfo->SpectEVec[iE];
+		rho=resinfo->SpectVec[iE];
 		freegascalc_onespecies(T,E,epsilon,P,dens,sigma2,dedt);
 		esum+=epsilon*rho;
 		psum+=P*rho;
