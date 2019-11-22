@@ -13,7 +13,3 @@ samplertest : samplertest.cc samplerlibs
 
 spectraltest : spectraltest.cc samplerlibs
 	${CPP} -o spectraltest spectraltest.cc ${CFLAGS} ${INCLUDELIBDIRS} -lsampler -lgsl
-	
-etest : etest.cc samplerlibs
-	${CPP} -o etest etest.cc ${CFLAGS} ${INCLUDELIBDIRS} -lsampler -lgsl
-
