@@ -1,11 +1,17 @@
 #ifndef __RANDY_H__
 #define __RANDY_H__
-
 #include <cstdlib>
 #include <cmath>
 #include <array>
 #include <random>
 #include "classdefs.h"
+
+// ----------------------
+// random number generation
+// includes boltzmann generatione, e^{-E/T}, for parts of mass m
+// thresholds are randomly placed points so that probability of 'netprob' passing any threshold in region epsilon->0 is epsilon ,
+// regardless of past history.
+// -----------------------
 
 using namespace std;
 

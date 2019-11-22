@@ -1,6 +1,5 @@
 #ifndef __PART_H__
 #define __PART_H__
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -14,9 +13,15 @@
 #include "resonances.h"
 #include "classdefs.h"
 #include "eos.h"
-
 using namespace std;
-//using namespace boost;
+
+// ----------------------------
+// Each particle has following information in Cpart
+// CpartList is a vector of such particles, 'nparts' is the number of particles
+// Rather than adding memory one particle at a time, particles are added in increments of 'nparts_blocksize'
+// Increasing particles done through AddPart -- which checks to see if vector size needs to be increased
+// Only particles 0 through nparts-1 are to be considered
+// ----------------------------
 
 class Cpart{
 public:

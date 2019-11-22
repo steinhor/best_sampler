@@ -1,12 +1,14 @@
 #ifndef __SAMPLER_DEFS_H__
 #define __SAMPLER_DEFS_H__
-
 #include <map>
 #include <unordered_map>
 #include <cmath>
 #include <vector>
-
 using namespace std;
+
+// -----------------------
+// This is a list of class names and typedefs used throughout
+// -----------------------
 
 class Cpart;
 class CresList;

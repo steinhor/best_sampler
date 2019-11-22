@@ -13,8 +13,13 @@
 #include "hyper.h"
 #include "sampler.h"
 #include "eos.h"
-
 using namespace std;
+
+// --------------------------------
+// This object contains array of sampler objects, and information used across all samplers, e.g. resonance info lists
+// sampler objects have unique temperature and sigma field
+// It also has list of hyper-volume elements
+// ---------------------------------
 
 class CmasterSampler{
 public:
@@ -41,7 +46,6 @@ public:
 	CpartList *partlist;
 
 	void ReadHyper2D();
-	void DeleteVolumeElements();
 	int MakeEvent(); // returns number of parts
 	Csampler* ChooseSampler(Chyper *hyper);
 	void ChooseSampler(double Tf,double sigmaf,int &itf,int &isigmaf);

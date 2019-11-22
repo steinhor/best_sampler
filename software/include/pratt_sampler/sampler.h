@@ -5,8 +5,15 @@
 #include <eigen3/Eigen/Dense>
 #include "classdefs.h"
 #include "master.h"
-
 using namespace std;
+
+// -----------------
+// This is the workhorse class
+// This stores information and methods required to sample particles, but not the specific hyper-element information
+// Each sampler object has a specific temperature and sigma field (sigma field considered constant currently)
+// If two hyper-elements have same T but different mu, sampler adjusts on the fly to account for new mu
+// but stored coefficients that depend on T are common
+// -----------------
 
 class Csampler{
 public:
