@@ -1,16 +1,18 @@
 #include "pratt_sampler/master.h"
 using namespace std;
 
+// This makes a dummy hyper-element then creates particles and tests yield and energy of created partilces of specific pid
 int main(int argc, char *argv[]){
 	long long int npartstot=0;
 	int nparts;
 	CparameterMap parmap;
-	parmap.ReadParsFromFile("testparameters.dat");
+	parmap.ReadParsFromFile("testparameters.txt");
 	CpartList *partlist=new CpartList(&parmap);
 	CmasterSampler ms(&parmap);
 	ms.partlist=partlist;
 	ms.randy->reset(time(NULL));
 	
+	// This makes a dummy hyper element for testing
 	ms.MakeDummyHyper();
 	Chyper *hyper=*(ms.hyperlist.begin());
 	double V0=100.0;
@@ -34,13 +36,12 @@ int main(int argc, char *argv[]){
 	for(int alpha=0;alpha<4;alpha++)
 		for(int beta=0;beta<4;beta++)
 			hyper->pitilde[alpha][beta]=0.0;
-
+	// Now test particle production for specific pid
 	long long int count=0;
 	int pid;
 	double totalenergy=0.0;
 	printf("Enter pid to check: ");
 	scanf("%d",&pid);
-	//pid=2212;
 	CresInfo *resinfo=ms.reslist->GetResInfoPtr(pid);
 	for(int ievent=0;ievent<ms.NEVENTS_TOT;ievent++){
 		nparts=ms.MakeEvent();

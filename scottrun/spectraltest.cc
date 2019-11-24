@@ -3,7 +3,7 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 	CparameterMap parmap;
-	parmap.ReadParsFromFile("testparameters.dat");
+	parmap.ReadParsFromFile("testparameters.txt");
 	CmasterSampler ms(&parmap);
 	int pid;
 	printf("Enter pid: ");
