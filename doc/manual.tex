@@ -1,0 +1,194 @@
+\input{header.tex}
+
+\begin{document}
+
+\section{Installing, Compiling and Running Sampler}
+
+Clone the repository and move to its root directory {\it ..../best\_sampler}.
+
+{\bf Using make}
+First, go to the root directory and find the file {\it makefile\_defs.mk}. Edit the file, changing the various locations and compiler options to your liking. Note that C++17 is required. The editing should be self-explanatory.
+{\tt\begin{verbatim}
+% cd testrun
+% make sampler
+% ./sampler
+\end{verbatim}}
+Note that the makefile inserts the contents of {\it ../makefile\_defs.mk}, so if the testrun directory is not located in the directory immediately below the location of {\it makefile\_defs.mk}, you need to edit the one line in {\it makefile},\\
+{\tt include ../makefile\_defs.mk}.
+
+{\bf Using cmake}
+
+\section{Work Flow}
+
+The sampler fills a particle object with particles according to the information in a list of hyper-elements. This is done by writing a main program that links to the sampler library. The main program will look something like:
+
+{\tt \begin{verbatim}
+#include "pratt_sampler/master.h"
+int main(int argc, char *argv[]){
+  long long int nparts=0;
+  CparameterMap parmap;
+  parmap.ReadParsFromFile("parameters.txt");
+  CmasterSampler ms(\&parmap);
+  ms.partlist=new CpartList(\&parmap);
+  ms.randy->reset(time(NULL));
+  ms.ReadHyper2D();
+  for(int ievent=0;ievent<ms.NEVENTS_TOT;ievent++)
+    nparts+=ms.MakeEvent();
+  return 0;
+}
+\end{verbatim}}
+This will result in an object, ms.partlist, from which one can print out, analyze, or export the resulting particles. The parameter file, {\it parameters.txt} will contain the parameters required for generating events, e.g the file name for reading the hyper-elements. For typical RHIC or LHC events, the program generates roughly 100 events per second. 
+
+\section{Parameter File}
+{\tt\begin{verbatim}
+SAMPLER_TFMIN 0.130
+SAMPLER_TFMAX 0.160
+SAMPLER_NTF 16
+SAMPLER_SIGMAFMIN 0.093
+SAMPLER_SIGMAFMAX 0.093
+SAMPLER_NSIGMAF 0
+SAMPLER_MEANFIELD simple
+SAMPLER_SETMU0 false
+RESONANCES_INFO_FILE /Users/scottpratt/git/best_sampler/local/resinfo/pdg-SMASH.dat
+SAMPLER_FINDT false
+SAMPLER_CALCMU false
+SAMPLER_BOSE_CORR false
+SAMPLER_N_BOSE_CORR 6
+SAMPLER_NPARTS_BLOCKSIZE 2000
+SAMPLER_SFDIRNAME ../local/resinfo/spectralfunctions
+HYPER_INFO_FILE ../hydrodata/surface_2D.dat
+SAMPLER_NEVENTS_TOT 1000000
+\end{verbatim}}
+\begin{itemize}\itemsep=0pt
+\item The {\it CmasterSampler} object contains an array of {\it Csampler} objects. Each {\it Csampler} object handles the sampling duties for a specific temperature. In the example above, 26 Csampler objects will be created for $T=130,132\cdots 160$ MeV.
+\item Ultimately, the project will incorporate scalar fields, but currently the program only works with $\Omega=93$ MeV, i.e. it uses vacuum masses. Thus, one can ignore {\tt SAMPLER\_SIGMAFMIN}, {\tt SAMPLER\_SIGMAFMAX} and {\tt SAMPLER\_NSIGMAF}. Also leave {\tt SAMPLER\_MEANFIELD} set to ``simple''.
+\item The parameter {\tt SAMPLER\_CALCMU} can be set to false if you know that all chemical potentials are zero, or if the chemical potentials are provided when reading in the hyper-element information. In this instance the program is spared the computations of calculating the chemical potentials.
+\item The list of information about the resonances in included in the file {\tt RESONANCES\_INFO\_FILE}.
+\item If the hyper-elements do not have the temperatures provided, i.e. they give the energy density and charge densities, one must set {\tt SAMPLER\_FINDT} to true. This slows down the program as it performs a Newton's method calculation to ascertain the temperature and chemical potential.
+\item Similarly, if the chemical potentials need to be calculated for each hyper-element, set \\{\tt SAMPLER\_CALCMU} to true.
+\item If you want pions created with a Bose distribution, set {\tt SAMPLER\_BOSE\_CORR} to true. This is done to a given order $N=${\tt SAMPLER\_N\_BOSE\_CORR} in the expansion
+\[
+\frac{e^{-\beta(E-\mu)/T}}{1-e^{-\beta(E-\mu)/T}}=\sum_{n=1}^Ne^{-n\beta(E-\mu)/T}.
+\]
+\item The size of the particle list is increased as needed during the running of the program, but in blocks of {\tt SAMPLER\_NPARTS\_BLOCKSIZE}. The CpartList object has a member {\it nparts} to describe exactly how many particles are made. Results do not depend on\\ {\tt SAMPLER\_NPARTS\_BLOCKSIZE}
+\item Spectral functions are described by files in the directory {\tt SAMPLER\_SFDIRNAME}. Separate programs are provided to generate the spectral functions.
+\item The hyper-surface from the hydrodynamics calculation is {\tt HYPER\_INFO\_FILE}.
+\item The number of events to generate is {\it SAMPLER\_NEVENTS\_TOT}. This is not used by any files in the sampler library, but you want to set this for use in the main program. 
+\end{itemize}
+
+
+\section{Physics and Algorithms of Sampler}
+
+The sampler generates particles from a small hyper-volume, $d\Omega^\mu$, consistent with the grand-canonical ensemble for a non-interacting hadron gas. If one adds vector potentials that couple to the charges, such potentials are equivalent to changes in the chemical potential, and require no changes to the formalism aside from changing $\mu\rightarrow\mu+V$. The architecture should accommodate scalar fields (which change the masses), but that extension is on hold until there is a strategy for adjusting the spectral functions. This section covers the basics of the algorithms and physics for generating particles consistent with a thermal distribution, the treatment of ``negative'' phases-space contributions in the Cooper-Frye, corrections for Bose distributions and viscosity, and spectral functions. Rather than citing the papers on which the methods are based, or citing different methods, the following aims at being self contained. This comes at the expense of not attempting to compare various physics choices to others in the literature.
+
+\subsection{Generating a Thermal Distribution}
+
+Here, we describe how to generate the momenta of particles in their rest frame with a Boltzmann distribution,
+\begin{align*}\eqnumber
+\frac{dN}{d^3p}\propto e^{-\sqrt{p^2+m^2}/T}.
+\end{align*}
+The algorithm can be seen in the file {\it randy.cc}, which is a collection of methods using random number generation. For light particles, $T/m>0.6$, one uses the fact that
+\begin{align*}
+p&=T(a+b+c),\\
+a&=-\ln(r_1),~b=-\ln(r_2),~c=-\ln(r_3).
+\end{align*}
+where $r_i$ are random numbers uniformly chosen in the interval $0<r_i1$. This generates random numbers with probability $\propto p^2e^{-p/T}$. To account for the mass, one uses a fourth random number, $r_4$, and rejects/keeps the choice of $r_{1-3}$ depending on whether $r_4$ is less/greater than $e^{-(E-p)/T}$. To generate the angles, in polar coordinates,
+\begin{align*}\eqnumber
+\cos(\theta)&=(a-b)/(a+b),\\
+\phi=2\pi\frac{(a+b)^2}{(a+b+c)^2}.
+\end{align*}
+One can check that this choice works by generating Jacobian between $r_{1-3}$ and $p,\theta,\phi$. This can be found in {\tt void Crandy::generate\_boltzmann(double mass,double T,FourVector \&p)} within {\it randy.cc}.
+
+For heavier particles, $T/m<0.6$, the previous algorithm becomes inefficient because the acceptance rate (which approaches $e^{-m/T}$) becomes high. The algorithm is then based on the following,
+\begin{align*}\eqnumber
+p^2dp e^{-E/T}&\propto \frac{p}{E}(u+m)^2due^{-u/T},\\
+u&=E-m.
+\end{align*}
+First, the variable $u$ is generated according to the above weight, ignoring the factor $p/E$. This choice is then accepted/rejected with the weight $p/E$. To generate with the weight $(u+m)^2e^{-u/T}$, one uses the fact that the integrals $u^2e^{-E/T}$, $2ume^{-E/T}$ and $m^2e^{-E/T}$ are in weights of 
+$w_1=2T^2$, $w_2=2mT$ and $w_3m^2$ respectively. One throws a random number, $0<r_0<1$, then chooses between the three terms with probability $w_i(w_1+w_2+w_3)$. Depending on whether $i=1,2$ or $3$, 
+\begin{align*}\eqnumber
+u&=\left\{\begin{array}{rl}
+-T\ln(r_5r_6r_7),&i=2\\
+-T\ln(r_5r_6),&i=2\\
+-T\ln(r_5),&i=1\end{array}\right.
+\end{align*}
+Then, using $E=u+m$, $p=sqrt{E^2-m^2}$, one keeps or rejects the choice to account for the factor $p/E$. This routine is in {\tt void Crandy::generate\_boltzmann(double mass, double T,FourVector \&p)} within {\it randy.cc}.
+
+\subsection{Collective Flow and Negative Contributions in Cooper-Frye}
+
+The Cooper-Frye formula,
+\begin{align*}\eqnumber
+dN&=\frac{d^3p}{E}p\cdot\Omega e^{-u\cdot p/T},
+\end{align*}
+is invariant and can be expressed in the fluid rest frame, $u=(1,0,0,0)$, as
+\begin{align*}\eqnumber
+dN&=d^3p'~\frac{1}{E'}p'\cdot\Omega'e^{-E'/T}.
+\end{align*}
+Writing $p'\cdot\Omega'=E'\Omega_0-\vec{p}'\cdot\vec{\Omega}'$, one can ignore the second term if one only wants to generate the correct distribution of $|\vec{p}'|$ and ignores direction, because the second term is odd in $\vec{p}'$. Thus, one first generates a distribution using only the first term, which can be accomplished using the algorithm of the previous subsection. The missing additional, 
+\begin{align*}\eqnumber
+w&=1-\frac{\vec{p}'}{E'}\cdot\frac{\Omega'}{\Omega_0},
+\end{align*}
+is then included by throwing a random number $0<r<1$, then with if $r>w$, one reflects $\vec{p}'$ about the $\vec{\Omega}'$ plane,
+\begin{eqnarray}
+\vec{p}''&=\vec{p}'-\vec{\Omega}'\frac{\vec{\Omega}'\cdot\vec{p}'}{\vec{\Omega}'\cdot\vec{\Omega}'}.
+\end{eqnarray}
+
+This procedure reproduces the desired phase space density perfectly, unless one encounters a momentum for which $w'<0$. This happens when the hyper surface moves sufficiently slowly into the hydrodynamic fluid that particles from the hadron gas might enter the fluid. Ignoring this piece results in both leaving off the negative contribution, where $w<0$, and underestimates the contribution for the reflected region of phase space where $w>2$. Thus, despite ignoring the negative contribution, this procedure correctly reproduces both the net yield and the net energy. However, the net momentum flow through the surface is not reproduced. Of course, when viewed in another reference frame the momentum discrepancy translates into an energy discrepancy. A solution to this shortcoming would to reflect all particles in the cascade that re-enter the hydrodynamic fluid, by reversing the momentum into the surface vector, as defined in the fluid frame. If the phase space distribution of the hadronic gas immediately outside the hyper-surface were indeed consistent with the hydrodynamic fluid at the boundary, this procedure would then be exact. Unfortunately, that is probably not the case. However, given that the number of particles that would be affected by such a correction might be less than one percent, this is probably negligible. 
+
+Once the momentum is generated in the fluid frame, $p'$, one boosts it back to the frame in which $u\ne(1,0,0,0)$. A computationally efficient manner in which to boost particles is to use the following representation of the Lorentz boose matrices,
+\begin{align*}\eqnumber
+L^{\alpha\beta}&=g^{\alpha\beta}+2u^\alpha n^\beta-\frac{(u^\alpha+n^\alpha)(u^\beta+n^\beta)}{1+u\cdot n}.
+\end{align*}
+Applied to a vector $p'$ in the frame $u$, this gives the vector $p$ in the frame $n$. Routines for such boosts can be found in {\it misc.cc}. The routines inside {\it randy.cc},\\{\tt void Misc::Boost(FourVector \&u,FourVector \&p,FourVector \&pprime)}  and\\
+{\tt void Misc::BoostToCM(FourVector \&u,FourVector \&p,FourVector \&ptilde)}, either boost the vector or express the vector in the boosted frame, the same as boosting with $-\vec{u}$.
+
+\subsection{Bose Corrections}
+The Bose distribution can be expanded as a power series,
+\begin{align*}\eqnumber
+\frac{e^{-\beta(E-\mu)}}{1-e^{-\beta(E-\mu)}}=\sum_{n=1}^{N\rightarrow\infty}e^{-n\beta(E-\mu)}.
+\end{align*}
+Each term in the sum behaves as a Boltzmann distribution with a temperature $T/n$. The distribution is treated as if it were a contribution from $N$ resonances, each generated with a temperature $T/n$. The choice of including Bose effects and the order $N$ are set by parameters. Only pions are corrected for Bose effects because they are the only species with sufficiently high phase space densities such that the $N>1$ corrections are not negligible. 
+
+\subsection{Viscous Corrections}
+A variety of formalisms exist in the literature for viscous corrections. They all attempt to adjust the phase space density in such a way that the stress energy density is reproduced, including the viscous corrections. Of course, there are infinite ways in which to adjust the phase space density, a continuous function of $\vec{p}$, and to spread the adjustments over numerous resonances. The method here is to first create a thermal momentum $\vec{p}$, and then to apply the following matrix to $\vec{p}$,
+\begin{align*}\eqnumber
+p'_i&=\left(\delta_{ij}+\lambda \frac{\pi_{ij}}{\epsilon+P}\right)p_j.
+\end{align*}
+The constant $\lambda$ is a function of density and temperature, but not of $\vec{p}$. This is consistent with all particles having constant relaxation time, independent of $|\vec{p}|$ or species. The constant $\lambda$ is calculated during the initialization of the sampler object for a given $T$ and $\mu$. This method begins to break down (energy conservation worse than 1\%) when the viscous corrections exceed $\sim 50$\% of the total pressure. As of this writing, the viscous correction was being re-analyzed and tested. The mechanism for implementing such corrections will be altered to make it straight-forward to offer competing alterations of the phase space density.
+
+\subsection{Spectral Functions}
+Unstable resonances, i.e. those with finite widths, are treated as a distribution of resonances with mass $m$. The distribution is known as the spectral function, $A(m)$, which is normalized,
+\begin{align*}\eqnumber
+\int dm~A(m)&=1.
+\end{align*}
+The spectral functions are read in from files. The files are stored in a directory, whose name is a parameter, {\tt SAMPLER\_SFDIRNAME}. The files are in the form {\it pid.txt}, where {\it pid} refers to to the particle-data book ID, e.g. {\it 1114.txt} lists the spectral function of the $\Delta$ resonance. The files should be in the same format as one obtains by running {\tt \% smash -r pid}. 
+
+After reading in the spectral functions, each sampler stores a version of $A(m)$ weighted by the density of a species of mass $m$. If at temperature $T$ the density of a spin-less species is $n_0(T,m)$, the weight spectral density is,
+\begin{align*}\eqnumber
+P(m)&=n_0(T,m)A(m)/Z,
+\end{align*}
+with $Z$ chosen to ensure that $P(m)$ integrates to unity. The weight $P(m)$ is stored as a map, where
+\begin{align*}\eqnumber
+Q(m)&=\int_{-\infty}^m ~dm'P(m'),
+\end{align*}
+is the key and $m$ is the value. To generate a mass with the desired weight, a random number $0<r<1$ is chosen. Using the {\tt lower\_bound} functionality of a C++ map, $r$ is associated with the mass entry whose $Q$ is the first one above $r$. Using the surrounding entries in the array, a value of $m$ is chosen by linear interpolation.
+
+\subsection{Summing Across Resonances and Matching Yields}
+
+Each hyper-element stores the information $d\Omega^\mu$, $u^\mu$, $T$ and three chemical potentials $\vec{\mu}$, corresponding to baryon number, isospin and strangeness. The main object, {\tt CmasterSampler} stores an array of {\tt Csampler} objects, each with its own temperature. The specific sampler object is chosen randomly from the two objects whose temperatures bracket that of the hyper-element. The choice of which of the two sampler objects to employ is based on a linear weighting determined the three temperatures. For example, if the hyper-element temperature very nearly matches one of the two sampler objects, that one is almost always taken, and if the temperature is half-way in between that of two objects, each object has equal chance of being selected.
+
+Each sampler object stores the densities calculated for zero chemical potential, but it is straight-forward to calculate the density of hadrons. The first time the object is called, the hadron density, $n_{\rm hadrons}$ is calculated and stored for the {\tt Chyper} ojbect. The average number of hadrons in the hyper-element is then
+\begin{align*}\eqnumber
+N_{\rm hadrons}&=n_{\rm hadrons}u\cdot\Omega.
+\end{align*}
+Before summing over the density of individual species, a test is performed to see whether any particles are created. Because each hyper-element typically has a very small $N_h$, it would be inefficient to generate new random numbers for each element. Instead. the {\tt Crandy} objects stores two values, a running sum of probabilities, {\tt netprob}, and a list of thresholds $t_i$. Each threshold is separated by an exponential distribution, i.e.
+\begin{align*}\eqnumber
+t_{i+1}=t_i-\ln(r_i),
+\end{align*}
+where $0<r_i<1$ is a random number. Thus, the chance of encountering a threshold in some differential range between $t$ and $t+dt$ is $dt$, indepenedent of where the previous thresholds are located. In this case, one first tests whether adding $N_{\rm hadrons}$ to {\tt netprob} will pass a threshold. If not, nothing is done. Otherwise, one begins to sum over each hadron species $h$. The number for a specific species if $N_h=n_hu\cdot\Omega$. If by incrementing {\tt netprob} by $N_h$, {\tt netprob} exceeds a threshold, one creates species $h$. If {\tt netprob} also exceeds the next threshold, a second $h$ particle is created. This procedure is consistent with creating hadrons according to a Poissonian distribution, and works whether the differential volume is small or large. Because the net number of hadrons created equals the number of thresholds crossed, the number of random numbers called is the same as the number of particles created, which suggests that this algorthim is perfectly efficient with respect to the number of times a random number generator is called.
+
+\subsection{Finding $\mu$ and $T$ in Terms of $\epsilon$ and $\rho$}
+
+In some cases the temperature and chemical potentials might be provided while reading in the hyper-element information. However, if that is not the case, the temperature and/or chemical potentials can be calculated from the energy and charge densities. This is performed via a four-dimensional (if both the temerature and chemical potentials are required) Newton's method or by a three-dimensional method if only the chemical potentials are required. The boolean parameter {\tt SAMPLER\_CALCMU} determines whether $\mu$ need to be calculated. If the chemical potentials are all zero, one can simply set $\mu=0$ by setting the parameter {\tt SAMPLER\_SETMU0=true}. 
+
+\end{document}

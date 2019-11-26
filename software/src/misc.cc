@@ -228,15 +228,6 @@ int Misc::iround(double x){
 	return int(floor(x+0.5));
 }
 
-// Using GSL
-double Misc::cgc(double j1,double m1,double j2,double m2,double J,double M){
-	int sign=-1;
-	if((lrint((M+j1-j2)))%2==0) sign=1;
-	return sign*sqrt(2.0*J+1)
-		*gsl_sf_coupling_3j(lrint(2*j1),lrint(2*j2),lrint(2*J),
-		lrint(2*m1),lrint(2*m2),-lrint(2*M));
-}
-
 // from Alexander Volya, Declan Mulhall
 //page 44 edmonds
 double Misc::oldcgc(double j1,double m1,double j2,double m2,double j,double m){
@@ -775,21 +766,6 @@ int main(void) {
 	return 0;
 } */
 
-int Misc::CubicReal(double a0,double a1,double a2,double a3,double *x){
-	a0=a0/a3; a1=a1/a3; a2=a2/a3;
-	int nrealroots=gsl_poly_solve_cubic(a2,a1,a0,&x[0],&x[1],&x[2]);
-	return nrealroots;
-}
-
-void Misc::CubicComplex(double a0,double a1,double a2,double a3,complex<double> &z1,complex<double> &z2,complex<double> &z3){
-	a0=a0/a3; a1=a1/a3; a2=a2/a3;
-	gsl_complex gslz1,gslz2,gslz3;
-	gsl_poly_complex_solve_cubic(a2,a1,a0,&gslz1,&gslz2,&gslz3);
-	complex<double> ci(0.0,1.0);
-	z1=GSL_REAL(gslz1)+ci*GSL_IMAG(gslz1);
-	z2=GSL_REAL(gslz2)+ci*GSL_IMAG(gslz2);
-	z3=GSL_REAL(gslz3)+ci*GSL_IMAG(gslz3);
-}
 
 bool Misc::file_exists(const char* file_name){
   std::ifstream file;
@@ -828,5 +804,34 @@ int Misc::Sign(int a){
 		return 1;
 	}
 }
+
+#ifdef __MISC_USE_GSL__
+
+int Misc::CubicReal(double a0,double a1,double a2,double a3,double *x){
+	a0=a0/a3; a1=a1/a3; a2=a2/a3;
+	int nrealroots=gsl_poly_solve_cubic(a2,a1,a0,&x[0],&x[1],&x[2]);
+	return nrealroots;
+}
+
+void Misc::CubicComplex(double a0,double a1,double a2,double a3,complex<double> &z1,complex<double> &z2,complex<double> &z3){
+	a0=a0/a3; a1=a1/a3; a2=a2/a3;
+	gsl_complex gslz1,gslz2,gslz3;
+	gsl_poly_complex_solve_cubic(a2,a1,a0,&gslz1,&gslz2,&gslz3);
+	complex<double> ci(0.0,1.0);
+	z1=GSL_REAL(gslz1)+ci*GSL_IMAG(gslz1);
+	z2=GSL_REAL(gslz2)+ci*GSL_IMAG(gslz2);
+	z3=GSL_REAL(gslz3)+ci*GSL_IMAG(gslz3);
+}
+
+double Misc::cgc(double j1,double m1,double j2,double m2,double J,double M){
+	int sign=-1;
+	if((lrint((M+j1-j2)))%2==0) sign=1;
+	return sign*sqrt(2.0*J+1)
+		*gsl_sf_coupling_3j(lrint(2*j1),lrint(2*j2),lrint(2*J),
+		lrint(2*m1),lrint(2*m2),-lrint(2*M));
+}
+
+#endif
+
 
 #endif

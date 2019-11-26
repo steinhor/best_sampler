@@ -5,8 +5,11 @@
 #include <cmath>
 #include <complex>
 #include "constants.h"
-
 using namespace std;
+
+// -----------------
+// For Best Sampler, only Bessel Functions are used
+// ----------------
 
 namespace SpherHarmonics{
   double legendre(int ell,double ctheta);

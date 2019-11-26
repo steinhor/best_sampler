@@ -1,6 +1,6 @@
 #ifndef __INCLUDE_SAMPLER_MISC_H_
 #define __INCLUDE_SAMPLER_MISC_H_
-
+#define __MISC_USE_GSL__ // use gnu sci. lib. in misc.cc
 #include <complex>
 #include <cstdlib>
 #include <cstring>
@@ -17,8 +17,11 @@
 #include "classdefs.h"
 #include "constants.h"
 #include "sf.h"
-
 using namespace std;
+
+// --------------------------------
+// Some random functions -- not all are used, or are copied into the BEST directory
+// 
 
 namespace Misc{
 	double DotProduct(FourVector &p,FourVector &q);
@@ -36,7 +39,7 @@ namespace Misc{
 	//void Boost(double *u,double *ptilde,double *p);
 
 
-	double cgc(double j1,double m1,double j2,double m2,double j,double m);
+	double cgc(double j1,double m1,double j2,double m2,double j,double m);  // Clebsch-Gordan coefficients
 	double cgc_edmonds(double j1,double m1,double j2,double m2,double j,double m);
 	bool comparestrings(char *s1,char *s2);
 	double triangle(double m0,double m1,double m2);

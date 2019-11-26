@@ -1,6 +1,5 @@
 #ifndef __parametermap_H__
 #define __parametermap_H__
-
 #include <map>
 #include <string>
 #include <sstream>
@@ -14,26 +13,18 @@
 using namespace std;
 
 //---------------------------------------------------------------
-//This code helps one parse the map that contains configuration
-// parameters.
+//This code helps read and parse parameters, and is based on an STL map
 //
 //Example:
+// CparameterMap mymap;
+// mymap.ReadParsFromFile("parameters.txt");
+// arraysize = mymap.getI("ARRAYSIZE",100);   // 100 would be the default value
 //
-// MyCoolClass(parameterMap m){  //m has the parameters and is passed in
-// int importantParameter = parameter::getI(m,"nameOfParameter",-1);
-//  ...
+// Here parameters.txt might have a line, which would over-ride the defaul
+// ARRAYSIZE 200
 //
-//  If "nameOfParameter is not a key in the map, -1 is returned since that
-// is the 3rd argment of the getI function.
-//
-//MH 22 jun04
 //---------------------------------------------------------------
 
-//This code only works with a map of the type below.  The type def is
-//to make it easy to remember.
-//typedef   parameterMap;
-
-//These functions are all in the namespace parameter.
 class CparameterMap : public map<string,string> {
 public:
   bool   getB(string ,bool);

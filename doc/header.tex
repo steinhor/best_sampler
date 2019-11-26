@@ -1,0 +1,88 @@
+% !TEX root =  lectures.tex
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage[
+        pdfencoding=auto,%
+        pdftitle={Notes on Statistical Mechanics},%
+        pdfauthor={Scott Pratt},%
+        pdfstartview=FitV,%
+        colorlinks=true,%
+        linkcolor=blue,%
+        citecolor=black, %
+        urlcolor=blue]{hyperref}
+%\usepackage{pdfsync}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\numberwithin{equation}{section} 
+\numberwithin{figure}{section} 
+\usepackage[small,bf]{caption}
+
+%\usepackage{fontspec}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\newcommand\eqnumber{\addtocounter{equation}{1}\tag{\theequation}}
+
+\newcounter{examplecounter}
+\setcounter{examplecounter}{0}
+\newcommand{\example}[1]{\begin{samepage}
+\stepcounter{examplecounter}{\noindent\rule{\textwidth}{1pt}\nopagebreak\\ \bf Example \arabic{section}.\arabic{examplecounter}:}~--~{\bf #1}\\
+\end{samepage}
+}
+
+\newcommand{\exampleend}{
+\begin{samepage}
+\nopagebreak\noindent\rule{\textwidth}{1pt}
+\end{samepage}}
+
+\newcommand{\aside}[1]{\begin{samepage}
+\hrule
+{\bf Aside:~}{\bf #1}\\
+\end{samepage}
+}
+\newcommand{\asideend}{
+\begin{samepage}
+\nopagebreak\noindent\rule{\textwidth}{1pt}
+\end{samepage}}
+
+\newcommand{\unity}{\mathbb{I}}
+
+\usepackage[T1]{fontenc}
+%\renewcommand*{\sfdefault}{Berenis}
+%\renewcommand*{\rmdefault}{Berenis}
+\renewcommand*{\sfdefault}{ppl}
+\renewcommand*{\rmdefault}{ppl}
+%\renewcommand*{\sfdefault}{Bookman}
+%\renewcommand*{\rmdefault}{Bookman}
+
+%\pagestyle{empty}
+\textwidth 7.0in
+\hoffset -0.8in
+\textheight 9.2in
+\voffset -1in
+
+\pagestyle{fancy}             % page layout
+\newcommand{\TheShortTitle}{}
+\newcommand{\ShortTitle}[1]{\renewcommand{\TheShortTitle}{#1}}
+\fancyhead[LO,RE]{\slshape \TheShortTitle}
+\fancyhead[LE,RO]{\slshape \leftmark}
+
+\usepackage{colortbl}
+\newcommand{\cc}[1]{\cellcolor{#1}}
+\definecolor{lightred}{rgb}{1,0.5,0.6}
+\definecolor{lightblue}{rgb}{0.6,0.8,1.0}
+
+\hyphenation{Schr\"odin-ger}
+
+\usepackage{comment}
+\parskip 4pt
+\parindent 0pt
+
+%\newcommand{\bm}{\boldmath}
+\boldmath
+
+% for the banner across the tops of pages 2-
+\ShortTitle{BEST SAMPLER}

@@ -1,6 +1,5 @@
 #ifndef __RESONANCES_H__
 #define __RESONANCES_H__
-
 #include <map>
 #include <unordered_map>
 #include <cmath>
@@ -13,8 +12,15 @@
 #include "classdefs.h"
 #include "misc.h"
 #include "constants.h"
-
 using namespace std;
+
+// --------------------
+// CresInfo contains all information about an object
+// Includes information about decays. Each decay branch is descrbed by CbranchInfo object
+// List of resonces is in CresList object
+// CresList has 2 maps, resmap has key = pid and value = resinfo ptr, while massmap has key=mass and value = resinfo ptr
+// resmap good for finding resinformation indexed by pid, massmap good for thumbing through resonances lightest first
+// -------------------
 
 class CbranchInfo{
 public:
@@ -79,16 +85,6 @@ public:
 	static string SFDIRNAME; // location of spectral functions for reading in
 	static int NSPECTRAL;  // number of points in spectral function
 };
-/*
-class Cmerge{
-public:
-Cmerge(CresInfo *resinfo,double branching, int L);
-CresInfo *resinfo;
-int L;
-double branching;
-Cmerge *next;
-};
-*/
 
 class CresList{
 public:
