@@ -2,30 +2,21 @@
 #define __EOS_CC
 #include "pratt_sampler/eos.h"
 
-void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,
-double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight){
-	double E,rho,weight,k2,k2mr;
+void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
+	int iE,nE;
+	double E,rho;
 	double rhosum=0.0,esum=0.0,psum=0.0,dsum=0.0,sigsum=0.0,dedtsum=0.0;
-	int n;
-	maxweight=0.0;
-	k2mr=resinfo->mass*resinfo->mass*Bessel::Kn(2,resinfo->mass/T);
-	for (n=0;n<CresInfo::NSPECTRAL;n++){
-		E=resinfo->GetEofN(n);
-		if(E>0.0){
-			rho=resinfo->spectvec[n];
-			freegascalc_onespecies(T,E,epsilon,P,dens,sigma2,dedt);
-			k2=E*E*Bessel::Kn(2,E/T);
-			weight=rho*k2/k2mr;
-			if(weight>maxweight){
-				maxweight=1.0001*weight;  // safety factor of 1.0001
-			}
-			esum+=epsilon*rho;
-			psum+=P*rho;
-			dsum+=dens*rho;
-			sigsum+=sigma2*rho;
-			dedtsum+=dedt*rho;
-			rhosum+=rho;
-		}
+	nE=resinfo->SpectVec.size();
+	for(iE=0;iE<nE;iE++){
+		E=resinfo->SpectEVec[iE];
+		rho=resinfo->SpectVec[iE];
+		freegascalc_onespecies(T,E,epsilon,P,dens,sigma2,dedt);
+		esum+=epsilon*rho;
+		psum+=P*rho;
+		dsum+=dens*rho;
+		sigsum+=sigma2*rho;
+		dedtsum+=dedt*rho;
+		rhosum+=rho;
 	}
 	epsilon=esum/rhosum;
 	P=psum/rhosum;
@@ -71,6 +62,5 @@ void EOS::freegascalc_onespecies(double T,double m,double &epsilon,double &P,dou
 	//printf("___z=%g,m=%g,T=%g ___\n",z,m,T);
 	*/
 }
-
 
 #endif

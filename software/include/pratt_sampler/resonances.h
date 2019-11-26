@@ -44,9 +44,11 @@ public:
 	bool decay; //false if stable, true if can decay. check if true
 	CbranchList branchlist;
 	CbranchInfo	*bptr_minmass;
-	//map<double,double> spectmap;
-	vector<double> spectvec;
+	vector<double> SpectVec;
+	vector<double> SpectEVec;
+	vector<double> GammaVec;
 	void Print();
+	void PrintBranchInfo();
 	void DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo);
 	void DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo);
 	bool CheckForDaughters(int pid);
@@ -59,6 +61,8 @@ public:
 	static CresList *reslist;
 	static double **ChiA; // stored array used by ChiOmegaInt
 	void CalcSpectralFunction();
+	void ReadSpectralFunction();
+	void CalcMinMass();
 	double GetSpectralFunction(double E);
 	double GetEofN(int n); // return energy for middle of spectral function bin n
 	double GetMeshE(double E); // returns E at middle of mesh cell
@@ -72,6 +76,7 @@ public:
 	double GetDecayMomentum(double M,double ma,double mb);
 	void NormalizeSF();  //normalizes spectral function
 	bool SFcalculated;
+	static string SFDIRNAME; // location of spectral functions for reading in
 	static int NSPECTRAL;  // number of points in spectral function
 };
 /*
@@ -96,7 +101,8 @@ public:
 	//double **SigmaMaxArray;
 	CresInfo *GetResInfoPtr(int pid);
 	void ReadResInfo();
-	void FillSpectMap(CresInfo *resinfo);
+	void CalcMinMasses();
+	void ReadSpectralFunctions();
 	void CalcSpectralFunctions();
 	//bool RESONANCE_DECAYS;
 	CparameterMap *parmap;

@@ -3,6 +3,7 @@
 #include "pratt_sampler/resonances.h"
 Crandy *CresInfo::randy=NULL;
 int CresInfo::NSPECTRAL=100;
+string CresInfo::SFDIRNAME="../local/resinfo/spectralfunctions";
 
 CresList::CresList(){
 }
@@ -23,18 +24,27 @@ CresList::~CresList(){
 CresList::CresList(CparameterMap* parmap_in){
 	parmap=parmap_in;
 	CresInfo::NSPECTRAL=parmap->getI("SAMPLER_NSPECTRAL",100);
+	CresInfo::SFDIRNAME=parmap->getS("SAMPLER_SFDIRNAME","../local/resinfo/spectralfunctions");
 	//RESONANCE_DECAYS=parmap->getB("RESONANCE_DECAYS",true);
-	printf("test 1\n");
 	ReadResInfo();
-	printf("test 2\n");
-	CalcSpectralFunctions();
+	CalcMinMasses();
+	//CalcSpectralFunctions();
+	ReadSpectralFunctions();
 }
 
 CresInfo::CresInfo(){
-	minmass=0.0;
+	minmass=1.0E20;
 	SFcalculated=false;
-	spectvec.resize(NSPECTRAL);
 	branchlist.clear();
+}
+
+void CresList::CalcMinMasses(){
+	CresInfo *resinfo;
+	CresInfoMap::iterator rpos;
+	for(rpos=resmap.begin();rpos!=resmap.end();++rpos){
+		resinfo=rpos->second;
+		resinfo->CalcMinMass();
+	}
 }
 
 void CresInfo::DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo){
@@ -123,14 +133,20 @@ bool CresInfo::CheckForDaughters(int pidcheck){
 	return exists;
 }
 
-void CresInfo::DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo){
-	nbodies=bptr_minmass->resinfo.size();
-	for(int ibody=0;ibody<nbodies;ibody++){
-		daughterresinfo[ibody]=bptr_minmass->resinfo[ibody];
-	}
+CbranchInfo::CbranchInfo(){
 }
 
-CbranchInfo::CbranchInfo(){
+void CresInfo::PrintBranchInfo(){
+	Print();
+	if(decay){
+		printf(" ------  branches -------\n");
+		for(int ib=0;ib<branchlist.size();ib++){
+			printf("%2d, branching=%5.3f, ",ib,branchlist[ib]->branching);
+			for(int ir=0;ir<branchlist[ib]->resinfo.size();ir++)
+				printf("%6d ",branchlist[ib]->resinfo[ir]->pid);
+			printf("Gamma_i=%g\n",width*branchlist[ib]->branching);
+		}
+	}
 }
 
 bool CresInfo::CheckForNeutral(){
@@ -163,9 +179,9 @@ void CresList::ReadResInfo(){
 	//dummy variables for decay info in resinfofile
 	double gisospin;
 	int dummy_int;
-	int decays_Npart[20];
-	double decays_branchratio[20];
-	int decays_part[20][5];
+	int decays_Npart[25];
+	double decays_branchratio[25];
+	int decays_part[25][5];
 
 	//dummy variables for resinfo while reading decays
 	char d_name[200];
@@ -176,7 +192,6 @@ void CresList::ReadResInfo(){
 
 	filename=parmap->getS("RESONANCES_INFO_FILE",string("../local/resinfo/pdg-SMASH.dat"));
 	printf("will read res info from %s\n",filename.c_str());
-
 	resinfofile=fopen(filename.c_str(),"r");
 	if (resinfofile==NULL) {
 		fprintf(stderr,"Can't open resinfofile\n");
@@ -290,17 +305,13 @@ void CresList::ReadResInfo(){
 		fscanf(decayinfofile, " %d", &decay);
 		//decay is the number of channels
 		resinfo=GetResInfoPtr(motherpid);
-		resinfo->Print();
-		resinfo->minmass=1.0E10;
 
 		if (resinfo->baryon!=0){ //check if antiparticle exists
 			antip=true;
 			aresinfo=GetResInfoPtr(-motherpid); //resinfo for anti-particle
-			aresinfo->minmass=1.0E10;
 		}
 		else
 			antip=false;
-
 
 		bsum=0.0;
 		bmax=0.0;
@@ -364,16 +375,6 @@ void CresList::ReadResInfo(){
 
 			bsum+=bptr->branching;
 
-			//if the total mass is smaller than the minimum required mass, replace it
-			if(netm<resinfo->minmass){
-				resinfo->minmass=netm;
-				resinfo->bptr_minmass=bptr;
-
-				if (antip) {
-					aresinfo->minmass=netm;
-					aresinfo->bptr_minmass=abptr;
-				}
-			}
 			// switch places to make sure first branch has largest
 			if(bptr->branching>bmax){
 				bmax=bptr->branching;
@@ -393,7 +394,30 @@ void CresList::ReadResInfo(){
 		}  //out of channel loops
 	}
 	fclose(decayinfofile);
-	printf("test 3\n");
+}
+
+void CresInfo::CalcMinMass(){
+	if(decay){
+		minmass=1.0E20;
+		double mbranch;
+		int ibranch,nbodies,ibody;
+		CbranchInfo *bptr;
+		for(ibranch=0;ibranch<branchlist.size();ibranch++){
+			bptr=branchlist[ibranch];
+			mbranch=0.0;
+			nbodies=bptr->resinfo.size();
+			for(ibody=0;ibody<nbodies;ibody++){
+				if(bptr->resinfo[ibody]->minmass>1.0E8){
+					bptr->resinfo[ibody]->CalcMinMass();
+				}
+				mbranch+=bptr->resinfo[ibody]->minmass;
+			}
+			if(mbranch<minmass)
+				minmass=mbranch;
+		}
+	}
+	else
+		minmass=mass;
 }
 
 CresInfo* CresList::GetResInfoPtr(int pid){

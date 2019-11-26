@@ -1,4 +1,3 @@
-#include "pratt_sampler/test.h"
 #include "pratt_sampler/sampler.h"
 
 void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file);
@@ -83,6 +82,7 @@ void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file) {
 		nparts+=sampler->MakeParts(hyper);
 	}
 	for (int ibin=0;ibin<ndp;ibin++) {
+		//printf("%lf %lf sampler->dN_dp_p2[ibin]=%lf sampler->totvol=%lf\n",ibin*dp+dp/2,sampler->dN_dp_p2[ibin]/sampler->totvol,sampler->dN_dp_p2[ibin],sampler->totvol);
 		fprintf(file,"%lf %lf\n",ibin*dp+dp/2,sampler->dN_dp_p2[ibin]/sampler->totvol);
 	}
 

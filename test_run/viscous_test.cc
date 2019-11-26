@@ -1,5 +1,4 @@
 #include "pratt_sampler/master.h"
-#include "pratt_sampler/test.h"
 #include <cstring>
 using namespace std;
 
@@ -103,11 +102,11 @@ int main(int argc, char *argv[]){
 		for (int j=1;j<4;j++) {
 			if (i==j) T[i][j]-=P;
 			if (T[i][j]==0) T[i][j]=T[j][i];
-			printf("%8lf",T[i][j]);
+			printf("%15lf",T[i][j]);
 		}
 		printf("\t");
 		for (int j=1;j<4;j++) {
-			printf("%8lf",hyper->pitilde[i][j]);
+			printf("%15lf",hyper->pitilde[i][j]);
 		}
 		printf("\n");
 	}

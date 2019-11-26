@@ -23,7 +23,7 @@ using namespace std;
 
 namespace EOS{
     void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
-    void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt,double &maxweight);
+    void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
 };
 
 #endif
