@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 	ms.ReadHyper2D();
 
   int nparts=0;
-	int N=50000*100;
+	int N=pow(10,8);
 	vector<Cpart>::iterator it;
 	double totvol=0.0;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 	hyper->pitilde[0][0]=0.0;
 	hyper->pitilde[1][1]=0.0;
 	hyper->pitilde[2][2]=0.0;
-	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.01;
+	hyper->pitilde[1][2]=hyper->pitilde[2][1]=.001;
 	hyper->pitilde[3][3]=0.0;
 	hyper->pitilde[3][1]=hyper->pitilde[1][3]=0.0;
 	hyper->pitilde[3][2]=hyper->pitilde[2][3]=0.0;
@@ -79,6 +79,7 @@ int main(int argc, char *argv[]){
 		nparts+=sampler->MakeParts(hyper);
 	}
 
+	//calculate P and T from particles produced
   vector<Cpart> partvec=sampler->mastersampler->partlist->partvec;
   for(int k=0;k<nparts;k++) { //for (it=partvec.begin();it!=partvec.end();it++) {//for each species
     part=partvec[k];
@@ -96,6 +97,7 @@ int main(int argc, char *argv[]){
 		}
   }
 
+	//print results
   printf("\n");
 	printf("shear tensor from particles=\t\t\tshear tensor from input=\n");
 	for (int i=1;i<4;i++) {

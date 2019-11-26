@@ -1,6 +1,6 @@
 #include "pratt_sampler/sampler.h"
 
-void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file);
+void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file, const char tempfilename[20]);
 
 int main(int argc, char *argv[]){
 	int nprint=100,iprint=0;
@@ -34,20 +34,22 @@ int main(int argc, char *argv[]){
   hyper->u[3]=0;
 
   FILE *file=fopen("corrections.txt","w");
-  calc_bose(&ms,sampler,hyper,file);
+	char tempfilename1[20]="temp_c.txt";
+  calc_bose(&ms,sampler,hyper,file,tempfilename1);
   fclose(file);
 
   sampler->bose_test_off=true;
 
   file=fopen("no_corrections.txt","w");
-  calc_bose(&ms,sampler,hyper,file);
+	char tempfilename2[20]="temp_nc.txt";
+  calc_bose(&ms,sampler,hyper,file,tempfilename2);
   fclose(file);
 
 	printf("YIPPEE!!!!! We made it all the way through!\n");
 	return 0;
 }
 
-void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file) {
+void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file, const char tempfilename[20]) {
   int N=50000*1000;
   int nparts=0;
   double totvol=0.0;
@@ -66,8 +68,11 @@ void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file) {
   sampler->mastersampler=ms;
 
 	printf("T=%lf\n",sampler->Tf);
-	nparts=0;
+	FILE *tempfile=fopen(tempfilename,"w");
+	fprintf(tempfile,"%lf",sampler->Tf);
+  fclose(tempfile);
 
+	nparts=0;
 	double ndp=400,pbound=4.5;
 	sampler->dp=pbound/ndp;
   double dp=sampler->dp;
