@@ -246,7 +246,7 @@ double CresInfo::GetDecayMomentum(double M,double ma,double mb){ // Gives relati
 	double pf=0.0;
 	if(ma+mb<M)
 		pf=sqrt(fabs(pow((M*M-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*M);
-	return pf;		
+	return pf;
 }
 
 #endif

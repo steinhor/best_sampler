@@ -48,6 +48,7 @@ public:
 	int up,down;
 	int G_Parity;
 	bool decay; //false if stable, true if can decay. check if true
+	int nchannels;
 	CbranchList branchlist;
 	CbranchInfo	*bptr_minmass;
 	vector<double> SpectVec;
@@ -102,6 +103,14 @@ public:
 	void CalcSpectralFunctions();
 	//bool RESONANCE_DECAYS;
 	CparameterMap *parmap;
+};
+
+class CdecayInfo{
+public:
+	int Nparts[25];
+	double branchratio[25];
+	int products[25][5];
+	int d_L[25];
 };
 
 #endif

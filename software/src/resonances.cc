@@ -164,34 +164,23 @@ void CresInfo::Print(){
 
 void CresList::ReadResInfo(){
 	//Cmerge *merge;
-	int motherpid,pid,decay;
+	int motherpid,pid;
 	double bsum,netm,bmax;
 	int ires,ichannel,ibody,nbodies;
 	int netq,netb,nets;
 	string name, filename;
 	CresInfo *resinfo=NULL,*aresinfo=NULL,*temp=NULL;
+	CdecayInfo *decayinfo, *adecayinfo;
 	CbranchInfo *bptr=NULL,*firstbptr=NULL,*abptr=NULL,*firstabptr=NULL;
 	FILE *resinfofile;
-	FILE *decayinfofile;
 	char cname[200];
-	bool antip;
-
-	//dummy variables for decay info in resinfofile
+	CdecayInfoMap decaymap;
 	double gisospin;
 	int dummy_int;
-	int decays_Npart[25];
-	double decays_branchratio[25];
-	int decays_part[25][5];
-
-	//dummy variables for resinfo while reading decays
-	char d_name[200];
-	double d_mass, d_width, d_gspin;
-	int d_baryon, d_strange, d_charm, d_bottom;
-	double d_gisospin;
-	int d_charge,d_pid,d_L;
+	CresInfoMap::iterator iter;
 
 	filename=parmap->getS("RESONANCES_INFO_FILE",string("../local/resinfo/pdg-SMASH.dat"));
-	printf("will read res info from %s\n",filename.c_str());
+	printf("will read resonance info from %s\n",filename.c_str());
 	resinfofile=fopen(filename.c_str(),"r");
 	if (resinfofile==NULL) {
 		fprintf(stderr,"Can't open resinfofile\n");
@@ -202,22 +191,13 @@ void CresList::ReadResInfo(){
 	ires=0;
 	int n=0;
 	resinfo=new CresInfo();
-	while(fscanf(resinfofile," %d",&d_pid)!=EOF && n<1000) {
-		resinfo->pid=d_pid;
+	decayinfo=new CdecayInfo();
+	while(fscanf(resinfofile," %d",&resinfo->pid)!=EOF && n<1000) {
 		n++;
 
 		//main reading
-		fscanf(resinfofile, " %s %lf %lf %lf %d %d %d %d %lf %d %d", cname,&d_mass,&d_width,&d_gspin,&d_baryon,&d_strange,&d_charm,&d_bottom,&gisospin,&d_charge,&decay);
-		//using dummy variables so we can use the values again when creating the antiparticle
-		resinfo->mass=d_mass;
-		resinfo->width=d_width;
-		resinfo->degen=d_gspin;
-		resinfo->baryon=d_baryon;
-		resinfo->strange=d_strange;
-		resinfo->charm=d_charm;
-		resinfo->bottom=d_bottom;
-		resinfo->charge=d_charge;
-		if(decay==1 && d_width==0.00000)
+		fscanf(resinfofile, " %s %lf %lf %lf %d %d %d %d %lf %d %d", cname,&resinfo->mass,&resinfo->width,&resinfo->degen,&resinfo->baryon,&resinfo->strange,&resinfo->charm,&resinfo->bottom,&gisospin,&resinfo->charge,&resinfo->nchannels);
+		if(resinfo->nchannels==1 && resinfo->width==0.00000)
 			{resinfo->decay=false;}
 		else
 			{resinfo->decay=true;}
@@ -226,141 +206,110 @@ void CresList::ReadResInfo(){
 		resinfo->name=cname;
 
 		//decay reading
-		for (int j=0; j<decay; j++) { //reads into dummy variables: will read for decay info later
-			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d %d", &dummy_int,&decays_Npart[j],&decays_branchratio[j],&decays_part[j][0],&decays_part[j][1],&decays_part[j][2],&decays_part[j][3],&decays_part[j][4],&d_L);
+		for (int j=0; j<resinfo->nchannels; j++) { //reads into map values: will access for decays when done creating resonances
+			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d %d", &dummy_int,&decayinfo->Nparts[j],&decayinfo->branchratio[j],&decayinfo->products[j][0],&decayinfo->products[j][1],&decayinfo->products[j][2],&decayinfo->products[j][3],&decayinfo->products[j][4],&decayinfo->d_L[j]);
 		}
 
 		if(resinfo->pid!=22){ //copied from old pid
 			resinfo->ires=ires;
 			ires+=1;
 		}
-		//else
-		//	resinfo->ires=NResonances-1;
+
 		resinfo->branchlist.clear();
 
-		if(!resinfo->decay && (decay-1)==1){
+		if(!resinfo->decay && (resinfo->nchannels-1)==1){
 			printf("decay turned off\n");
 			resinfo->Print();
 		}
 
 		resmap.insert(CresInfoPair(resinfo->pid,resinfo));
 		massmap.insert(CresMassPair(resinfo->mass,resinfo));
-
+		decaymap.insert(CdecayInfoPair(resinfo->pid,decayinfo));
 
 		//antiparticle creation
 		if(resinfo->baryon!=0) {
-			resinfo=new CresInfo();
+			aresinfo=new CresInfo();
+			adecayinfo=new CdecayInfo();
 			n+=1;
 
-			//get antiparticle values from dummy variables created by original particle
-			resinfo->pid=-d_pid;
-			resinfo->mass=d_mass;
-			resinfo->width=d_width;
-			resinfo->degen=d_gspin;
-			resinfo->baryon=-d_baryon;
-			resinfo->strange=-d_strange;
-			resinfo->charm=-d_charm;
-			resinfo->bottom=-d_bottom;
-			resinfo->charge=-d_charge;
-			//resinfo->decay=bool((decay-1)); //subtract 1 because if stable, entry will be 1
-			if(decay==1 && d_width==0.00000)
-				{resinfo->decay=false;}
-			else
-				{resinfo->decay=true;}
+			aresinfo->pid=-resinfo->pid;
+			aresinfo->mass=resinfo->mass;
+			aresinfo->width=resinfo->width;
+			aresinfo->degen=resinfo->degen;
+			aresinfo->baryon=-resinfo->baryon;
+			aresinfo->strange=-resinfo->strange;
+			aresinfo->charm=-resinfo->charm;
+			aresinfo->bottom=-resinfo->bottom;
+			aresinfo->charge=-resinfo->charge;
+			aresinfo->decay=resinfo->decay;
+			aresinfo->nchannels=resinfo->nchannels;
 			cname[int(strlen(cname))-1]='\0';
 			string s(cname);
-			resinfo->name="Anti-"+s;
-
-			resinfo->ires=ires;
+			aresinfo->name="Anti-"+s;
+			aresinfo->ires=ires;
 			ires+=1;
 
-			resinfo->branchlist.clear();
+			aresinfo->branchlist.clear();
 
-			if(!resinfo->decay && (decay-1)==1){
-				printf("decay turned off\n");
-				resinfo->Print();
+			for (int j=0; j<resinfo->nchannels; j++) { //reads into map values: will access for decays when done creating resonances
+				for (int i=0; i<5; i++) {
+					pid=decayinfo->products[j][i];
+					if (pid!=0) {
+						temp=GetResInfoPtr(pid);
+						if(temp->baryon==0 && temp->charge==0 && temp->strange==0){
+							adecayinfo->products[j][i]=decayinfo->products[j][i];
+						}
+						else {
+							adecayinfo->products[j][i]=-decayinfo->products[j][i];
+						}
+					}
+					else adecayinfo->products[j][i]=0;
+				}
+				adecayinfo->Nparts[j]=decayinfo->Nparts[j];
+				adecayinfo->branchratio[j]=decayinfo->branchratio[j];
+				adecayinfo->d_L[j]=decayinfo->d_L[j];
 			}
 
-			resmap.insert(CresInfoPair(resinfo->pid,resinfo));
-			massmap.insert(CresMassPair(resinfo->mass,resinfo));
+			resmap.insert(CresInfoPair(aresinfo->pid,aresinfo));
+			massmap.insert(CresMassPair(aresinfo->mass,aresinfo));
+			decaymap.insert(CdecayInfoPair(aresinfo->pid,adecayinfo));
 		}
 		resinfo=new CresInfo();
+		decayinfo=new CdecayInfo();
 	}
 	printf("NResonances:%d\n",n);
 	fclose(resinfofile);
 
-	//Note: uses same file as resinfo, but needs to be read a second time because decay code needs to search resinfo map for products
-	filename=parmap->getS("RESONANCES_DECAYS_FILE",string("../local/resinfo/pdg-SMASH.dat"));
-	printf("will read decay info from %s\n", filename.c_str());
-	decayinfofile=fopen(filename.c_str(), "r");
-	if (resinfofile==NULL) {
-		fprintf(stderr,"Can't open decayinfofile\n");
-		printf("Error %d \n", errno);
-		exit(1);
-	}
-
-	while(fscanf(decayinfofile," %d",&motherpid)!=EOF) {
-
-		fscanf(decayinfofile," %s %lf %lf %lf %d %d %d %d %lf %d", d_name,&d_mass,&d_width,&d_gspin,&d_baryon,&d_strange,&d_charm,&d_bottom,&d_gisospin,&d_charge);
-		fscanf(decayinfofile, " %d", &decay);
-		//decay is the number of channels
-		resinfo=GetResInfoPtr(motherpid);
-
-		if (resinfo->baryon!=0){ //check if antiparticle exists
-			antip=true;
-			aresinfo=GetResInfoPtr(-motherpid); //resinfo for anti-particle
-		}
-		else
-			antip=false;
+	//now, use the stored decay information to create branchlists
+	for(iter=resmap.begin();iter!=resmap.end();++iter){
+		resinfo=iter->second;
+		motherpid=iter->first;
+		decayinfo=decaymap[motherpid];
 
 		bsum=0.0;
 		bmax=0.0;
 
-		for (ichannel=0; ichannel<decay; ichannel++) {
+		for (ichannel=0; ichannel<resinfo->nchannels; ichannel++) {
 			bptr=new CbranchInfo();
 			bptr->resinfo.clear();
 			resinfo->branchlist.push_back(bptr);
-
-			if (antip) {
-				abptr=new CbranchInfo(); //equivalent branch for the anti-particle
-				abptr->resinfo.clear();
-				aresinfo->branchlist.push_back(bptr);
-			}
-
-			fscanf(decayinfofile, " %d %d %lf", &dummy_int,&nbodies,&bptr->branching);
-
-			if (antip)
-				abptr->branching=bptr->branching;
-
+			bptr->branching=decayinfo->branchratio[ichannel];
 
 			netq=-resinfo->charge;
 			netb=-resinfo->baryon;
 			nets=-resinfo->strange;
 			netm=0.0;
 
-			for(ibody=0; ibody<nbodies; ibody++) {
-				fscanf(decayinfofile, " %d", &pid);
-				temp=GetResInfoPtr(pid);
-				bptr->resinfo.push_back(temp);
-
-				if (antip){
-					if(temp->baryon==0 && temp->charge==0 && temp->strange==0)
-						abptr->resinfo.push_back(temp);
-					else
-						abptr->resinfo.push_back(GetResInfoPtr(-pid));
-				}
-
+			for(ibody=0; ibody<decayinfo->Nparts[ichannel]; ibody++) {
+				pid=decayinfo->products[ichannel][ibody];
+				bptr->resinfo.push_back(GetResInfoPtr(pid));
 				netq+=bptr->resinfo[ibody]->charge;
 				netb+=bptr->resinfo[ibody]->baryon;
 				nets+=bptr->resinfo[ibody]->strange;
 				netm+=bptr->resinfo[ibody]->mass;
 			}
 
-			for (ibody=nbodies; ibody<5; ibody++) { //get rid of zeroes after real products
-				fscanf(resinfofile, " %d", &dummy_int);
-			}
-			fscanf(resinfofile,"%d",&d_L); // angular momentum of decay
-			bptr->L=d_L;
+			bptr->L=decayinfo->d_L[ichannel];
 
 			//total charge and baryon number should be conserved, and shouldn't be larger than single strangeness
 			if(netq!=0 || netb!=0 || abs(nets)>1){
@@ -382,18 +331,10 @@ void CresList::ReadResInfo(){
 					firstbptr=resinfo->branchlist[0];
 					resinfo->branchlist[0]=bptr;
 					resinfo->branchlist[ichannel]=firstbptr;
-					if (antip) {
-						//branching for antiparticle matches branching for particle
-						firstabptr=aresinfo->branchlist[0];
-						aresinfo->branchlist[0]=abptr;
-						aresinfo->branchlist[ichannel]=firstabptr;
-					}
 				}
 			}
-
 		}  //out of channel loops
 	}
-	fclose(decayinfofile);
 }
 
 void CresInfo::CalcMinMass(){
