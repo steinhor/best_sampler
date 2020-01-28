@@ -22,24 +22,6 @@ double Crandy::ran_exp(){
     return -log(ran());
 }
 
-double Crandy::ran_gauss(void){
-    return rang(mt);
-}
-
-void Crandy::ran_gauss2(double &ra,double &rb){
-    double x,y,r2,r,c,s;
-    do {
-        x=1.0-2.0*ran();
-        y=1.0-2.0*ran();
-        r2=x*x+y*y;
-    } while (r2>1.0);
-    r=sqrt(r2);
-    c=x/r;
-    s=y/r;
-    ra=c*sqrt(-2.0*log(r2));
-    rb=(s/c)*ra;
-}
-
 void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
     const double PI=4.0*atan(1.0);
     double r1,r2,r3,r0,I1,I2,I3,Itot;
@@ -103,25 +85,6 @@ void Crandy::generate_boltzmann(double mass,double T,FourVector &p){
         p[2]=pmag*stheta*sin(phi);
     }
     else generate_boltzmann_alt(mass,T,p);
-}
-
-int Crandy::poisson(){
-    return ranp(mt);
-}
-
-void Crandy::set_poisson_mean(double mu){
-    using param_t = std::poisson_distribution<int>::param_type;
-    ranp.param(param_t{mu});
-}
-
-int Crandy::get_n(double delprob){
-    int nsuccess=0;
-    netprob+=delprob;
-    while(netprob>threshold){
-        nsuccess+=1;
-        threshold-=log(ran());
-    }
-    return nsuccess;
 }
 
 bool Crandy::test_threshold(double delprob){

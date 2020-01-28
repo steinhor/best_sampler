@@ -47,92 +47,6 @@ void CresList::CalcMinMasses(){
 	}
 }
 
-void CresInfo::DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo){
-	double r,bsum;
-	int ibody,ibranch;
-	CbranchInfo *bptr;
-	bptr=NULL;
-	bsum=0.0;
-	r=randy->ran();
-	ibranch=0;
-	do{
-		bptr=branchlist[ibranch];
-		bsum+=bptr->branching;
-		ibranch++;
-		if(bsum>1.00000001){
-			printf("FATAL: In DecayGetResInfo: bsum too large, = %g\n",bsum);
-			exit(1);
-		}
-	}while(bsum<r);
-	nbodies=bptr->resinfo.size();
-	for(ibody=0;ibody<nbodies;ibody++){
-		daughterresinfo[ibody]=bptr->resinfo[ibody];
-	}
-
-}
-
-bool CresInfo::CheckForDaughters(int pidcheck){
-	//checks to see if any decay daughters match pid, for pid=0, checking for charged parts
-	int ibody,nbodies,ibranch;
-	bool exists=false;
-	CresInfo *daughter;
-	CbranchInfo *bptr;
-	CbranchList::iterator bpos;
-	if(pidcheck!=0){
-		if(pid==pidcheck){
-			exists=true;
-			return exists;
-		}
-		if(decay){
-			ibranch=0;
-			do{
-				bptr=branchlist[ibranch];
-				ibranch++;
-				nbodies=bptr->resinfo.size();
-				for(ibody=0;ibody<nbodies;ibody++){
-					daughter=bptr->resinfo[ibody];
-					if(daughter->pid==pidcheck){
-						exists=true;
-						return exists;
-					}
-					if(daughter->CheckForDaughters(pidcheck)){
-						exists=true;
-						return exists;
-					}
-				}
-				bpos++;
-			}while(bpos!=branchlist.end());
-		}
-	}
-	else{
-		if(charge!=0){
-			exists=true;
-			return exists;
-		}
-		if(decay){
-			ibranch=0;
-			do{
-				bptr=branchlist[ibranch];
-				ibranch++;
-				nbodies=bptr->resinfo.size();
-				for(ibody=0;ibody<nbodies;ibody++){
-					daughter=bptr->resinfo[ibody];
-					if(daughter->charge!=0){
-						exists=true;
-						return exists;
-					}
-					if(daughter->CheckForDaughters(pidcheck)){
-						exists=true;
-						return exists;
-					}
-				}
-				++bpos;
-			}while(bpos!=branchlist.end());
-		}
-	}
-	return exists;
-}
-
 CbranchInfo::CbranchInfo(){
 }
 
@@ -147,13 +61,6 @@ void CresInfo::PrintBranchInfo(){
 			printf("Gamma_i=%g\n",width*branchlist[ib]->branching);
 		}
 	}
-}
-
-bool CresInfo::CheckForNeutral(){
-	bool neutral=true;
-	if(charge!=0 || strange!=0 || baryon!=0)
-		neutral=false;
-	return neutral;
 }
 
 void CresInfo::Print(){

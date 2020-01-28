@@ -31,8 +31,6 @@ public:
   int    getI(string ,int);
   string getS(string ,string);
   double getD(string ,double);
-  vector< double > getV(string, string);
-  vector< string > getVS(string, string);
   vector< vector< double > > getM(string, double);
   void set(string, double);
   void set(string, int);

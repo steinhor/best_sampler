@@ -77,56 +77,6 @@ double CparameterMap::getD(string key,double def)
   return param;
 }
 
-//Returns a STL Vector from the map
-vector< double > CparameterMap::getV( string key, string def){
-  vector< double > vec;
-  double tmp;
-  map<string,string>::iterator itr;
-  itr = this->find(key);
-  if(itr!=this->end()){
-    stringstream ss(itr->second);
-    while (ss>>tmp){vec.push_back(tmp);}
-  }else{
-		//def is a string of values to initialize to, allows for more flexibility in definitions
-		//def is a string of delimited doubles, i.e. "0.0 1.92 6.4231 "...
-    if(!def.empty()){
-      stringstream ss;
-      double num;
-      ss << def;
-      while(ss >> num){
-        vec.push_back(num);
-      }
-    }
-  }
-  return vec;
-
-}
-
-//Returns a STL Vector from the map
-vector< string > CparameterMap::getVS( string key, string def){
-  vector< string > vec;
-  string tmp;
-  map<string,string>::iterator itr;
-  itr = this->find(key);
-  if(itr!=this->end()){
-    stringstream ss(itr->second);
-    while (ss>>tmp){vec.push_back(tmp);}
-  }else{
-		//def is a string of values to initialize to, allows for more flexibility in definitions
-		//def is a string of delimited strings, i.e. "VARIABLE_1 VARIABLE_2 "...
-    if(!def.empty()){
-      stringstream ss;
-      string tempstring;
-      ss << def;
-      while(ss >> tempstring){
-        vec.push_back(tempstring);
-      }
-    }
-  }
-  return vec;
-
-}
-
 //Adds a double to the map.
 void CparameterMap::set(string key,double val)
 {
