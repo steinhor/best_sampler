@@ -1,14 +1,5 @@
 #ifndef __PART_H__
 #define __PART_H__
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <cstring>
-#include <cstdio>
-#include <list>
-#include <map>
-#include <unordered_map>
-#include <sys/stat.h>
 #include "misc.h"
 #include "resonances.h"
 #include "classdefs.h"

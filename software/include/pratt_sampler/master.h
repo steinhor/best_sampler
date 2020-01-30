@@ -8,8 +8,6 @@
 #include "misc.h"
 #include "resonances.h"
 #include <list>
-#include <iterator>
-//#include "sampler.h"
 #include "hyper.h"
 #include "sampler.h"
 #include "eos.h"

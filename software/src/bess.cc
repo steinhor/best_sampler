@@ -2,8 +2,6 @@
 #define __INCLUDE_GSLBESS_CC__
 #include "pratt_sampler/sf.h"
 
-using namespace std;
-
 double Bessel::K0(double x){
 	if(x>60.0)
 		return 0.0;

@@ -1,22 +1,8 @@
 #ifndef __EOS_H_
 #define __EOS_H_
-#include <complex>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <cmath>
-#include <gsl/gsl_sf.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
-#include <gsl/gsl_poly.h>
 #include "classdefs.h"
 #include "constants.h"
-#include "sf.h"
 #include "resonances.h"
-using namespace std;
 
 // ------------------------
 // functions for calculating EoS (epsilon,P,density,depsilon/dT, and sigma^2) of single species 

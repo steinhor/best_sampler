@@ -2,9 +2,7 @@
 #define __RESONANCES_H__
 #include <map>
 #include <unordered_map>
-#include <cmath>
 #include <array>
-#include <fstream>
 #include <gsl/gsl_sf.h>
 #include <Eigen/Dense>
 #include "parametermap.h"

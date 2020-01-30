@@ -1,7 +1,6 @@
 #ifndef __SAMPLER_MEANFIELD_H__
 #define __SAMPLER_MEANFIELD_H__
 
-#include <cmath>
 #include "classdefs.h"
 #include "resonances.h"
 #include "parametermap.h"

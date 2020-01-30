@@ -1,7 +1,5 @@
 #ifndef __SAMPLER_CONSTANTS_H__
 #define __SAMPLER_CONSTANTS_H__
-#include <cmath>
-#include <complex>
 
 // -------------------
 // Pretty self explanatory
@@ -24,6 +22,5 @@ const double NeutronMass  = 939.565;
 const double RhoMass      = 771.1;
 const double XiMass       = 1321.3;
 const double XiStarMass   = 1530.0;
-const std::complex< double > ci = std::complex< double >(0.0,1.0);  // i
 
 #endif
