@@ -13,7 +13,6 @@
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_poly.h>
-#include <boost/math/special_functions/bessel.hpp>
 #include "classdefs.h"
 #include "constants.h"
 #include "sf.h"
