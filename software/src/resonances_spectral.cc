@@ -107,16 +107,16 @@ void CresInfo::CalcSpectralFunction(){
 
 double CresInfo::GetSpectralFunction(double E){
 	int n;
-	n=floorl(NSPECTRAL*(0.5+atan2(E-mass,0.5*width)/PI));
+	n=floorl(NSPECTRAL*(0.5+atan2(E-mass,0.5*width)/M_PI));
 	return SpectVec[n];
 }
 
 double CresInfo::GetEofN(int n){
-	return mass+0.5*width*tan(PI*(double(n)+0.5-0.5*NSPECTRAL)/double(NSPECTRAL));
+	return mass+0.5*width*tan(M_PI*(double(n)+0.5-0.5*NSPECTRAL)/double(NSPECTRAL));
 }
 
 double CresInfo::GetMeshE(double E){
-	int n=floorl(NSPECTRAL*(0.5+atan2(E-mass,0.5*width)/PI));
+	int n=floorl(NSPECTRAL*(0.5+atan2(E-mass,0.5*width)/M_PI));
 	return GetEofN(n);
 }
 
@@ -208,17 +208,17 @@ double CresInfo::GetBL2(double k,int L){
 }
 
 double CresInfo::GetBW(double E,double M0,double Gamma){
-	return (2.0*E*E*Gamma/PI)/(pow(E*E-M0*M0,2)+E*E*Gamma*Gamma);
+	return (2.0*E*E*Gamma/M_PI)/(pow(E*E-M0*M0,2)+E*E*Gamma*Gamma);
 }
 
 double CresInfo::GetBW_base(double E,double M0,double Gamma0){ // simple lorentzian used for MC weights
-	return (0.5*Gamma0/PI)/((E-M0)*(E-M0)+0.25*Gamma0*Gamma0);
-	//return (2.0*E*E*Gamma0/PI)/(pow(E*E-M0*M0,2)+E*E*Gamma0*Gamma0);
+	return (0.5*Gamma0/M_PI)/((E-M0)*(E-M0)+0.25*Gamma0*Gamma0);
+	//return (2.0*E*E*Gamma0/M_PI)/(pow(E*E-M0*M0,2)+E*E*Gamma0*Gamma0);
 }
 
 double CresInfo::GenerateMass_base(){
 	double r1=randy->ran();
-	return ((width/2)*tan(PI*(r1-0.5))) + mass;  // mass according to BW distribution
+	return ((width/2)*tan(M_PI*(r1-0.5))) + mass;  // mass according to BW distribution
 }
 
 void CresInfo::NormalizeSF(){

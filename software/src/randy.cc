@@ -23,7 +23,6 @@ double Crandy::ran_exp(){
 }
 
 void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
-    const double PI=4.0*atan(1.0);
     double r1,r2,r3,r0,I1,I2,I3,Itot;
     double pmag,E,ctheta,stheta,phi,K;
     array<double,4> pp;
@@ -53,7 +52,7 @@ void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
         pmag=sqrt(E*E-mass*mass);
         r0=ran();
     } while (r0>pmag/E);
-    phi=2.0*PI*ran();
+    phi=2.0*M_PI*ran();
     ctheta=1.0-2.0*ran();
     stheta=sqrt(1.0-ctheta*ctheta);
     p[3]=pmag*ctheta;
@@ -64,7 +63,6 @@ void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
 }
 
 void Crandy::generate_boltzmann(double mass,double T,FourVector &p){
-    const double PI=4.0*atan(1.0);
     double r1,r2,r3,a,b,c;
     double pmag,ctheta,stheta,phi;
     if(T/mass>0.6){
@@ -79,7 +77,7 @@ void Crandy::generate_boltzmann(double mass,double T,FourVector &p){
         ctheta=(a-b)/(a+b);
         stheta=sqrt(1.0-ctheta*ctheta);
         phi=T*T*pow(a+b,2)/(pmag*pmag);
-        phi=2.0*PI*phi;
+        phi=2.0*M_PI*phi;
         p[3]=pmag*ctheta;
         p[1]=pmag*stheta*cos(phi);
         p[2]=pmag*stheta*sin(phi);

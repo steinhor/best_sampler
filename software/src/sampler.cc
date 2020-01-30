@@ -1,4 +1,6 @@
 #include "pratt_sampler/sampler.h"
+#include "pratt_sampler/sf.h"
+
 using namespace std;
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;
@@ -198,7 +200,7 @@ double Csampler::GetDIppForLambda(CresInfo *resinfo,double TT){
 	}
 	temp=degen*pow(m,4)*(-z*J+15.0*gsl_sf_bessel_Kn(2,z)/(z*z));
 	dIpp+=temp;
-	dIpp=dIpp/(60.0*PI*PI*HBARC*HBARC*HBARC);
+	dIpp=dIpp/(60.0*M_PI*M_PI*HBARC*HBARC*HBARC);
 	return dIpp;
 }
 // for Mu=0

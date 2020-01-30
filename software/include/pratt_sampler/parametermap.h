@@ -1,14 +1,8 @@
 #ifndef __parametermap_H__
 #define __parametermap_H__
-#include <map>
 #include <string>
-#include <sstream>
 #include <vector>
-#include <fstream>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include "randy.h"
+#include <map>
 
 using namespace std;
 

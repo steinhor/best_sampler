@@ -110,7 +110,7 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 		if (bose_test==true && (resinfo->pid==211||resinfo->pid==-211||resinfo->pid==111)) { //only runs when testing bose
       pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
       ibin=floorl(pmag/dp);
-      dN_dp_p2[ibin]+=(2*PI*PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+      dN_dp_p2[ibin]+=(2*M_PI*M_PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
     }
 		for(alpha=0;alpha<4;alpha++)
 			r[alpha]=hyper->r[alpha];
@@ -144,9 +144,9 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 			ptilde[alpha]=pnoviscous[alpha];
 			for(beta=1;beta<4;beta++){
 				if(mastersampler->SETMU0)
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilon0+P0)*hyper->lambda*(PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilon0+P0)*hyper->lambda*(M_PI));
 				else
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((hyper->epsilon+hyper->P)*hyper->lambda*(PI));
+					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((hyper->epsilon+hyper->P)*hyper->lambda*(M_PI));
 			}
 		}
 		ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);

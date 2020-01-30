@@ -3,6 +3,9 @@
 
 #include "pratt_sampler/parametermap.h"
 #include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string.h>
 
 //Returns an integer from the map.
 int CparameterMap::getI(string key,int def)

@@ -1,6 +1,0 @@
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/edit_cache.dir
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/decaykiller.dir
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/rebuild_cache.dir
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pdgreader.dir
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pratt_sampler_shared.dir
-/home/steinhor/frib/.git/best_sampler/build/CMakeFiles/pratt_sampler.dir
