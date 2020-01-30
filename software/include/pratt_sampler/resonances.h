@@ -6,7 +6,7 @@
 #include <array>
 #include <fstream>
 #include <gsl/gsl_sf.h>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include "parametermap.h"
 #include "randy.h"
 #include "classdefs.h"
