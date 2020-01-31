@@ -2,7 +2,6 @@
 #define __INCLUDE_SAMPLER_MISC_H_
 #define __MISC_USE_GSL__ // use gnu sci. lib. in misc.cc
 #include "classdefs.h"
-#include "constants.h"
 using namespace std;
 
 // --------------------------------

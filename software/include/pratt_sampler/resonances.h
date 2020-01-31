@@ -9,7 +9,6 @@
 #include "randy.h"
 #include "classdefs.h"
 #include "misc.h"
-#include "constants.h"
 using namespace std;
 
 // --------------------

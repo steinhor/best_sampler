@@ -1,7 +1,6 @@
 #ifndef __HYPER_H__
 #define __HYPER_H__
 #include "classdefs.h"
-#include "constants.h"
 #include "parametermap.h"
 #include "randy.h"
 #include "eos.h"

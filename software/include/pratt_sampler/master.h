@@ -2,7 +2,6 @@
 #define __MASTER_SAMPLER_H__
 #include "classdefs.h"
 #include "meanfield.h"
-#include "constants.h"
 #include "parametermap.h"
 #include "randy.h"
 #include "misc.h"

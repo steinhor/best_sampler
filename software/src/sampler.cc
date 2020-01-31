@@ -1,5 +1,7 @@
 #include "pratt_sampler/sampler.h"
 #include "pratt_sampler/sf.h"
+#include "pratt_sampler/constants.h"
+
 
 using namespace std;
 Crandy* Csampler::randy=NULL;

@@ -1,7 +1,6 @@
 #ifndef __EOS_H_
 #define __EOS_H_
 #include "classdefs.h"
-#include "constants.h"
 #include "resonances.h"
 
 // ------------------------
