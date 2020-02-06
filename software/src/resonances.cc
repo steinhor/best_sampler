@@ -1,6 +1,8 @@
 #ifndef __RESONANCES_CC__
 #define __RESONANCES_CC__
 #include "pratt_sampler/resonances.h"
+using namespace pratt_sampler;
+
 Crandy *CresInfo::randy=NULL;
 int CresInfo::NSPECTRAL=100;
 string CresInfo::SFDIRNAME="../local/resinfo/spectralfunctions";

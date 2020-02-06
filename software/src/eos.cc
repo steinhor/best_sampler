@@ -2,6 +2,8 @@
 #define __EOS_CC
 #include "pratt_sampler/eos.h"
 
+using namespace pratt_sampler;
+
 void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
 	int iE,nE;
 	double E,rho;

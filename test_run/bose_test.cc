@@ -1,4 +1,5 @@
 #include "pratt_sampler/sampler.h"
+using namespace pratt_sampler;
 
 void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file, const char tempfilename[20]);
 
@@ -34,6 +35,11 @@ int main(int argc, char *argv[]){
   hyper->u[3]=0;
 
   FILE *file=fopen("corrections.txt","w");
+	if (file==NULL) {
+		fprintf(stderr,"Can't open corrections.txt\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 	char tempfilename1[20]="temp_c.txt";
   calc_bose(&ms,sampler,hyper,file,tempfilename1);
   fclose(file);
@@ -41,6 +47,11 @@ int main(int argc, char *argv[]){
   sampler->bose_test_off=true;
 
   file=fopen("no_corrections.txt","w");
+	if (file==NULL) {
+		fprintf(stderr,"Can't open no_corrections.txt\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 	char tempfilename2[20]="temp_nc.txt";
   calc_bose(&ms,sampler,hyper,file,tempfilename2);
   fclose(file);
@@ -69,6 +80,11 @@ void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file, c
 
 	printf("T=%lf\n",sampler->Tf);
 	FILE *tempfile=fopen(tempfilename,"w");
+	if (tempfile==NULL) {
+		fprintf(stderr,"Can't open temporary file in bose_test\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 	fprintf(tempfile,"%lf",sampler->Tf);
   fclose(tempfile);
 

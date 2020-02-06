@@ -1,4 +1,5 @@
 #include "pratt_sampler/meanfield.h"
+using namespace pratt_sampler;
 
 CmeanField::CmeanField(){
 	//

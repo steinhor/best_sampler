@@ -1,5 +1,6 @@
 #include "pratt_sampler/master.h"
 using namespace std;
+using namespace pratt_sampler;
 CmeanField *CmasterSampler::meanfield=NULL;
 
 CmasterSampler::CmasterSampler(CparameterMap *parmapin){
@@ -178,6 +179,11 @@ void CmasterSampler::ReadHyper2D(){
 	filename=parmap->getS("HYPER_INFO_FILE",string("../local/include/surface_2D.dat"));
 	printf("opening %s\n",filename.c_str());
 	FILE *fptr=fopen(filename.c_str(),"rb");
+	if (fptr==NULL) {
+		fprintf(stderr,"Can't open hyper info file\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 
 	double TotalVolume=0.0;
 

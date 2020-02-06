@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 #include "pratt_sampler/misc.h"
+using namespace pratt_sampler;
 
 void Misc::Boost(FourVector &u,FourVector &p,FourVector &pprime){
 	int alpha;

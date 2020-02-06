@@ -3,6 +3,7 @@
 #include "pratt_sampler/sf.h"
 
 using namespace std;
+using namespace pratt_sampler;
 
 double Bessel::K0(double x){
 	if(x>60.0)

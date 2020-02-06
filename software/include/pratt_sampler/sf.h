@@ -7,9 +7,11 @@
 #include "constants.h"
 using namespace std;
 
-namespace Bessel{
-  double K0(double x);
-  double K1(double x);
-};
+namespace pratt_sampler {
+  namespace Bessel{
+    double K0(double x);
+    double K1(double x);
+  };
+}
 
 #endif

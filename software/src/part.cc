@@ -2,6 +2,7 @@
 #define __PART_CC__
 
 #include "pratt_sampler/part.h"
+using namespace pratt_sampler;
 
 Cpart::Cpart(){
 	msquared=0.0;
@@ -87,6 +88,11 @@ void CpartList::Reset(){
 
 void CpartList::WriteParts(string filename){
 	FILE *fptr=fopen(filename.c_str(),"w");
+	if (fptr==NULL) {
+		fprintf(stderr,"Can't open file to write parts\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 	for(int ipart=0;ipart<nparts;ipart++){
 		fprintf(fptr,"%5d %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e\n",
 		partvec[ipart].pid,partvec[ipart].msquared,partvec[ipart].p[0],partvec[ipart].p[1],partvec[ipart].p[2],partvec[ipart].p[3],

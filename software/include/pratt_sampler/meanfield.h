@@ -6,17 +6,19 @@
 #include "resonances.h"
 #include "parametermap.h"
 
-class CmeanField{
-public:
-	bool crap;
-	CmeanField();
-	virtual double GetMass(CresInfo* resinfo,double sigma);
-};
+namespace pratt_sampler {
+	class CmeanField{
+	public:
+		bool crap;
+		CmeanField();
+		virtual double GetMass(CresInfo* resinfo,double sigma);
+	};
 
-class CmeanField_Simple : public CmeanField {
-public:
-	CmeanField_Simple(CparameterMap *parmap);
-	double GetMass(CresInfo* resinfo,double sigma);
-};
+	class CmeanField_Simple : public CmeanField {
+	public:
+		CmeanField_Simple(CparameterMap *parmap);
+		double GetMass(CresInfo* resinfo,double sigma);
+	};
+}
 
 #endif

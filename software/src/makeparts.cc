@@ -1,5 +1,6 @@
 #include "pratt_sampler/sampler.h"
 using namespace std;
+using namespace pratt_sampler;
 
 int Csampler::MakeParts(Chyper *hyper){
 	int nparts=0,dnparts,ires,nbose;

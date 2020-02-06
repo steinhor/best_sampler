@@ -1,5 +1,6 @@
 #include "pratt_sampler/master.h"
 using namespace std;
+using namespace pratt_sampler;
 
 int main(int argc, char *argv[]){
 	CparameterMap parmap;

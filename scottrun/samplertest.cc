@@ -1,17 +1,18 @@
 #include "pratt_sampler/master.h"
 using namespace std;
+using namespace pratt_sampler;
 
 // This makes a dummy hyper-element then creates particles and tests yield and energy of created partilces of specific pid
 int main(int argc, char *argv[]){
 	long long int npartstot=0;
 	int nparts;
 	CparameterMap parmap;
-	parmap.ReadParsFromFile("testparameters.txt");
+	parmap.ReadParsFromFile("../run/parameters.dat");
 	CpartList *partlist=new CpartList(&parmap);
 	CmasterSampler ms(&parmap);
 	ms.partlist=partlist;
 	ms.randy->reset(time(NULL));
-	
+
 	// This makes a dummy hyper element for testing
 	ms.MakeDummyHyper();
 	Chyper *hyper=*(ms.hyperlist.begin());
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]){
 	printf("npartstot=%lld =? %g, ratio=%g\n",
 	npartstot,hyper->nhadrons*hyper->udotdOmega*double(ms.NEVENTS_TOT),
 	double(npartstot)/(hyper->nhadrons*hyper->udotdOmega*double(ms.NEVENTS_TOT)));
-	
+
 	double I3,epsilon,P,dens,sigma2,dedt,ntarget;
 	if(resinfo->decay)
 		EOS::freegascalc_onespecies_finitewidth(resinfo,hyper->T,epsilon,P,dens,sigma2,dedt);
@@ -69,6 +70,6 @@ int main(int argc, char *argv[]){
 	double EoverN=totalenergy/double(count);
 	double epsilonovern=hyper->u[0]*epsilon*resinfo->degen/dens;
 	printf("E/N=%g =? %g\n",EoverN,epsilonovern);
-				
+
 	return 0;
 }

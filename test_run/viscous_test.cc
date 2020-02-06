@@ -1,6 +1,7 @@
 #include "pratt_sampler/master.h"
 #include <cstring>
 using namespace std;
+using namespace pratt_sampler;
 
 int main(int argc, char *argv[]){
 	int nprint=100,iprint=0;

@@ -1,6 +1,7 @@
 #ifndef __RESONANCES_SPECTRAL_CC__
 #define __RESONANCES_SPECTRAL_CC__
 #include "pratt_sampler/resonances.h"
+using namespace pratt_sampler;
 
 void CresList::CalcSpectralFunctions(){
 	CresMassMap::iterator rpos;
@@ -37,6 +38,11 @@ void CresInfo::ReadSpectralFunction(){
 		sprintf(filename,"%s/%d.txt",SFDIRNAME.c_str(),pid);
 	//printf("will read %s\n",filename);
 	FILE *fptr=fopen(filename,"r");
+	if (fptr==NULL) {
+		fprintf(stderr,"Can't open spectral function file\n");
+		printf("Error %d \n", errno);
+		exit(1);
+	}
 	fscanf(fptr,"%lf",&E);
 	do{
 		fscanf(fptr,"%lf %lf %lf",&Gamma,&SF,&netprob);

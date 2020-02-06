@@ -1,5 +1,7 @@
 #include "pratt_sampler/sampler.h"
 using namespace std;
+using namespace pratt_sampler;
+
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;
 CparameterMap *Csampler::parmap=NULL;
@@ -605,7 +607,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		p2=it2->first;
 		E1=it1->second;
 		E2=it2->second;
-		E=((netprob-p1)*E2+(p2-netprob)*E1)/(p2-p1);		
+		E=((netprob-p1)*E2+(p2-netprob)*E1)/(p2-p1);
 	}
 	if(E<resinfo->minmass || E1>E || E2<E){
 		printf("something odd, E=%g, (E1,E2)=(%g,%g), (p1,p2)=(%g,%g), minmass=%g, netprob=%g\n",E,E1, E2,p1,p2,resinfo->minmass,netprob);
@@ -722,7 +724,4 @@ void Csampler::CalcSFDensMap(CresInfo *resinfo,double T,map<double,double> &sfde
 		sfdensmap.insert(pair<double,double>(netprob,E2));
 	}
 	dens.clear();
-}	
-
-
-
+}
