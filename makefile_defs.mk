@@ -1,4 +1,4 @@
-EIGEN_HOME = /usr/local/include/eigen3
+EIGEN_HOME = /usr/local/include/eigen3/eigen3
 GSL_INCLUDE = /usr/local/include/gsl
 GSL_LIB = /usr/local/lib
 SAMPLER_HOME = /home/steinhor/frib/.git/best_sampler/software

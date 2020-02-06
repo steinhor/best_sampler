@@ -1,8 +1,5 @@
 #ifndef __RANDY_H__
 #define __RANDY_H__
-#include <cstdlib>
-#include <cmath>
-#include <array>
 #include <random>
 #include "classdefs.h"
 

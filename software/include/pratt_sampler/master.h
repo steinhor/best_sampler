@@ -2,14 +2,11 @@
 #define __MASTER_SAMPLER_H__
 #include "classdefs.h"
 #include "meanfield.h"
-#include "constants.h"
 #include "parametermap.h"
 #include "randy.h"
 #include "misc.h"
 #include "resonances.h"
 #include <list>
-#include <iterator>
-//#include "sampler.h"
 #include "hyper.h"
 #include "sampler.h"
 #include "eos.h"

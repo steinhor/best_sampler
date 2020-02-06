@@ -2,7 +2,6 @@
 #define __INCLUDE_GSLBESS_CC__
 #include "pratt_sampler/sf.h"
 
-using namespace std;
 using namespace pratt_sampler;
 
 double Bessel::K0(double x){
