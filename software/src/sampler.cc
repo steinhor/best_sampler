@@ -409,7 +409,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		cmb=cosh(muB);
 
 		GetNHMu0();
-		GetEpsilonRhoDerivatives(Tf,muB,muI,muS,epsilon,rhoB,rhoI,rhoS,A);
+		GetEpsilonRhoDerivatives(muB,muI,muS,epsilon,rhoB,rhoI,rhoS,A);
 		for(int i=0;i<4;i++){
 			A(i,1)=A(i,1)/cmb;
 		}
@@ -427,7 +427,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 	//printf("Tf=%g, Mu=(%g,%g,%g), epsilon=%g=?%g, rho=(%g,%g,%g) =? (%g,%g,%g)\n",
 	//Tf,muB,muI,muS,epsilon,epsilontarget,rhoB,rhoI,rhoS,rhoBtarget,rhoItarget,rhoStarget);
 }
-void Csampler::GetEpsilonRhoDerivatives(double T,double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A){
+void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A){
 	double xB,xI,xS,xxB,xxI,xxS;
 
 	double drhoB_dT,drhoB_dmuB,drhoB_dmuS,drhoB_dmuI;

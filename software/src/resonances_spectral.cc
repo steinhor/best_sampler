@@ -37,7 +37,6 @@ void CresInfo::ReadSpectralFunction(){
 		sprintf(filename,"%s/%d.txt",SFDIRNAME.c_str(),abs(pid));
 	else
 		sprintf(filename,"%s/%d.txt",SFDIRNAME.c_str(),pid);
-	//printf("will read %s\n",filename);
 	FILE *fptr=fopen(filename,"r");
 	if (fptr==NULL) {
 		fprintf(stderr,"Can't open spectral function file\n");
@@ -61,7 +60,7 @@ void CresInfo::CalcSpectralFunction(){
 		printf("Calling CalcSpectralFunction() for stable particle\n");
 		exit(1);
 	}
-	int n,ibranch;
+	unsigned int n,ibranch;
 	double E,M0=mass,A,rhoratio;
 	double rho_ab,rho_ab0,Gamma,Gamma0,dGamma;
 	CresInfo *resinfo_a,*resinfo_b;
@@ -118,7 +117,7 @@ double CresInfo::GetSpectralFunction(double E){
 	return SpectVec[n];
 }
 
-double CresInfo::GetEofN(int n){
+double CresInfo::GetEofN(unsigned int n){
 	return mass+0.5*width*tan(M_PI*(double(n)+0.5-0.5*NSPECTRAL)/double(NSPECTRAL));
 }
 
@@ -127,11 +126,11 @@ double CresInfo::GetMeshE(double E){
 	return GetEofN(n);
 }
 
-double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,int L){
+double CresInfo::GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,unsigned int L){
 	//printf("CHECK, starting CresInfo::GetRhoAB()\n");
 	double pf=0.0,rho_ab=0.0,drho=0.0;
 	double Ea,Aa,Eb,Ab;
-	int na,nb;
+	unsigned int na,nb;
 	if(!resinfo_a->decay){  // both a & b stable
 		pf=GetDecayMomentum(E,resinfo_a->mass,resinfo_b->mass);
 		rho_ab=(pf/E)*GetBL2(pf,L);
@@ -203,7 +202,7 @@ double CresInfo::GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo
 	return FF*FF;
 }
 
-double CresInfo::GetBL2(double k,int L){
+double CresInfo::GetBL2(double k,unsigned int L){
 	const double R=1.0;
 	double BL2=1.0;
 	double x2;
@@ -229,7 +228,7 @@ double CresInfo::GenerateMass_base(){
 }
 
 void CresInfo::NormalizeSF(){
-	int n,N=SpectVec.size();
+	unsigned int n,N=SpectVec.size();
 	double norm=0.0;
 	for(n=0;n<N;n++){
 		norm+=SpectVec[n];
@@ -240,7 +239,7 @@ void CresInfo::NormalizeSF(){
 }
 
 void CresInfo::PrintSpectralFunction(){
-	int n;
+	unsigned int n;
 	printf("- Spectral Function for pid=%d -\n",pid);
 	printf("__ E ___ Gamma ____  A/A_BW ___ A _ (A/A_BW)*dens(M)/dens(M0) _ A*dens(M)/dens(M0) \n");
 	for(n=0;n<SpectVec.size();n++){

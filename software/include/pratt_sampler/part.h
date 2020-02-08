@@ -37,13 +37,13 @@ namespace pratt_sampler {
 	public:
 		CpartList(CparameterMap *parmap);
 		~CpartList();
-		int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
+		unsigned int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
 		vector<Cpart> partvec;
 		Cpart *GetPart();
 		void Kill(); // set nparts=0 and frees memory
 		void Reset();     // just sets nparts=0
 		void WriteParts(string filename);
-		int CountResonances(int pid);
+		unsigned int CountResonances(int pid);
 		double SumEnergy();
 		double SumEnergy(int pid);
 		void AddPart(int pidset,FourVector &pset,FourVector &rset);

@@ -31,7 +31,7 @@ void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &
 
 void EOS::freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
 	const double prefactor=1.0/(2.0*M_PI*M_PI*pow(HBARC,3));
-	double k0,k1,z,k0prime,k1prime,m2,m3,m4,t2,t3;//I1,I2,Iomega;
+	double k0,k1,z,k0prime,k1prime,m2,m3,m4,t2,t3,I1,I2,Iomega;
 	m2=m*m;
 	m3=m2*m;
 	m4=m2*m2;
@@ -57,14 +57,14 @@ void EOS::freegascalc_onespecies(double T,double m,double &epsilon,double &P,dou
 		k1prime=-k0-k1/z;
 		dedt=prefactor*(6.0*m2*T*k0+(m3+18.0*m*t2)*k1-3.0*m3*k0prime-((m4/T)+6.0*m2*T)*k1prime);
 	}
-	/*
+	
 	z=m/T;
 	Iomega=exp(-z)/(30.0*M_PI*M_PI*HBARC*HBARC*HBARC);
 	I1=pow(m,1.5)*pow(T,3.5)*7.5*sqrt(2.0*M_PI);
 	I2=24.0*pow(T,5);
 	sigma2=Iomega*(I1+I2+0.5*sqrt(I1*I2));  // this is an approximation (+/-2%) to messy integral
 	//printf("___z=%g,m=%g,T=%g ___\n",z,m,T);
-	*/
+	
 }
 
 #endif

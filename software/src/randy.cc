@@ -26,8 +26,6 @@ double Crandy::ran_exp(){
 void Crandy::generate_boltzmann_alt(double mass,double T,FourVector &p){
     double r1,r2,r3,r0,I1,I2,I3,Itot;
     double pmag,E,ctheta,stheta,phi,K;
-    array<double,4> pp;
-    pp[0]=pp[1]=pp[2]=pp[3]=1.2345;
     do {
         r0=ran();
         I1=mass*mass;

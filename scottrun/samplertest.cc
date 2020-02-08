@@ -3,11 +3,11 @@ using namespace std;
 using namespace pratt_sampler;
 
 // This makes a dummy hyper-element then creates particles and tests yield and energy of created partilces of specific pid
-int main(int argc, char *argv[]){
+int main(){
 	long long int npartstot=0;
 	int nparts;
 	CparameterMap parmap;
-	parmap.ReadParsFromFile("../run/parameters.dat");
+	parmap.ReadParsFromFile("parameters.txt");
 	CpartList *partlist=new CpartList(&parmap);
 	CmasterSampler ms(&parmap);
 	ms.partlist=partlist;
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
 	// This makes a dummy hyper element for testing
 	ms.MakeDummyHyper();
 	Chyper *hyper=*(ms.hyperlist.begin());
-	double V0=100.0;
+	double V0=100000.0;
 	hyper->T=0.150;
 	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;

@@ -27,7 +27,7 @@ void Misc::BoostToCM(FourVector &u,FourVector &p,FourVector &ptilde){
 	for(alpha=0;alpha<4;alpha++)
 		ptilde[alpha]=p[alpha];
 	ptilde[0]+=A+2*pdotu;
-	for(int alpha=0;alpha<4;alpha++)
+	for(alpha=0;alpha<4;alpha++)
 		ptilde[alpha]+=A*u[alpha];
 }
 

@@ -124,7 +124,6 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 }
 
 void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
-	bool VISCOUSCORRECTIONS=true;
 	bool reflect;
 	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
 	FourVector dOmegaTilde,ptilde;

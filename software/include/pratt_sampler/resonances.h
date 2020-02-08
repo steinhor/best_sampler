@@ -46,7 +46,7 @@ namespace pratt_sampler {
 		int up,down;
 		int G_Parity;
 		bool decay; //false if stable, true if can decay. check if true
-		int nchannels;
+		unsigned int nchannels;
 		CbranchList branchlist;
 		CbranchInfo	*bptr_minmass;
 		vector<double> SpectVec;
@@ -54,8 +54,8 @@ namespace pratt_sampler {
 		vector<double> GammaVec;
 		void Print();
 		void PrintBranchInfo();
-		void DecayGetResInfoPtr(int &nbodies,array<CresInfo *,5> &daughterresinfo);
-		void DecayGetResInfoPtr_minmass(int &nbodies,array<CresInfo *,5> &daughterresinfo);
+		void DecayGetResInfoPtr(unsigned int &nbodies,array<CresInfo *,5> &daughterresinfo);
+		void DecayGetResInfoPtr_minmass(unsigned int &nbodies,array<CresInfo *,5> &daughterresinfo);
 		bool CheckForDaughters(int pid);
 		bool CheckForNeutral();
 		double GenerateMass();
@@ -69,12 +69,12 @@ namespace pratt_sampler {
 		void ReadSpectralFunction();
 		void CalcMinMass();
 		double GetSpectralFunction(double E);
-		double GetEofN(int n); // return energy for middle of spectral function bin n
+		double GetEofN(unsigned int n); // return energy for middle of spectral function bin n
 		double GetMeshE(double E); // returns E at middle of mesh cell
 		void PrintSpectralFunction();
-		double GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,int L);
+		double GetRhoAB(double E,CresInfo *resinfo_a,CresInfo *resinfo_b,unsigned int L);
 		double GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo *resinfo_b);  // form factor for generating spectral functions
-		double GetBL2(double k,int L); // factor used to generate spectral functions in arXiv:1606642v2
+		double GetBL2(double k,unsigned int L); // factor used to generate spectral functions in arXiv:1606642v2
 		double GetBW(double E,double Mr,double Gamma);  // relativistic Breit Wigner
 		double GetBW_base(double E,double Mr,double Gamma); // simple non-rel. fixed gamma BW, used as base for Monte Carlo
 		double GenerateMass_base();
@@ -82,7 +82,7 @@ namespace pratt_sampler {
 		void NormalizeSF();  //normalizes spectral function
 		bool SFcalculated;
 		static string SFDIRNAME; // location of spectral functions for reading in
-		static int NSPECTRAL;  // number of points in spectral function
+		static unsigned int NSPECTRAL;  // number of points in spectral function
 	};
 
 	class CresList{
@@ -105,10 +105,10 @@ namespace pratt_sampler {
 
 	class CdecayInfo{
 	public:
-		int Nparts[25];
+		unsigned int Nparts[25];
 		double branchratio[25];
 		int products[25][5];
-		int d_L[25];
+		unsigned int d_L[25];
 	};
 }
 

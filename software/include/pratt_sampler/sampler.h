@@ -82,7 +82,7 @@ namespace pratt_sampler {
 		double GetDIppForLambda(CresInfo *resinfo,double TT);
 		void GetTfMuNH(Chyper *hyper);
 		void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS);
-		void GetEpsilonRhoDerivatives(double T,double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
+		void GetEpsilonRhoDerivatives(double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 		int MakeParts(Chyper *hyper);
 		int CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper);
 		void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T);

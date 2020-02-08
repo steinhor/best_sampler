@@ -93,7 +93,7 @@ void CpartList::WriteParts(string filename){
 		printf("Error %d \n", errno);
 		exit(1);
 	}
-	for(int ipart=0;ipart<nparts;ipart++){
+	for(unsigned int ipart=0;ipart<nparts;ipart++){
 		fprintf(fptr,"%5d %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e %15.10e\n",
 		partvec[ipart].pid,partvec[ipart].msquared,partvec[ipart].p[0],partvec[ipart].p[1],partvec[ipart].p[2],partvec[ipart].p[3],
 		partvec[ipart].r[0],partvec[ipart].r[1],partvec[ipart].r[2],partvec[ipart].r[3]);
@@ -101,8 +101,8 @@ void CpartList::WriteParts(string filename){
 	fclose(fptr);
 }
 
-int CpartList::CountResonances(int pid){
-	int count=0,ipart;
+unsigned int CpartList::CountResonances(int pid){
+	unsigned int count=0,ipart;
 	for(ipart=0;ipart<nparts;ipart++){
 		if(partvec[ipart].pid==pid)
 			count+=1;
@@ -119,7 +119,8 @@ double CpartList::SumEnergy(){
 }
 
 double CpartList::SumEnergy(int pid){
-	double energy=0.0,ipart;
+	double energy=0.0;
+	unsigned int ipart;
 	for(ipart=0;ipart<nparts;ipart++){
 		if(partvec[ipart].pid==pid)
 			energy+=partvec[ipart].p[0];
@@ -128,12 +129,13 @@ double CpartList::SumEnergy(int pid){
 }
 
 void CpartList::AddPart(int pidset,FourVector &pset,FourVector &rset){
+	unsigned int alpha;
 	if(partvec.size()==nparts){
 		//printf("resizing partvec, old size=%lu\n",partvec.size());
 		partvec.resize(partvec.size()+nparts);
 	}
 	partvec[nparts].pid=pidset;
-	for(int alpha=0;alpha<4;alpha++){
+	for(alpha=0;alpha<4;alpha++){
 		partvec[nparts].p[alpha]=pset[alpha];
 		partvec[nparts].r[alpha]=rset[alpha];
 	}

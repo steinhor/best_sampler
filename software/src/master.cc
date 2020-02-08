@@ -79,7 +79,7 @@ CmasterSampler::~CmasterSampler(){
 int CmasterSampler::MakeEvent(){
 	int np,nparts=0;
 	Chyper *hyper;
-	Csampler *sampler;
+	Csampler *samplerptr;
 	double Omega0Sum=0.0;
 	partlist->Reset();
 	Csampler *samplertemp;
@@ -94,29 +94,29 @@ int CmasterSampler::MakeEvent(){
 			samplertemp->GetTfMuNH(hyper);
 			hyper->T=samplertemp->Tf;
 		}
-		sampler=ChooseSampler(hyper);
-		if(sampler->FIRSTCALL){
-			hyper->T=sampler->Tf;
-			sampler->GetNHMu0();
-			sampler->CalcDensitiesMu0();
-			sampler->CalcLambdaMu0();
-			sampler->FIRSTCALL=false;
+		samplerptr=ChooseSampler(hyper);
+		if(samplerptr->FIRSTCALL){
+			hyper->T=samplerptr->Tf;
+			samplerptr->GetNHMu0();
+			samplerptr->CalcDensitiesMu0();
+			samplerptr->CalcLambdaMu0();
+			samplerptr->FIRSTCALL=false;
 		}
 		if(NEVENTS==0){
 			if(!SETMU0 && CALCMU){
-				sampler->GetMuNH(hyper);
-				sampler->GetNHadronsEpsilonPF(hyper);
-				hyper->lambda=sampler->CalcLambdaF(hyper);
+				samplerptr->GetMuNH(hyper);
+				samplerptr->GetNHadronsEpsilonPF(hyper);
+				hyper->lambda=samplerptr->CalcLambdaF(hyper);
 			}
 			if(!SETMU0 && !CALCMU){
-				sampler->GetNHadronsEpsilonPF(hyper);
-				hyper->lambda=sampler->CalcLambdaF(hyper);
+				samplerptr->GetNHadronsEpsilonPF(hyper);
+				hyper->lambda=samplerptr->CalcLambdaF(hyper);
 			}
 			if(SETMU0){
-				hyper->lambda=sampler->lambda0;
+				hyper->lambda=samplerptr->lambda0;
 			}
 		}
-		np=sampler->MakeParts(hyper);
+		np=samplerptr->MakeParts(hyper);
 		nparts+=np;
 	}
 	NEVENTS+=1;

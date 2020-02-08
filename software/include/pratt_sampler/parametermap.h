@@ -26,7 +26,7 @@ namespace pratt_sampler {
     int    getI(string ,int);
     string getS(string ,string);
     double getD(string ,double);
-    vector< vector< double > > getM(string, double);
+    vector< vector< double > > getM(string);
     void set(string, double);
     void set(string, int);
     void set(string, bool);

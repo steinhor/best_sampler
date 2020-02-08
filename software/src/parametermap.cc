@@ -215,7 +215,7 @@ void CparameterMap::PrintPars(){
 }
 
 //Returns a matrix from the map
-vector< vector< double > > CparameterMap::getM( string key, double def){
+vector< vector< double > > CparameterMap::getM( string key){
   vector< vector< double > > mtx;
   double tmp;
   map<string,string>::iterator itr;
