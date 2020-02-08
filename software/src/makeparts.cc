@@ -105,11 +105,27 @@ int Csampler::MakeParts(Chyper *hyper){
 
 int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper){
 	int dnparts=0,alpha,ibin;
-	double pmag;
-	FourVector p,r;
+	double pmag,eta;
+	FourVector p,r,ubj,ptilde,rtilde;
 	randy->increment_netprob(dN);
 	while(randy->test_threshold(0.0)){
 		GetP(hyper,resinfo,p,T);
+		if(BJORKEN_2D){
+			if(fabs(hyper->u[3])>0.01){
+				printf("BJORKEN_2D set, but u_z=%g\n",hyper->u[3]);
+				exit(1);
+			}
+			eta=BJORKEN_YMAX*(1.0-randy->ran());
+			ubj[1]=ubj[2]=0.0;
+			ubj[0]=cosh(eta);
+			ubj[3]=sinh(eta);
+			Misc::Boost(ubj,p,ptilde);
+			Misc::Boost(ubj,hyper->r,rtilde);
+			for(alpha=0;alpha<4;alpha++){
+				p[alpha]=ptilde[alpha];
+				r[alpha]=rtilde[alpha];
+			}
+		}
 		if (bose_test==true && (resinfo->pid==211||resinfo->pid==-211||resinfo->pid==111)) { //only runs when testing bose
       pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
       ibin=floorl(pmag/dp);
@@ -127,10 +143,10 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 	bool reflect;
 	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
 	FourVector dOmegaTilde,ptilde;
-	for (int i=0;i<4;i++) {
-		ptilde[i]=0;
+	unsigned int alpha,beta;
+	for (alpha=0;alpha<4;alpha++) {
+		ptilde[alpha]=0;
 	}
-	int alpha,beta;
 	FourVector pnoviscous;
 	double m,nhat[4]={0.0};
 	if((!resinfo->decay) || resinfo->width<0.0001){

@@ -69,7 +69,8 @@ int main(){
 	printf("count=%lld =? %g, ratio=%g\n",count,ntarget,double(count)/ntarget);
 	double EoverN=totalenergy/double(count);
 	double epsilonovern=hyper->u[0]*epsilon*resinfo->degen/dens;
-	printf("E/N=%g =? %g\n",EoverN,epsilonovern);
+	double ymax=parmap.getD("SAMPLER_BJORKEN_YMAX",0.001);
+	printf("E/N=%g =? %g\n",EoverN,epsilonovern*sinh(ymax)/ymax);
 
 	return 0;
 }

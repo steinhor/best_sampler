@@ -16,11 +16,15 @@ include_directories(SYSTEM ${GSL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${CMAKE_CURR
 message("Includes: ${GSL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../software/include")
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib)
-find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib pratt_sampler)
 message("Libraries: pratt_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY}" )
 
-set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/samplertest.cc)
+set(SOURCE_FILES ./samplertest.cc)
+SET_SOURCE_FILES_PROPERTIES(
+      samplertest.cc PROPERTIES OBJECT_DEPENDS
+    ../software/lib/libpratt_sampler.a
+ )
 
 add_executable(samplertest ${SOURCE_FILES})
-target_link_libraries(samplertest pratt_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 add_dependencies(samplertest extern_pratt_sampler)
+find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib pratt_sampler)
+target_link_libraries(samplertest pratt_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})

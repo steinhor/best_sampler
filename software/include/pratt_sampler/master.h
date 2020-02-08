@@ -20,7 +20,7 @@ using namespace std;
 // Typical Usage:
 // CmasterSampler ms(parametermap);
 // ms.partlist=new CpartList(&parmap);
-// ms.ReadHyper2D();
+// ms.ReadHyper();
 // nparts+=ms.MakeEvent();
 //
 // ---------------------------------
@@ -50,7 +50,7 @@ namespace pratt_sampler {
 		vector<vector<Csampler *>> sampler;  // array of samplers indexed by T and sigma
 		CpartList *partlist;
 
-		void ReadHyper2D();
+		void ReadHyper();
 		int MakeEvent(); // returns number of parts
 		Csampler* ChooseSampler(Chyper *hyper);
 		void ChooseSampler(double Tf,double sigmaf,int &itf,int &isigmaf);

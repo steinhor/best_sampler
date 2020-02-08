@@ -13,6 +13,8 @@ CmasterSampler *Csampler::mastersampler=NULL;
 bool Csampler::CALCMU=false;
 int Csampler::n_bose_corr=1;
 bool Csampler::bose_corr=false;
+bool Csampler::BJORKEN_2D=false;
+double Csampler::BJORKEN_YMAX=1.0;
 
 // Constructor
 Csampler::Csampler(double Tfset,double sigmafset){

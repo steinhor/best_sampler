@@ -11,7 +11,7 @@ int main(){
 	CpartList pl=CpartList(&parmap);
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
-	ms.ReadHyper2D();
+	ms.ReadHyper();
 	
 	long long int nparts=0;
 	int	nevents=parmap.getI("SAMPLER_NEVENTS",10);

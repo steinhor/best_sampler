@@ -42,16 +42,18 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::CALCMU=CALCMU;
 	Csampler::bose_corr=parmap->getB("SAMPLER_BOSE_CORR",false);
 	Csampler::n_bose_corr=parmap->getI("SAMPLER_N_BOSE_CORR",1);
+	Csampler::BJORKEN_2D=parmap->getB("SAMPLER_BJORKEN_2D",false);
+	Csampler::BJORKEN_YMAX=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0);
 	int it,isigma;
 	hyperlist.clear();
 	sampler.resize(NTF+1);
 	for(it=0;it<=NTF;it++){
 		sampler[it].resize(NSIGMAF+1);
 		for(isigma=0;isigma<=NSIGMAF;isigma++){
-			//printf("calling Csampler()\n");
 			sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
 		}
 	}
+	printf("Howdy Boys\n");
 }
 
 CmasterSampler::~CmasterSampler(){
@@ -64,7 +66,6 @@ CmasterSampler::~CmasterSampler(){
 	for(iT=0;iT<NTF;iT++){
 		sampler[iT].resize(NSIGMAF);
 		for(isigma=0;isigma<NSIGMAF;isigma++){
-			//printf("it=%d TFmin=%lf DELTF=%lf TFmin+(it+0.5)*DELTF=%lf\n",it,TFmin,DELTF,TFmin+(it+0.5)*DELTF);
 			sampleri=sampler[iT][isigma];
 			delete sampleri;
 		}
@@ -165,7 +166,7 @@ void CmasterSampler::MakeDummyHyper(){
 	hyperlist.push_back(hyper);
 }
 
-void CmasterSampler::ReadHyper2D(){
+void CmasterSampler::ReadHyper(){
 	string filename;
 	Chyper *elem;
 	double PIbulk;
@@ -177,7 +178,7 @@ void CmasterSampler::ReadHyper2D(){
 	double rhoB;
 
 	nelements=0;
-	filename=parmap->getS("HYPER_INFO_FILE",string("../local/include/surface_2D.dat"));
+	filename=parmap->getS("HYPER_INFO_FILE",string("../hydrodata/surface_2D.dat"));
 	printf("opening %s\n",filename.c_str());
 	FILE *fptr=fopen(filename.c_str(),"rb");
 	if (fptr==NULL) {
@@ -234,19 +235,27 @@ void CmasterSampler::ReadHyper2D(){
 		qmu2 = array[32];
 		qmu3 = array[33];
 
+		if(parmap->getB("SAMPLER_BJORKEN_2D",false)){
+			double YMAX_ratio=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0)/parmap->getD("HYDRO_BJORKEN_YMAX",1.0);
+			dOmega0*=YMAX_ratio;
+			dOmegaX*=YMAX_ratio;
+			dOmegaY*=YMAX_ratio;
+			dOmegaZ*=YMAX_ratio;
+		}
 		udotdOmega=tau*(u0*dOmega0+ux*dOmegaX+uy*dOmegaY+uz*dOmegaZ);
-
 		if(!(udotdOmega<0.0)) {
 			elem->tau=tau;
-			elem->dOmega[0]=dOmega0; //*2.0*b3d->ETAMAX;
-			elem->dOmega[1]=dOmegaX; //*2.0*b3d->ETAMAX;
-			elem->dOmega[2]=dOmegaY; //*2.0*b3d->ETAMAX;
-			elem->dOmega[3]=dOmegaZ; //*2.0*b3d->ETAMAX;
+			elem->dOmega[0]=dOmega0; 
+			elem->dOmega[1]=dOmegaX; 
+			elem->dOmega[2]=dOmegaY; 
+			elem->dOmega[3]=dOmegaZ;
 
-			elem->udotdOmega=udotdOmega; //*2.0*b3d->ETAMAX;
+			elem->udotdOmega=udotdOmega;
 
 			elem->r[1]=x;
 			elem->r[2]=y;
+			elem->r[3]=tau*sinh(eta);
+			elem->r[0]=tau*cosh(eta);
 			elem->u[0]=sqrt(1.0+ux*ux+uy*uy+uz*uz);
 			elem->u[1]=ux;
 			elem->u[2]=uy;
