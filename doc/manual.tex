@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
   CmasterSampler ms(\&parmap);
   ms.partlist=new CpartList(\&parmap);
   ms.randy->reset(time(NULL));
-  ms.ReadHyper2D();
+  ms.ReadHyper();
   for(int ievent=0;ievent<ms.NEVENTS_TOT;ievent++)
     nparts+=ms.MakeEvent();
   return 0;
@@ -58,6 +58,10 @@ SAMPLER_NPARTS_BLOCKSIZE 2000
 SAMPLER_SFDIRNAME ../local/resinfo/spectralfunctions
 HYPER_INFO_FILE ../hydrodata/surface_2D.dat
 SAMPLER_NEVENTS_TOT 1000000
+SAMPLER_BJORKEN_2D false
+SAMPLER_BJORKEN_YMAX 1.0
+HYDRO_BJORKEN_YMAX 0.5
+
 \end{verbatim}}
 \begin{itemize}\itemsep=0pt
 \item The {\it CmasterSampler} object contains an array of {\it Csampler} objects. Each {\it Csampler} object handles the sampling duties for a specific temperature. In the example above, 26 Csampler objects will be created for $T=130,132\cdots 160$ MeV.
@@ -73,7 +77,8 @@ SAMPLER_NEVENTS_TOT 1000000
 \item The size of the particle list is increased as needed during the running of the program, but in blocks of {\tt SAMPLER\_NPARTS\_BLOCKSIZE}. The CpartList object has a member {\it nparts} to describe exactly how many particles are made. Results do not depend on\\ {\tt SAMPLER\_NPARTS\_BLOCKSIZE}
 \item Spectral functions are described by files in the directory {\tt SAMPLER\_SFDIRNAME}. Separate programs are provided to generate the spectral functions.
 \item The hyper-surface from the hydrodynamics calculation is {\tt HYPER\_INFO\_FILE}.
-\item The number of events to generate is {\it SAMPLER\_NEVENTS\_TOT}. This is not used by any files in the sampler library, but you want to set this for use in the main program. 
+\item The number of events to generate is {\it SAMPLER\_NEVENTS\_TOT}. This is not used by any files in the sampler library, but you want to set this for use in the main program.
+\item If the hyper-surface is intended to be used for Bjorken geometry all the $eta$ or $z$ coordinates of the hyper-surface elements are zero. If this is the case, the parameter {\tt SAMPLER\_BJORKEN\_2D} is set to {\it true}. The number of particles to create and the their spread in spatial rapidity is determined by {\tt SAMPLER\_BJORKEN\_YMAX} and particles are created with spatial rapidities between $\pm${\tt SAMPLER\_BJORKEN\_YMAX}. The hyper-volumes as provided by hydrodynamics are proportional to this same variable. If the hyper-volumes were written to correspond to one unit of rapidity, this parameter should be set to 0.5.
 \end{itemize}
 
 
