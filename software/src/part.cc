@@ -110,6 +110,35 @@ unsigned int CpartList::CountResonances(int pid){
 	return count;
 }
 
+void CpartList::IncrementSpectra(int pid,double dp,vector<double> &spectra){
+	unsigned int ip,ipart,np=spectra.size();
+	double pt;
+	for(ipart=0;ipart<nparts;ipart++){
+		if(abs(partvec[ipart].pid)==pid){
+			//pt=sqrt(partvec[ipart].p[1]*partvec[ipart].p[1]+partvec[ipart].p[2]*partvec[ipart].p[2]);
+			pt=sqrt(partvec[ipart].p[1]*partvec[ipart].p[1]+partvec[ipart].p[2]*partvec[ipart].p[2]
+				+partvec[ipart].p[3]*partvec[ipart].p[3]);
+			ip=lrint(floor(pt/dp));
+			if(ip<np)
+				spectra[ip]+=1;
+		}
+	}
+}
+
+void CpartList::IncrementMassDist(int pid,double dm,vector<double> &massdist){
+	unsigned int im,ipart,nm=massdist.size();
+	double m;
+	for(ipart=0;ipart<nparts;ipart++){
+		if(abs(partvec[ipart].pid)==pid){
+			partvec[ipart].SetMsquared();
+			m=sqrt(partvec[ipart].msquared);
+			im=lrint(floor(m/dm));
+			if(im<nm)
+				massdist[im]+=1;
+		}
+	}
+}
+
 double CpartList::SumEnergy(){
 	double energy=0.0,ipart;
 	for(ipart=0;ipart<nparts;ipart++){

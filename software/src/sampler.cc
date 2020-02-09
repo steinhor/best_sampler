@@ -15,6 +15,7 @@ int Csampler::n_bose_corr=1;
 bool Csampler::bose_corr=false;
 bool Csampler::BJORKEN_2D=false;
 double Csampler::BJORKEN_YMAX=1.0;
+bool Csampler::USE_POLE_MASS=false;
 
 // Constructor
 Csampler::Csampler(double Tfset,double sigmafset){
@@ -639,7 +640,7 @@ void Csampler::GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,doub
 	width=resinfo->width;
 	minmass=resinfo->minmass;
 
-	if((minmass>-0.001) && (width>0.000000001) && decay){
+	if((minmass>-0.001) && (width>0.000000001) && decay && !USE_POLE_MASS){
 		EOS::freegascalc_onespecies_finitewidth(resinfo,Tf,epsiloni,Pi,densi,sigma2,dedti);
 	}
 	else{

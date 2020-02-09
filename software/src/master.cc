@@ -44,6 +44,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::n_bose_corr=parmap->getI("SAMPLER_N_BOSE_CORR",1);
 	Csampler::BJORKEN_2D=parmap->getB("SAMPLER_BJORKEN_2D",false);
 	Csampler::BJORKEN_YMAX=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0);
+	Csampler::USE_POLE_MASS=parmap->getB("SAMPLER_USE_POLE_MASS",false);
 	int it,isigma;
 	hyperlist.clear();
 	sampler.resize(NTF+1);
@@ -53,7 +54,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 			sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
 		}
 	}
-	printf("Howdy Boys\n");
+	//printf("Howdy Boys\n");
 }
 
 CmasterSampler::~CmasterSampler(){

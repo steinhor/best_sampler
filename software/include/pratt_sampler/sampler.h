@@ -97,6 +97,7 @@ namespace pratt_sampler {
 		static int n_bose_corr;
 		static bool BJORKEN_2D;  // these variables are only used for Bjorken
 		static double BJORKEN_YMAX;
+		static bool USE_POLE_MASS;
 	};
 }
 

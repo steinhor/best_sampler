@@ -57,9 +57,9 @@ void CresInfo::PrintBranchInfo(){
 	if(decay){
 		printf(" ------  branches -------\n");
 		for(unsigned int ib=0;ib<branchlist.size();ib++){
-			printf("%2du, branching=%5.3f, ",ib,branchlist[ib]->branching);
+			printf("%2d, branching=%5.3f, ",ib,branchlist[ib]->branching);
 			for(unsigned int ir=0;ir<branchlist[ib]->resinfo.size();ir++)
-				printf("%6du ",branchlist[ib]->resinfo[ir]->pid);
+				printf("%6d ",branchlist[ib]->resinfo[ir]->pid);
 			printf("Gamma_i=%g\n",width*branchlist[ib]->branching);
 		}
 	}

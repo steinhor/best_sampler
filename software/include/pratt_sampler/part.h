@@ -44,6 +44,8 @@ namespace pratt_sampler {
 		void Reset();     // just sets nparts=0
 		void WriteParts(string filename);
 		unsigned int CountResonances(int pid);
+		void IncrementSpectra(int pid,double dp,vector<double> &spectra);
+		void IncrementMassDist(int pid,double dm,vector<double> &massdist);
 		double SumEnergy();
 		double SumEnergy(int pid);
 		void AddPart(int pidset,FourVector &pset,FourVector &rset);
