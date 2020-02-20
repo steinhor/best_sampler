@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
 
-	ms.ReadHyper2D();
+	ms.ReadHyper();
 
   int nparts=0;
 	int N=pow(10,8);

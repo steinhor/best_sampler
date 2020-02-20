@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
 
-	ms.ReadHyper2D();
+	ms.ReadHyper();
 
   Csampler *sampler=new Csampler(.150,0.093);
   Chyper *hyper=new Chyper();

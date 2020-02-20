@@ -293,5 +293,5 @@ void CmasterSampler::ReadHyper(){
 		}
 	}
 	nelements=ielement;
-	printf("Exiting ReadHyper2D() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
+	printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
 }
