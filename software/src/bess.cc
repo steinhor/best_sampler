@@ -1,8 +1,8 @@
 #ifndef __INCLUDE_GSLBESS_CC__
 #define __INCLUDE_GSLBESS_CC__
-#include "pratt_sampler/sf.h"
+#include "msu_sampler/sf.h"
 
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 double Bessel::K0(double x){
 	if(x>60.0)

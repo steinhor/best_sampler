@@ -14,7 +14,7 @@ using namespace std;
 // Only particles 0 through nparts-1 are to be considered
 // ----------------------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class Cpart{
 	public:
 		Cpart();

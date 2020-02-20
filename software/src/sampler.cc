@@ -1,10 +1,10 @@
-#include "pratt_sampler/sampler.h"
-#include "pratt_sampler/sf.h"
-#include "pratt_sampler/constants.h"
+#include "msu_sampler/sampler.h"
+#include "msu_sampler/sf.h"
+#include "msu_sampler/constants.h"
 
 
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 Crandy* Csampler::randy=NULL;
 CresList *Csampler::reslist=NULL;

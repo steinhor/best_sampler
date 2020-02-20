@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cmath>
 #include <complex>
-#include "pratt_sampler/misc.h"
-using namespace pratt_sampler;
+#include "msu_sampler/misc.h"
+using namespace msu_sampler;
 
 void Misc::Boost(FourVector &u,FourVector &p,FourVector &pprime){
 	int alpha;

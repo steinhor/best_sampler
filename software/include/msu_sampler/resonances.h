@@ -19,7 +19,7 @@ using namespace std;
 // resmap good for finding resinformation indexed by pid, massmap good for thumbing through resonances lightest first
 // -------------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class CbranchInfo{
 	public:
 		vector<CresInfo *> resinfo; //pointers for resinfo

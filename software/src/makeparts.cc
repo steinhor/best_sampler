@@ -1,8 +1,8 @@
-#include "pratt_sampler/sampler.h"
-#include "pratt_sampler/constants.h"
+#include "msu_sampler/sampler.h"
+#include "msu_sampler/constants.h"
 
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 int Csampler::MakeParts(Chyper *hyper){
 	int nparts=0,dnparts,ires,nbose;

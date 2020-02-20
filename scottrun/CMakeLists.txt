@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(samplertest CXX)
 
-add_custom_target(extern_pratt_sampler COMMAND make WORKING_DIRECTORY ../software)
+add_custom_target(extern_msu_sampler COMMAND make WORKING_DIRECTORY ../software)
 
 #include(${CMAKE_CURRENT_SOURCE_DIR}/../software/CMakeLists.txt)
 
@@ -16,15 +16,15 @@ include_directories(SYSTEM ${GSL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${CMAKE_CURR
 message("Includes: ${GSL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../software/include")
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib)
-message("Libraries: pratt_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY}" )
+message("Libraries: msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY}" )
 
 set(SOURCE_FILES ./samplertest.cc)
 SET_SOURCE_FILES_PROPERTIES(
       samplertest.cc PROPERTIES OBJECT_DEPENDS
-    ../software/lib/libpratt_sampler.a
+    ../software/lib/libmsu_sampler.a
  )
 
 add_executable(samplertest ${SOURCE_FILES})
-add_dependencies(samplertest extern_pratt_sampler)
-find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib pratt_sampler)
-target_link_libraries(samplertest pratt_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
+add_dependencies(samplertest extern_msu_sampler)
+find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib msu_sampler)
+target_link_libraries(samplertest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})

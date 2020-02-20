@@ -1,7 +1,7 @@
-#include "pratt_sampler/master.h"
-#include "pratt_sampler/constants.h"
+#include "msu_sampler/master.h"
+#include "msu_sampler/constants.h"
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 CmeanField *CmasterSampler::meanfield=NULL;
 
 CmasterSampler::CmasterSampler(CparameterMap *parmapin){

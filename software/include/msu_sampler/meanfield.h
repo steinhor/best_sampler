@@ -5,7 +5,7 @@
 #include "resonances.h"
 #include "parametermap.h"
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class CmeanField{
 	public:
 		bool crap;

@@ -1,7 +1,7 @@
 #ifndef __RESONANCES_CC__
 #define __RESONANCES_CC__
-#include "pratt_sampler/resonances.h"
-using namespace pratt_sampler;
+#include "msu_sampler/resonances.h"
+using namespace msu_sampler;
 
 Crandy *CresInfo::randy=NULL;
 unsigned int CresInfo::NSPECTRAL=100;

@@ -25,7 +25,7 @@ using namespace std;
 //
 // ---------------------------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class CmasterSampler{
 	public:
 		CmasterSampler(CparameterMap *parmapin);

@@ -1,6 +1,6 @@
-#include "pratt_sampler/hyper.h"
+#include "msu_sampler/hyper.h"
 
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 Chyper::Chyper(){
 	muB=muI=muS=0.0;

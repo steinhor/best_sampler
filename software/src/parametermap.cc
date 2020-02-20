@@ -1,13 +1,13 @@
 #ifndef parameterMap_CC
 #define parameterMap_CC
 
-#include "pratt_sampler/parametermap.h"
+#include "msu_sampler/parametermap.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <string.h>
 
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 //Returns an integer from the map.
 int CparameterMap::getI(string key,int def)
