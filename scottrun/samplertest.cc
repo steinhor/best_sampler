@@ -26,7 +26,7 @@ int main(){
 	// This makes a dummy hyper element for testing
 	ms.MakeDummyHyper();
 	Chyper *hyper=*(ms.hyperlist.begin());
-	double V0=100000.0;
+	double V0=10000.0;
 	hyper->T=0.145;
 	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;
@@ -106,7 +106,8 @@ int main(){
 		fptr=fopen("figs/rhospectra.dat","w");
 	for(unsigned int ip=0;ip<spectra_rho.size();ip++){
 		pmag=(ip+0.5)*dp;
-		d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
+		d3p=((ip+1)*(ip+1)*(ip+1)-ip*ip*ip)*dp*dp*dp*4.0*PI*hyper->udotdOmega*ms.NEVENTS_TOT/3.0;
+		//d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
 		fprintf(fptr,"%6.3f %g\n",(ip+0.5)*dp,(1.0/3.0)*spectra_rho[ip]/d3p);
 	}
 	fclose(fptr);
@@ -130,7 +131,8 @@ int main(){
 		fptr=fopen("figs/deltaspectra.dat","w");
 	for(unsigned int ip=0;ip<spectra_delta.size();ip++){
 		pmag=(ip+0.5)*dp;
-		d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
+		d3p=((ip+1)*(ip+1)*(ip+1)-ip*ip*ip)*dp*dp*dp*4.0*PI*hyper->udotdOmega*ms.NEVENTS_TOT/3.0;
+		//d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
 		fprintf(fptr,"%6.3f %g\n",(ip+0.5)*dp,0.125*spectra_delta[ip]/d3p);
 	}
 	fclose(fptr);
