@@ -15,7 +15,7 @@ using namespace std;
 // but stored coefficients that depend on T are common
 // -----------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class Csampler{
 	public:
 		// Vary for each Csampler instance

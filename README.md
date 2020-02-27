@@ -23,7 +23,7 @@ The output should be
 	NResonances:493
 	will read decay info from ../local/resinfo/pdg-SMASH.dat
 	opening ../local/include/surface_2D.dat
-	Exiting ReadHyper2D() happily, TotalVolume=7170.271412, nelements=43461
+	Exiting ReadHyper() happily, TotalVolume=7170.271412, nelements=43461
 	nparts=503589	totvol=999999.999911	nparts/totvol=0.503589	nhad=0.503943
 	YIPPEE!!!!! We made it all the way through!
 

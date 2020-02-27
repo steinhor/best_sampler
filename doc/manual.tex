@@ -23,7 +23,7 @@ Note that the makefile inserts the contents of {\it ../makefile\_defs.mk}, so if
 The sampler fills a particle object with particles according to the information in a list of hyper-elements. This is done by writing a main program that links to the sampler library. The main program will look something like:
 
 {\tt \begin{verbatim}
-#include "pratt_sampler/master.h"
+#include "msu_sampler/master.h"
 int main(int argc, char *argv[]){
   long long int nparts=0;
   CparameterMap parmap;

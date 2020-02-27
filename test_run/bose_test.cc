@@ -1,5 +1,5 @@
-#include "pratt_sampler/sampler.h"
-using namespace pratt_sampler;
+#include "msu_sampler/sampler.h"
+using namespace msu_sampler;
 
 void calc_bose(CmasterSampler *ms,Csampler *sampler,Chyper *hyper, FILE *file, const char tempfilename[20]);
 
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
 
-	ms.ReadHyper2D();
+	ms.ReadHyper();
 
   Csampler *sampler=new Csampler(.150,0.093);
   Chyper *hyper=new Chyper();

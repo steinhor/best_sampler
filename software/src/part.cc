@@ -1,8 +1,8 @@
 #ifndef __PART_CC__
 #define __PART_CC__
 
-#include "pratt_sampler/part.h"
-using namespace pratt_sampler;
+#include "msu_sampler/part.h"
+using namespace msu_sampler;
 
 Cpart::Cpart(){
 	msquared=0.0;

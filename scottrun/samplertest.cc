@@ -1,6 +1,6 @@
-#include "pratt_sampler/master.h"
+#include "msu_sampler/master.h"
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 
 // This makes a dummy hyper-element then creates particles and tests yield and energy of created partilces of specific pid

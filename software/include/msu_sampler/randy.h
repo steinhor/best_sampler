@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	class Crandy{
 	public:
 		Crandy(int iseed);

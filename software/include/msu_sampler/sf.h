@@ -3,7 +3,7 @@
 #include <gsl/gsl_sf.h>
 using namespace std;
 
-namespace pratt_sampler {
+namespace msu_sampler {
   namespace Bessel{
     double K0(double x);
     double K1(double x);

@@ -19,7 +19,7 @@ using namespace std;
 //
 //---------------------------------------------------------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
   class CparameterMap : public map<string,string> {
   public:
     bool   getB(string ,bool);

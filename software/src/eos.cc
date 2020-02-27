@@ -1,10 +1,10 @@
 #ifndef __EOS_CC
 #define __EOS_CC
-#include "pratt_sampler/eos.h"
-#include "pratt_sampler/sf.h"
-#include "pratt_sampler/constants.h"
+#include "msu_sampler/eos.h"
+#include "msu_sampler/sf.h"
+#include "msu_sampler/constants.h"
 
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 void EOS::freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt){
 	int iE,nE;

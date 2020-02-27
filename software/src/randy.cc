@@ -1,7 +1,7 @@
-#include "pratt_sampler/randy.h"
+#include "msu_sampler/randy.h"
 
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 Crandy::Crandy(int iseed){
     seed=iseed;

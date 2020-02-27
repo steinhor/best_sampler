@@ -1,7 +1,7 @@
-#include "pratt_sampler/master.h"
+#include "msu_sampler/master.h"
 #include <cstring>
 using namespace std;
-using namespace pratt_sampler;
+using namespace msu_sampler;
 
 int main(int argc, char *argv[]){
 	int nprint=100,iprint=0;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
 
-	ms.ReadHyper2D();
+	ms.ReadHyper();
 
   int nparts=0;
 	int N=pow(10,8);

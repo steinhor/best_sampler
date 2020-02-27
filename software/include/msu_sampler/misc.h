@@ -8,7 +8,7 @@ using namespace std;
 // Some random functions -- not all are used, or are copied into the BEST directory
 //
 
-namespace pratt_sampler {
+namespace msu_sampler {
 	namespace Misc{
 		void BoostToCM(FourVector &u,FourVector &p,FourVector &ptilde);
 		void Boost(FourVector &u,FourVector &ptilde,FourVector &p);

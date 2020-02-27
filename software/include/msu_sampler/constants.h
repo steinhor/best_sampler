@@ -4,7 +4,7 @@
 // -------------------
 // Pretty self explanatory
 //
-namespace pratt_sampler {
+namespace msu_sampler {
   constexpr double HBARC        = .1973269804;       // hbar times c
 }
 

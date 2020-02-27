@@ -9,7 +9,7 @@ using namespace std;
 // This is a list of class names and typedefs used throughout
 // -----------------------
 
-namespace pratt_sampler {
+namespace msu_sampler {
   class Cpart;
   class CresList;
   class CresInfo;
