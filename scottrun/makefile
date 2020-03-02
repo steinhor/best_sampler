@@ -124,17 +124,17 @@ samplertest/fast:
 .PHONY : samplertest/fast
 
 #=============================================================================
-# Target rules for targets named extern_pratt_sampler
+# Target rules for targets named extern_msu_sampler
 
 # Build rule for target.
-extern_pratt_sampler: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 extern_pratt_sampler
-.PHONY : extern_pratt_sampler
+extern_msu_sampler: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 extern_msu_sampler
+.PHONY : extern_msu_sampler
 
 # fast build rule for target.
-extern_pratt_sampler/fast:
-	$(MAKE) -f CMakeFiles/extern_pratt_sampler.dir/build.make CMakeFiles/extern_pratt_sampler.dir/build
-.PHONY : extern_pratt_sampler/fast
+extern_msu_sampler/fast:
+	$(MAKE) -f CMakeFiles/extern_msu_sampler.dir/build.make CMakeFiles/extern_msu_sampler.dir/build
+.PHONY : extern_msu_sampler/fast
 
 samplertest.o: samplertest.cc.o
 
@@ -172,7 +172,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... samplertest"
-	@echo "... extern_pratt_sampler"
+	@echo "... extern_msu_sampler"
 	@echo "... samplertest.o"
 	@echo "... samplertest.i"
 	@echo "... samplertest.s"

@@ -35,6 +35,9 @@ int main(){
 	hyper->rhoI=0.0;
 	hyper->epsilon=0.3;
 	hyper->muB=hyper->muS=hyper->muI=0.0;
+	
+	hyper->muB=0.0502531705905960349327493288057178011854/hyper->T;  //exp(2*muB/T)=2
+	
 	hyper->u[1]=hyper->u[2]=hyper->u[3]=0.0;
 	//hyper->u[1]=sqrt(3.0);
 	hyper->u[0]=sqrt(1.0+hyper->u[1]*hyper->u[1]+hyper->u[2]*hyper->u[2]+hyper->u[3]*hyper->u[3]);
@@ -54,6 +57,7 @@ int main(){
 	printf("Enter pid to check: ");
 	scanf("%d",&pid);
 	CresInfo *resinfo=ms.reslist->GetResInfoPtr(pid);
+	double I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 	for(int ievent=0;ievent<ms.NEVENTS_TOT;ievent++){
 		nparts=ms.MakeEvent();
 		npartstot+=nparts;
@@ -75,19 +79,19 @@ int main(){
 		partlist->IncrementMassDist(2214,dm,massdist_delta);
 		partlist->IncrementMassDist(2224,dm,massdist_delta);
 		totalenergy+=partlist->SumEnergy(pid);
-		if((10*(ievent+1))%ms.NEVENTS_TOT==0)
+		if((10*(ievent+1))%ms.NEVENTS_TOT==0){
 			printf("finished %d percent\n",(ievent+1)*100/ms.NEVENTS_TOT);
+		}
 	}
 	printf("npartstot=%lld =? %g, ratio=%g\n",
 	npartstot,hyper->nhadrons*hyper->udotdOmega*double(ms.NEVENTS_TOT),
 	double(npartstot)/(hyper->nhadrons*hyper->udotdOmega*double(ms.NEVENTS_TOT)));
 
-	double I3,epsilon,P,dens,sigma2,dedt,ntarget;
+	double epsilon,P,dens,sigma2,dedt,ntarget;
 	if(resinfo->decay)
 		EOS::freegascalc_onespecies_finitewidth(resinfo,hyper->T,epsilon,P,dens,sigma2,dedt);
 	else
 		EOS::freegascalc_onespecies(hyper->T,resinfo->mass,epsilon,P,dens,sigma2,dedt);
-	I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 	dens*=resinfo->degen*exp(hyper->muB*resinfo->baryon+hyper->muI*I3+hyper->muS*resinfo->strange);
 	ntarget=dens*double(ms.NEVENTS_TOT)*hyper->udotdOmega;
 	printf("------ For PID=%d ------\n",pid);
@@ -148,5 +152,8 @@ int main(){
 		fprintf(fptr,"%6.3f %g\n",(im+0.5)*dm,massdist_delta[im]/(dm*norm));
 	}
 	fclose(fptr);
+	
+	
+
 	return 0;
 }

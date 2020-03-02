@@ -212,9 +212,9 @@ void CmasterSampler::ReadHyper(){
 
 		epsilonf = array[12]*HBARC; //was labeled Edec--guessed this was epsilon
 		Tdec = array[13]*HBARC;
-		muB  = array[14]*HBARC;
-		muS  = array[15]*HBARC;
-		muC  = array[16]*HBARC;
+		muB  = array[14]*HBARC/Tdec;
+		muS  = array[15]*HBARC/Tdec;
+		muC  = array[16]*HBARC/Tdec;
 		Pdec = array[17]*Tdec - epsilonf;
 
 		pitilde00 = array[18]*HBARC;  // GeV/fm^3
