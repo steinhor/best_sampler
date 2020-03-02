@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named samplertest_hydro
+
+# Build rule for target.
+samplertest_hydro: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 samplertest_hydro
+.PHONY : samplertest_hydro
+
+# fast build rule for target.
+samplertest_hydro/fast:
+	$(MAKE) -f CMakeFiles/samplertest_hydro.dir/build.make CMakeFiles/samplertest_hydro.dir/build
+.PHONY : samplertest_hydro/fast
+
+#=============================================================================
 # Target rules for targets named samplertest
 
 # Build rule for target.
@@ -136,32 +149,35 @@ extern_msu_sampler/fast:
 	$(MAKE) -f CMakeFiles/extern_msu_sampler.dir/build.make CMakeFiles/extern_msu_sampler.dir/build
 .PHONY : extern_msu_sampler/fast
 
-samplertest.o: samplertest.cc.o
+samplertest_hydro.o: samplertest_hydro.cc.o
 
-.PHONY : samplertest.o
+.PHONY : samplertest_hydro.o
 
 # target to build an object file
-samplertest.cc.o:
-	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest.cc.o
-.PHONY : samplertest.cc.o
+samplertest_hydro.cc.o:
+	$(MAKE) -f CMakeFiles/samplertest_hydro.dir/build.make CMakeFiles/samplertest_hydro.dir/samplertest_hydro.cc.o
+	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest_hydro.cc.o
+.PHONY : samplertest_hydro.cc.o
 
-samplertest.i: samplertest.cc.i
+samplertest_hydro.i: samplertest_hydro.cc.i
 
-.PHONY : samplertest.i
+.PHONY : samplertest_hydro.i
 
 # target to preprocess a source file
-samplertest.cc.i:
-	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest.cc.i
-.PHONY : samplertest.cc.i
+samplertest_hydro.cc.i:
+	$(MAKE) -f CMakeFiles/samplertest_hydro.dir/build.make CMakeFiles/samplertest_hydro.dir/samplertest_hydro.cc.i
+	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest_hydro.cc.i
+.PHONY : samplertest_hydro.cc.i
 
-samplertest.s: samplertest.cc.s
+samplertest_hydro.s: samplertest_hydro.cc.s
 
-.PHONY : samplertest.s
+.PHONY : samplertest_hydro.s
 
 # target to generate assembly for a file
-samplertest.cc.s:
-	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest.cc.s
-.PHONY : samplertest.cc.s
+samplertest_hydro.cc.s:
+	$(MAKE) -f CMakeFiles/samplertest_hydro.dir/build.make CMakeFiles/samplertest_hydro.dir/samplertest_hydro.cc.s
+	$(MAKE) -f CMakeFiles/samplertest.dir/build.make CMakeFiles/samplertest.dir/samplertest_hydro.cc.s
+.PHONY : samplertest_hydro.cc.s
 
 # Help Target
 help:
@@ -171,11 +187,12 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... samplertest_hydro"
 	@echo "... samplertest"
 	@echo "... extern_msu_sampler"
-	@echo "... samplertest.o"
-	@echo "... samplertest.i"
-	@echo "... samplertest.s"
+	@echo "... samplertest_hydro.o"
+	@echo "... samplertest_hydro.i"
+	@echo "... samplertest_hydro.s"
 .PHONY : help
 
 
