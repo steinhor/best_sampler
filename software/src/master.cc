@@ -262,8 +262,9 @@ void CmasterSampler::ReadHyper(){
 			elem->u[2]=uy;
 			elem->u[3]=uz;
 
-			elem->muB=muB;
-			elem->muS=muS;
+			elem->muB=muB+0.5*muC;
+			elem->muS=muS+0.5*muC;
+			elem->muI=muC;
 
 			elem->pitilde[0][0]=pitilde00;
 			elem->pitilde[1][1]=pitildexx;
