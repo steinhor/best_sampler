@@ -90,7 +90,7 @@ int Csampler::MakeParts(Chyper *hyper){
 			}
 		}
 		NoMoreParts:
-		if(dNcheck>dNtot*1.001){
+		if(dNcheck>dNtot*1.01){
 			printf("Inside Csampler::MakeParts dNcheck=%g > dNtot=%g, dNtotprime=%g, T=%g\n",
 			dNcheck,dNtot,dNtotprime,Tf);
 			exit(1);

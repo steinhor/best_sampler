@@ -170,10 +170,13 @@ void CmasterSampler::MakeDummyHyper(){
 void CmasterSampler::ReadHyper(){
 	string filename;
 	Chyper *elem;
-	double PIbulk;
 	int ielement=0;
-	double u0,ux,uy,x,y,udotdOmega,dOmega0,dOmegaX,dOmegaY,pitildexx,pitildeyy,pitildexy,tau,epsilonf;
-	double eta,dOmegaZ,uz,Tdec,muB,muS,muC,Pdec;
+	double u0,ux,uy,uz,utau,ueta;
+        double t,x,y,z,tau,eta;
+        double udotdOmega,udotdOmega_music;
+        double dOmega0,dOmegaX,dOmegaY,dOmegaZ,dOmegaTau,dOmegaEta;
+        double pitildexx,pitildeyy,pitildexy,epsilonf;
+	double Tdec,muB,muS,muC,Pdec,PIbulk;
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
@@ -200,16 +203,47 @@ void CmasterSampler::ReadHyper(){
 		x = array[1];
 		y = array[2];
 		eta = array[3];
-		dOmega0 = array[4];
+		dOmegaTau = array[4];
 		dOmegaX = array[5];
 		dOmegaY = array[6];
-		dOmegaZ = array[7];
-		u0 = array[8];
+		dOmegaEta = array[7];
+		utau = array[8];
 		ux = array[9];
 		uy = array[10];
-		uz = array[11]/tau;
-		u0=sqrt(1.0+ux*ux+uy*uy+uz*uz);
+		ueta = array[11];
+                const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
+                if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
+                  printf("Warning at reading from MUSIC output: "
+                         "u_Milne (u_eta multiplied by tau) = %9.6f %9.6f %9.6f %9.6f"
+                         ", u^2 == 1 is not fulfilled with error %12.8f.\n",
+                         utau, ux, uy, ueta, std::abs(u_milne_sqr - 1.0));
+                }
+                udotdOmega_music = tau * (dOmegaTau * utau +
+                    dOmegaX * ux + dOmegaY * uy + dOmegaEta * ueta / tau);
 
+                // Transforming from Milne to Cartesian
+                const double ch_eta = std::cosh(eta), sh_eta = std::sinh(eta);
+                t = tau * ch_eta;
+                z = tau * sh_eta;
+                u0 = utau * ch_eta + ueta * sh_eta;
+                uz = utau * sh_eta + ueta * ch_eta;
+
+                const double usqr = u0 * u0 - ux * ux - uy * uy - uz * uz;
+                if (std::abs(usqr - 1.0) > 1.e-3) {
+                  printf("u*u should be 1, u*u = %12.8f\n", usqr);
+                }
+
+                dOmega0 = tau * ch_eta * dOmegaTau - sh_eta * dOmegaEta;
+                dOmegaX = -tau * dOmegaX;
+                dOmegaY = -tau * dOmegaY;
+                dOmegaZ = tau * sh_eta * dOmegaTau - ch_eta * dOmegaEta;
+
+                udotdOmega = dOmega0 * u0 - dOmegaX * ux - dOmegaY * uy - dOmegaZ * uz;
+                if (std::abs(udotdOmega - udotdOmega_music) > 1.e-4) {
+                    printf("u^mu * dsigma_mu should be invariant: %12.9f == %12.9f\n",
+                           udotdOmega, udotdOmega_music);
+                }
+ 
 		epsilonf = array[12]*HBARC; //was labeled Edec--guessed this was epsilon
 		Tdec = array[13]*HBARC;
 		muB  = array[14]*HBARC/Tdec;
@@ -243,8 +277,7 @@ void CmasterSampler::ReadHyper(){
 			dOmegaY*=YMAX_ratio;
 			dOmegaZ*=YMAX_ratio;
 		}
-		udotdOmega=tau*(u0*dOmega0+ux*dOmegaX+uy*dOmegaY+uz*dOmegaZ);
-		if(!(udotdOmega<0.0)) {
+		if(udotdOmega >= 0.0) {
 			elem->tau=tau;
 			elem->dOmega[0]=dOmega0; 
 			elem->dOmega[1]=dOmegaX; 
@@ -253,11 +286,12 @@ void CmasterSampler::ReadHyper(){
 
 			elem->udotdOmega=udotdOmega;
 
+			elem->r[0]=t;
 			elem->r[1]=x;
 			elem->r[2]=y;
-			elem->r[3]=tau*sinh(eta);
-			elem->r[0]=tau*cosh(eta);
-			elem->u[0]=sqrt(1.0+ux*ux+uy*uy+uz*uz);
+			elem->r[3]=z;
+
+			elem->u[0]=u0;
 			elem->u[1]=ux;
 			elem->u[2]=uy;
 			elem->u[3]=uz;
@@ -266,6 +300,8 @@ void CmasterSampler::ReadHyper(){
 			elem->muS=muS+0.5*muC;
 			elem->muI=muC;
 
+                        // Is transforming a tensor to Cartesian coordinates really so easy? - Dima
+                        // There must be an error here
 			elem->pitilde[0][0]=pitilde00;
 			elem->pitilde[1][1]=pitildexx;
 			elem->pitilde[2][2]=pitildeyy;
@@ -281,6 +317,8 @@ void CmasterSampler::ReadHyper(){
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
 
+                        // This probably has to be transformed to Cartesian coordinates - Dima
+                        // There must be an error here
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;
 			elem->qmu[2]=qmu2;
