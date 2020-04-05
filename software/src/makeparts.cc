@@ -157,7 +157,6 @@ void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
 		m=GenerateThermalMass(resinfo);
 		randy->generate_boltzmann(m,T,pnoviscous);
 	}
-        printf("Likely a bug (undefined behaviour): viscous corrections = %d\n", VISCOUSCORRECTIONS);
 	if(VISCOUSCORRECTIONS){
 		for(alpha=1;alpha<4;alpha++){
 			ptilde[alpha]=pnoviscous[alpha];

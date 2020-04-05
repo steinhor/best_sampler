@@ -31,7 +31,6 @@ namespace msu_sampler {
 		double GenerateThermalMass(CresInfo *resinfo);
 		void GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti);
 
-		bool VISCOUSCORRECTIONS;
 		Csampler(double Tfset,double sigmafset); // Constructor
 		~Csampler();
 		void GetPars(CparameterMap *parmapset);
@@ -98,6 +97,7 @@ namespace msu_sampler {
 		static bool BJORKEN_2D;  // these variables are only used for Bjorken
 		static double BJORKEN_YMAX;
 		static bool USE_POLE_MASS;
+                static bool VISCOUSCORRECTIONS;
 	};
 }
 

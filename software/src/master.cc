@@ -45,6 +45,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::BJORKEN_2D=parmap->getB("SAMPLER_BJORKEN_2D",false);
 	Csampler::BJORKEN_YMAX=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0);
 	Csampler::USE_POLE_MASS=parmap->getB("SAMPLER_USE_POLE_MASS",false);
+        Csampler::VISCOUSCORRECTIONS=parmap->getB("VISCOUSCORRECTIONS",false);
 	int it,isigma;
 	hyperlist.clear();
 	sampler.resize(NTF+1);

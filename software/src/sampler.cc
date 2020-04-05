@@ -16,6 +16,7 @@ bool Csampler::bose_corr=false;
 bool Csampler::BJORKEN_2D=false;
 double Csampler::BJORKEN_YMAX=1.0;
 bool Csampler::USE_POLE_MASS=false;
+bool Csampler::VISCOUSCORRECTIONS=false;
 
 // Constructor
 Csampler::Csampler(double Tfset,double sigmafset){
