@@ -84,7 +84,7 @@ int CmasterSampler::MakeEvent(){
 	Csampler *samplerptr;
 	double Omega0Sum=0.0;
 	partlist->Reset();
-	Csampler *samplertemp;
+	Csampler *samplertemp = nullptr;
 	list<Chyper *>::iterator it;
 	if(FINDT && NEVENTS==0){
 		samplertemp=new Csampler(150.0,0.093);
@@ -176,7 +176,8 @@ void CmasterSampler::ReadHyper(){
         double udotdOmega,udotdOmega_music;
         double dOmega0,dOmegaX,dOmegaY,dOmegaZ,dOmegaTau,dOmegaEta;
         double pitildexx,pitildeyy,pitildexy,epsilonf;
-	double Tdec,muB,muS,muC,Pdec,PIbulk;
+	double Tdec,muB,muS,muC;
+        double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;

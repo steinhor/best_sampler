@@ -214,7 +214,7 @@ double Csampler::GetDIppForLambda(CresInfo *resinfo,double TT){
 void Csampler::CalcLambdaMu0(){
 	double Ipp=0.0,dIpp;
 	int nbose;
-	CresInfo *resinfo;
+	CresInfo *resinfo = nullptr;
 	CresMassMap::iterator rpos;
 
 	for(rpos=reslist->massmap.begin();rpos!=reslist->massmap.end();rpos++){
@@ -240,7 +240,7 @@ double Csampler::CalcLambdaF(Chyper *hyper){
 }
 double Csampler::CalcLambdaF(double muB,double muI,double muS,double Pf){
 	int ires=0,nbose;
-	double Ipp=0.0,dIpp,xx,lambdaf;
+	double Ipp=0.0,xx,lambdaf;
 	double lambdafact,mutot,I3;
 	CresInfo *resinfo;
 	CresMassMap::iterator rpos;
@@ -254,7 +254,6 @@ double Csampler::CalcLambdaF(double muB,double muI,double muS,double Pf){
 			if(resinfo->pid!=22){
 				I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 				mutot=muB*resinfo->baryon+muI*I3+muS*resinfo->strange;
-				dIpp=0.0;
 				Ipp+=lambda0i[ires]*exp(mutot);
 				ires+=1;
 			}
@@ -287,8 +286,8 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 	double rhoB,rhoS,rhoI;
 
 	double drhoB_dmuB,drhoB_dmuS,drhoB_dmuI;
-	double drhoS_dmuB,drhoS_dmuS,drhoS_dmuI;
-	double drhoI_dmuB,drhoI_dmuS,drhoI_dmuI;
+	double drhoI_dmuS,drhoI_dmuI;
+	double drhoS_dmuS;
 
 	double xB,xI,xS,xxB,xxI,xxS,dmumag;
 	int ntries=0;
@@ -332,7 +331,6 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 					+0.25*nh0_b1i1s2*(xB*xxS*xxS+xxB*xS*xS)*(xI-xxI)
 						+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(2*xI*xI-2*xxI*xxI)
 							+0.25*nh0_b1i3s0*(xB+xxB)*(3*xI*xI*xI-3*xxI*xxI*xxI);
-		drhoI_dmuB=drhoB_dmuI;
 		drhoI_dmuI=0.5*nh0_b0i2s0*(4*xI*xI+4*xxI*xxI)
 			+0.25*nh0_b0i1s1*(xI+xxI)*(xS+xxS)
 				+0.25*nh0_b1i1s0*(xB+xxB)*(xI+xxI)
@@ -354,8 +352,6 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 				+0.5*nh0_b1i0s3*(-3*xB*xxS*xxS*xxS+3*xxB*xS*xS*xS)
 					+0.25*nh0_b1i1s2*(-2*xB*xxS*xxS+2*xxB*xS*xS)*(xI+xxI)
 						+0.25*nh0_b1i2s1*(-xB*xxS+xxB*xS)*(xI*xI+xxI*xxI);
-		drhoS_dmuB=drhoB_dmuS;
-		drhoS_dmuI=drhoI_dmuS;
 		drhoS_dmuS=0.25*nh0_b0i1s1*(xI+xxI)*(xS+xxS)
 			+0.5*nh0_b1i0s1*(xB*xxS+xxB*xS)
 				+0.5*nh0_b1i0s3*(9*xB*xxS*xxS*xxS+9*xxB*xS*xS*xS)
@@ -597,9 +593,9 @@ void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double 
 // For sampling, generates mass of resonances (uses GetDensPMax below)
 double Csampler::GenerateThermalMass(CresInfo *resinfo){
 	map<double,double>::iterator it1,it2;
-	double E,E1,E2;
+	double E = 0.0, E1 = 0.0, E2 = 0.0;
 	int ires=resinfo->ires;
-	double p1,p2,netprob=randy->ran();
+	double p1 = 0.0, p2 = 0.0, netprob=randy->ran();
 	if(!resinfo->decay)
 		E=resinfo->mass;
 	else{
