@@ -25,7 +25,7 @@ dPde=0.152181
 Pressure=0.0404889
 epsilon=0.24014
 
-mydata = np.loadtxt('bulk.dat',skiprows=1,unpack=True)
+mydata = np.loadtxt('bulk_rho0.dat',skiprows=1,unpack=True)
 PIdata=-mydata[0]
 PIoverPtarget=-mydata[1]
 PIcheck=mydata[2]
@@ -67,7 +67,7 @@ plt.ylim(0.95,1.07999)
 text(1.2,0.99,'$\\rho_B=0$',color='green',fontsize='22',ha='right')
 text(1.2,1.05,'$\\rho_B=0.1$',color='red',fontsize='22',ha='right')
 
-plt.xlabel('$|\Pi_{\\rm hydro}/P|$ (percent)', fontsize=18, weight='normal')
+plt.xlabel('$-\Pi_{\\rm hydro}/P$ (percent)', fontsize=18, weight='normal')
 plt.ylabel('$\Pi/\Pi_{\\rm hydro}$',fontsize=18)
 
 ax = fig.add_axes([0.16,0.52,0.8,0.22])

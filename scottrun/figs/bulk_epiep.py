@@ -22,7 +22,7 @@ plt.figure(figsize=(6,4.5))
 fig = plt.figure(1)
 ax = fig.add_axes([0.14,0.14,0.84,0.84])
 
-mydata = np.loadtxt('bulk.dat',skiprows=1,unpack=True)
+mydata = np.loadtxt('bulk_rho0.dat',skiprows=1,unpack=True)
 PIdata=-mydata[0]
 PIoverPtarget=-mydata[1]
 PIcheck=mydata[2]
@@ -68,7 +68,7 @@ ax.set_yticks(np.arange(0,500,10), minor=True)
 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0f'))
 plt.ylim(200,400)
 
-plt.xlabel('$|\Pi_{\\rm hydro}/P|$ (percent)', fontsize=18, weight='normal')
+plt.xlabel('$-\Pi_{\\rm hydro}/P$ (percent)', fontsize=18, weight='normal')
 plt.ylabel('$\langle E\\rangle-M$  (MeV)',fontsize=18)
 
 plt.text(1.2,260,"protons",color='k',fontsize='22',ha='right')

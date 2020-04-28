@@ -22,7 +22,7 @@ int main(){
 	hyper->T=0.15;
 	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;
-	hyper->rhoB=0.0;
+	hyper->rhoB=0.1;
 	hyper->rhoS=0.0;
 	hyper->rhoI=0.0;
 	hyper->muB=0.0;
@@ -99,11 +99,11 @@ int main(){
 	}
 	
 	char filename[80];
-	sprintf(filename,"results/sheartest_PI%g_rhoB%g.dat",hyper->PItilde,hyper->rhoB);
-	FILE *fptr=fopen(filename,"w");
-	fprintf(fptr,"#PItarget    PItarget/P    PI/PItarget     e/etarget       Tbulk     dtau*deldotv        Epi          Ep\n");
-	fprintf(fptr,"%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",
-	hyper->PItilde,hyper->PItilde/hyper->P,PIbulk/hyper->PItilde,partlist->SE[0][0]*norm/hyper->epsilon,hyper->T-hyper->PItilde/hyper->RTbulk,hyper->PItilde/hyper->Rbulk,pionE,nucleonE);
+	sprintf(filename,"results/sheartest_rhoB%g.dat",hyper->rhoB);
+	FILE *fptr=fopen(filename,"a");
+	fprintf(fptr,"#pizz_hydro    pizz_h/P    pizz/P     e/etarget  \n");
+	fprintf(fptr,"%13.6e %13.6e %13.6e %13.6e\n",
+	hyper->pitilde[3][3],hyper->pitilde[3][3]/hyper->P,(partlist->SE[3][3]*norm-hyper->P)/hyper->pitilde[3][3],partlist->SE[0][0]*norm/hyper->epsilon);
 	fclose(fptr);
 	return 0;
 }
