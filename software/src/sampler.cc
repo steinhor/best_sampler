@@ -643,7 +643,7 @@ void Csampler::CalcRvisc(Chyper *hyper){
 	
 	T=hyper->T;
 	A=P/(T*T*dedt-eEbar);
-	Rshear=(8.0/15.0)*p4overE3-2.0*P;
+	Rshear=(2.0/15.0)*p4overE3-2*P;
 	Rbulk=-A*epsilon*T+(A/3.0)*(dedt*T*T-m2dens);
 	Rbulk=Rbulk-(2.0/3.0)*P+p4overE3/9.0;
 	RTbulk=-Rbulk/(A*T*T);

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(samplertest CXX)
 project(samplertest_hydro CXX)
 project(viscoustest CXX)
+project(bulktest CXX)
 
 add_custom_target(extern_msu_sampler COMMAND make WORKING_DIRECTORY ../software)
 
@@ -32,11 +33,14 @@ SET_SOURCE_FILES_PROPERTIES(
     ../software/lib/libmsu_sampler.a
  )
  
- set(SOURCE_FILES ./viscoustest.cc)
+set(SOURCE_FILES ./bulktest.cc)
  SET_SOURCE_FILES_PROPERTIES(
-       viscoustest.cc PROPERTIES OBJECT_DEPENDS
-     ../software/lib/libmsu_sampler.a
-  )
+	bulktest.cc PROPERTIES OBJECT_DEPENDS ../software/lib/libmsu_sampler.a
+)
+set(SOURCE_FILES ./viscoustest.cc)
+SET_SOURCE_FILES_PROPERTIES(
+	viscoustest.cc PROPERTIES OBJECT_DEPENDS ../software/lib/libmsu_sampler.a
+)
 
 add_executable(samplertest ${SOURCE_FILES})
 
@@ -44,10 +48,14 @@ add_executable(samplertest_hydro ${SOURCE_FILES})
 
 add_executable(viscoustest ${SOURCE_FILES})
 
+add_executable(bulktest ${SOURCE_FILES})
+
 add_dependencies(samplertest extern_msu_sampler)
 add_dependencies(samplertest_hydro extern_msu_sampler)
 add_dependencies(viscoustest extern_msu_sampler)
+add_dependencies(bulktest extern_msu_sampler)
 find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib msu_sampler)
 target_link_libraries(samplertest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 target_link_libraries(samplertest_hydro msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 target_link_libraries(viscoustest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
+target_link_libraries(bulktest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})

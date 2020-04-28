@@ -22,7 +22,7 @@ int main(){
 	hyper->T=0.15;
 	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;
-	hyper->rhoB=0.1;
+	hyper->rhoB=0.0;
 	hyper->rhoS=0.0;
 	hyper->rhoI=0.0;
 	hyper->muB=0.0;
@@ -39,13 +39,24 @@ int main(){
 	for(alpha=0;alpha<4;alpha++)
 		for(beta=0;beta<4;beta++)
 			hyper->pitilde[alpha][beta]=0.0;
-	printf("Enter PItilde: ");
-	scanf("%lf",&(hyper->PItilde));
+	hyper->PItilde=0.0;
+	
+	printf("Enter pizz: ");
+	scanf("%lf",&(hyper->pitilde[3][3]));
+	hyper->pitilde[1][1]=hyper->pitilde[2][2]=-0.5*hyper->pitilde[3][3];
 	
 	(ms.ChooseSampler(hyper))->GetNHMu0();
 	(ms.ChooseSampler(hyper))->GetMuNH(hyper);
 	(ms.ChooseSampler(hyper))->CalcNHadronsEpsilonP(hyper);
 	hyper->Print();
+	printf("----- TARGET SE TENSOR /P -------\n");
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++){
+			Tij=hyper->pitilde[alpha][beta];
+			printf("%12.9f ",Tij/hyper->P);
+		}
+		printf("\n");
+	}
 	
 	//hyper->muB=0.0502531705905960349327493288057178011854/hyper->T;  //exp(2*muB/T)=2
 	
@@ -82,12 +93,13 @@ int main(){
 			Tij=partlist->SE[alpha][beta]*norm;
 			if(alpha==beta)
 				Tij=Tij-hyper->P-PIbulk;
-			printf("%12.9f ",Tij);
+			printf("%12.9f ",Tij/hyper->P);
 		}
 		printf("\n");
 	}
+	
 	char filename[80];
-	sprintf(filename,"results/vt_PI%g_rhoB%g.dat",hyper->PItilde,hyper->rhoB);
+	sprintf(filename,"results/sheartest_PI%g_rhoB%g.dat",hyper->PItilde,hyper->rhoB);
 	FILE *fptr=fopen(filename,"w");
 	fprintf(fptr,"#PItarget    PItarget/P    PI/PItarget     e/etarget       Tbulk     dtau*deldotv        Epi          Ep\n");
 	fprintf(fptr,"%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n",

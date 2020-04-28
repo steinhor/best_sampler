@@ -128,10 +128,10 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 			}
 		}
 		if (bose_test==true && (resinfo->pid==211||resinfo->pid==-211||resinfo->pid==111)) { //only runs when testing bose
-      pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
-      ibin=floorl(pmag/dp);
-      dN_dp_p2[ibin]+=(2*M_PI*M_PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
-    }
+			pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
+			ibin=floorl(pmag/dp);
+			dN_dp_p2[ibin]+=(2*M_PI*M_PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
+		}
 		for(alpha=0;alpha<4;alpha++)
 			r[alpha]=hyper->r[alpha];
 		mastersampler->partlist->AddPart(resinfo->pid,p,r);
@@ -154,7 +154,7 @@ void Csampler::GetPInFluidFrame(double m,Chyper *hyper,double T,FourVector &p){
 		//printf("pnobulk=(%g,%g,%g,%g)\n",pnobulk[0],pnobulk[1],pnobulk[2],pnobulk[3]);
 		BulkScale(hyper,m,pnobulk,pnoshear);
 		//for(alpha=0;alpha<4;alpha++)
-			//pnoshear[alpha]=pnobulk[alpha];
+		//pnoshear[alpha]=pnobulk[alpha];
 	}
 	else
 		randy->generate_boltzmann(m,T,pnoshear);
@@ -179,7 +179,7 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	for(alpha=1;alpha<4;alpha++){
 		p[alpha]=pnoshear[alpha];
 		for(beta=1;beta<4;beta++){
-			p[alpha]+=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
+			p[alpha]-=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
 		}
 	}
 	p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
