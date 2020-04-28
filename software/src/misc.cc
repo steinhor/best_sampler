@@ -8,7 +8,6 @@ using namespace msu_sampler;
 
 void Misc::Boost(FourVector &u,FourVector &p,FourVector &pprime){
 	int alpha;
-	if (std::isnan(pprime[1]*pprime[2]*pprime[3])) printf("3 p= %lf %lf %lf %lf\n",pprime[0],pprime[1],pprime[2],pprime[3]);
 	double pdotu=p[0]*u[0]-p[1]*u[1]-p[2]*u[2]-p[3]*u[3];
 	double A=-(pdotu+p[0])/(1.0+u[0]);
 	//printf("A=%lf\n",A);

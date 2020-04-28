@@ -1,5 +1,6 @@
 #include "msu_sampler/sampler.h"
 #include "msu_sampler/constants.h"
+#include "msu_sampler/misc.h"
 
 using namespace std;
 using namespace msu_sampler;
@@ -157,7 +158,6 @@ void Csampler::GetPInFluidFrame(double m,Chyper *hyper,double T,FourVector &p){
 	}
 	else
 		randy->generate_boltzmann(m,T,pnoshear);
-
 	if(INCLUDE_SHEAR_VISCOSITY){
 		ShearScale(hyper,m,pnoshear,p);
 	}

@@ -587,7 +587,6 @@ void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double 
 void Csampler::CalcRvisc(Chyper *hyper){
 	double xB,xI,xS,xxB,xxI,xxS;
 	double T,epsilon,dedt,P,p4overE3,eEbar,m2dens,Rshear,Rbulk,RTbulk,A;
-	
 	if(!byflavor_calculated)
 		GetNHMu0();
 	if(!hyper->epsilon_calculated)
