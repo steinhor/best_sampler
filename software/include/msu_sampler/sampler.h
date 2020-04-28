@@ -22,14 +22,14 @@ namespace msu_sampler {
 		double Tf,sigmaf;
 		// functions of Tf,sigma, mu
 		// Same but with mu=0
-		double nhadrons0,epsilon0,P0,lambda0;
-		vector<double> density0i,epsilon0i,P0i,lambda0i;
+		double nhadrons0,epsilon0,P0,p4overE30;
+		vector<double> density0i,epsilon0i,P0i;
 		vector<map<double,double>> sfdens0imap;
 		bool FIRSTCALL;
 		int ntest;
 
 		double GenerateThermalMass(CresInfo *resinfo);
-		void GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti);
+		void GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,double &Pi,double &dedti,double &p4overE3);
 
 		Csampler(double Tfset,double sigmafset); // Constructor
 		~Csampler();
@@ -42,7 +42,7 @@ namespace msu_sampler {
 		void CalcDensitiesMu0();
 
 		double totvol;
-		vector<double> pibose_dens0,pibose_P0,pibose_epsilon0,pibose_lambda0,pibose_dedt0;
+		vector<double> pibose_dens0,pibose_P0,pibose_epsilon0,pibose_dedt0;
 
 		//some variables used only for testing
 		vector<double> dN_dp_p2;
@@ -50,6 +50,7 @@ namespace msu_sampler {
 		bool bose_test_off;
 		bool bose_test;
 		bool viscous_test;
+		bool byflavor_calculated;
 		map<int,vector<Cpart*>> pmap;
 		map<int,double> DensityMap;
 
@@ -59,32 +60,53 @@ namespace msu_sampler {
 		double nh0_b1i0s1,nh0_b1i0s3;
 		double nh0_b1i1s0,nh0_b1i1s2;
 		double nh0_b1i2s1,nh0_b1i3s0;
-	    double nh0_b2i0s0;
+		double nh0_b2i0s0;
 		// energy densities
 		double eh0_b0i0s0,eh0_b0i2s0,eh0_b0i1s1;
 		double eh0_b1i0s1,eh0_b1i0s3;
 		double eh0_b1i1s0,eh0_b1i1s2;
 		double eh0_b1i2s1,eh0_b1i3s0;
-	    double eh0_b2i0s0;
+		double eh0_b2i0s0;
 		// depsilon/dT
 		double dedth0_b0i0s0,dedth0_b0i2s0,dedth0_b0i1s1;
 		double dedth0_b1i0s1,dedth0_b1i0s3;
 		double dedth0_b1i1s0,dedth0_b1i1s2;
 		double dedth0_b1i2s1,dedth0_b1i3s0;
 		double dedth0_b2i0s0;
+		// p^4/E^3, used for viscosity 
+		double p4overE3h0_b0i0s0,p4overE3h0_b0i2s0,p4overE3h0_b0i1s1;
+		double p4overE3h0_b1i0s1,p4overE3h0_b1i0s3;
+		double p4overE3h0_b1i1s0,p4overE3h0_b1i1s2;
+		double p4overE3h0_b1i2s1,p4overE3h0_b1i3s0;
+		double p4overE3h0_b2i0s0;
+		// epslion_h^2/n_h
+		double eEbarh0_b0i0s0,eEbarh0_b0i2s0,eEbarh0_b0i1s1;
+		double eEbarh0_b1i0s1,eEbarh0_b1i0s3;
+		double eEbarh0_b1i1s0,eEbarh0_b1i1s2;
+		double eEbarh0_b1i2s1,eEbarh0_b1i3s0;
+		double eEbarh0_b2i0s0;
+		// m^2*dens
+		double m2densh0_b0i0s0,m2densh0_b0i2s0,m2densh0_b0i1s1;
+		double m2densh0_b1i0s1,m2densh0_b1i0s3;
+		double m2densh0_b1i1s0,m2densh0_b1i1s2;
+		double m2densh0_b1i2s1,m2densh0_b1i3s0;
+		double m2densh0_b2i0s0;
 
 		void GetNHMu0(); // Calculates above quantities
 		void GetMuNH(Chyper *hyper);
 		void GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS);
-		void GetNHadronsEpsilonPF(Chyper *hyper);
-		void GetNHadronsEpsilonPF(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf);
-		double GetDIppForLambda(CresInfo *resinfo,double TT);
+		void CalcNHadronsEpsilonP(Chyper *hyper);
+		void CalcNHadronsEpsilonP(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf);
 		void GetTfMuNH(Chyper *hyper);
 		void GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS);
 		void GetEpsilonRhoDerivatives(double muB,double muI,double muS,double &epsilon,double &rhoB,double &rhoI,double &rhoS,Eigen::MatrixXd &A);
 		int MakeParts(Chyper *hyper);
+		void CalcRvisc(Chyper *hyper);
+		void BulkScale(Chyper *hyper,double mass,FourVector &pnobulk,FourVector &p);
+		void ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVector &p);
 		int CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper);
-		void GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T);
+		void GetP(Chyper *hyper,double T,CresInfo *resinfo,FourVector &p);
+		void GetPInFluidFrame(double m,Chyper *hyper,double T,FourVector &p);
 		void CalcSFDensMap(CresInfo *resinfo,double T,map<double,double> &sfdensmap);
 
 		static Crandy *randy;
@@ -97,7 +119,8 @@ namespace msu_sampler {
 		static bool BJORKEN_2D;  // these variables are only used for Bjorken
 		static double BJORKEN_YMAX;
 		static bool USE_POLE_MASS;
-                static bool VISCOUSCORRECTIONS;
+		static bool INCLUDE_BULK_VISCOSITY;
+		static bool INCLUDE_SHEAR_VISCOSITY;
 	};
 }
 

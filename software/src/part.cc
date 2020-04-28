@@ -60,7 +60,7 @@ void Cpart::BoostR(FourVector &u){
 CpartList::CpartList(CparameterMap *parmap){
 	nparts_blocksize=parmap->getI("SAMPLER_NPARTS_BLOCKSIZE",2000);
 	partvec.resize(nparts_blocksize);
-	nparts=0;
+	Reset();
 }
 
 CpartList::~CpartList(){
@@ -84,6 +84,10 @@ void CpartList::Kill(){
 
 void CpartList::Reset(){
 	nparts=0;
+	for(int alpha=0;alpha<4;alpha++){
+		for(int beta=0;beta<4;beta++)
+			SE[alpha][beta]=0.0;
+	}
 }
 
 void CpartList::WriteParts(string filename){
@@ -170,6 +174,19 @@ void CpartList::AddPart(int pidset,FourVector &pset,FourVector &rset){
 	}
 	partvec[nparts].SetMsquared();
 	nparts+=1;
+}
+
+void CpartList::SumSETensor(){
+	unsigned int ipart,alpha,beta;
+	//nparts=partvec.size();
+	for(ipart=0;ipart<nparts;ipart++){
+		//printf("partvec[%d]=(%g,%g,%g,%g)\n",ipart,partvec[ipart].p[0],partvec[ipart].p[1],partvec[ipart].p[2],partvec[ipart].p[3]);
+		for(alpha=0;alpha<4;alpha++){
+			for(beta=0;beta<4;beta++){
+				SE[alpha][beta]+=partvec[ipart].p[alpha]*partvec[ipart].p[beta]/partvec[ipart].p[0];
+			}
+		}
+	}
 }
 
 #endif

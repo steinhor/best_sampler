@@ -13,5 +13,7 @@ build
 *.diff
 *.orig
 *.rej
+*.a
+*.o
 **/.DS_Store
 .vscode

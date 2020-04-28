@@ -18,4 +18,11 @@ double Bessel::K1(double x){
 		return gsl_sf_bessel_K1(x);
 }
 
+double Bessel::Kn(int n,double x){
+	if(x>60.0)
+		return 0.0;
+	else
+		return gsl_sf_bessel_Kn(n,x);
+}
+
 #endif

@@ -45,7 +45,8 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::BJORKEN_2D=parmap->getB("SAMPLER_BJORKEN_2D",false);
 	Csampler::BJORKEN_YMAX=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0);
 	Csampler::USE_POLE_MASS=parmap->getB("SAMPLER_USE_POLE_MASS",false);
-        Csampler::VISCOUSCORRECTIONS=parmap->getB("VISCOUSCORRECTIONS",false);
+	Csampler::INCLUDE_BULK_VISCOSITY=parmap->getB("SAMPLER_INCLUDE_BULK_VISCOSITY",false);
+	Csampler::INCLUDE_SHEAR_VISCOSITY=parmap->getB("SAMPLER_INCLUDE_SHEAR_VISCOSITY",false);
 	int it,isigma;
 	hyperlist.clear();
 	sampler.resize(NTF+1);
@@ -84,7 +85,7 @@ int CmasterSampler::MakeEvent(){
 	Chyper *hyper;
 	Csampler *samplerptr;
 	double Omega0Sum=0.0;
-	partlist->Reset();
+	partlist->nparts=0;
 	Csampler *samplertemp = nullptr;
 	list<Chyper *>::iterator it;
 	if(FINDT && NEVENTS==0){
@@ -102,21 +103,15 @@ int CmasterSampler::MakeEvent(){
 			hyper->T=samplerptr->Tf;
 			samplerptr->GetNHMu0();
 			samplerptr->CalcDensitiesMu0();
-			samplerptr->CalcLambdaMu0();
 			samplerptr->FIRSTCALL=false;
 		}
 		if(NEVENTS==0){
 			if(!SETMU0 && CALCMU){
 				samplerptr->GetMuNH(hyper);
-				samplerptr->GetNHadronsEpsilonPF(hyper);
-				hyper->lambda=samplerptr->CalcLambdaF(hyper);
+				samplerptr->CalcNHadronsEpsilonP(hyper);
 			}
 			if(!SETMU0 && !CALCMU){
-				samplerptr->GetNHadronsEpsilonPF(hyper);
-				hyper->lambda=samplerptr->CalcLambdaF(hyper);
-			}
-			if(SETMU0){
-				hyper->lambda=samplerptr->lambda0;
+				samplerptr->CalcNHadronsEpsilonP(hyper);
 			}
 		}
 		np=samplerptr->MakeParts(hyper);
@@ -173,12 +168,12 @@ void CmasterSampler::ReadHyper(){
 	Chyper *elem;
 	int ielement=0;
 	double u0,ux,uy,uz,utau,ueta;
-        double t,x,y,z,tau,eta;
-        double udotdOmega,udotdOmega_music;
-        double dOmega0,dOmegaX,dOmegaY,dOmegaZ,dOmegaTau,dOmegaEta;
-        double pitildexx,pitildeyy,pitildexy,epsilonf;
+	double t,x,y,z,tau,eta;
+	double udotdOmega,udotdOmega_music;
+	double dOmega0,dOmegaX,dOmegaY,dOmegaZ,dOmegaTau,dOmegaEta;
+	double pitildexx,pitildeyy,pitildexy,epsilonf;
 	double Tdec,muB,muS,muC;
-        double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
+	double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
 	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
@@ -190,7 +185,6 @@ void CmasterSampler::ReadHyper(){
 	if (fptr==NULL) {
 		fprintf(stderr,"Can't open hyper info file\n");
 		printf("Error %d \n", errno);
-		exit(1);
 	}
 
 	double TotalVolume=0.0;
@@ -213,38 +207,38 @@ void CmasterSampler::ReadHyper(){
 		ux = array[9];
 		uy = array[10];
 		ueta = array[11];
-                const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
-                if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
-                  printf("Warning at reading from MUSIC output: "
-                         "u_Milne (u_eta multiplied by tau) = %9.6f %9.6f %9.6f %9.6f"
-                         ", u^2 == 1 is not fulfilled with error %12.8f.\n",
-                         utau, ux, uy, ueta, std::abs(u_milne_sqr - 1.0));
-                }
-                udotdOmega_music = tau * (dOmegaTau * utau +
-                    dOmegaX * ux + dOmegaY * uy + dOmegaEta * ueta / tau);
+		const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
+		if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
+			printf("Warning at reading from MUSIC output: "
+				"u_Milne (u_eta multiplied by tau) = %9.6f %9.6f %9.6f %9.6f"
+					", u^2 == 1 is not fulfilled with error %12.8f.\n",
+			utau, ux, uy, ueta, std::abs(u_milne_sqr - 1.0));
+		}
+		udotdOmega_music = tau * (dOmegaTau * utau +
+			dOmegaX * ux + dOmegaY * uy + dOmegaEta * ueta / tau);
 
-                // Transforming from Milne to Cartesian
-                const double ch_eta = std::cosh(eta), sh_eta = std::sinh(eta);
-                t = tau * ch_eta;
-                z = tau * sh_eta;
-                u0 = utau * ch_eta + ueta * sh_eta;
-                uz = utau * sh_eta + ueta * ch_eta;
+		// Transforming from Milne to Cartesian
+		const double ch_eta = std::cosh(eta), sh_eta = std::sinh(eta);
+		t = tau * ch_eta;
+		z = tau * sh_eta;
+		u0 = utau * ch_eta + ueta * sh_eta;
+		uz = utau * sh_eta + ueta * ch_eta;
 
-                const double usqr = u0 * u0 - ux * ux - uy * uy - uz * uz;
-                if (std::abs(usqr - 1.0) > 1.e-3) {
-                  printf("u*u should be 1, u*u = %12.8f\n", usqr);
-                }
+		const double usqr = u0 * u0 - ux * ux - uy * uy - uz * uz;
+		if (std::abs(usqr - 1.0) > 1.e-3) {
+			printf("u*u should be 1, u*u = %12.8f\n", usqr);
+		}
 
-                dOmega0 = tau * ch_eta * dOmegaTau - sh_eta * dOmegaEta;
-                dOmegaX = -tau * dOmegaX;
-                dOmegaY = -tau * dOmegaY;
-                dOmegaZ = tau * sh_eta * dOmegaTau - ch_eta * dOmegaEta;
+		dOmega0 = tau * ch_eta * dOmegaTau - sh_eta * dOmegaEta;
+		dOmegaX = -tau * dOmegaX;
+		dOmegaY = -tau * dOmegaY;
+		dOmegaZ = tau * sh_eta * dOmegaTau - ch_eta * dOmegaEta;
 
-                udotdOmega = dOmega0 * u0 - dOmegaX * ux - dOmegaY * uy - dOmegaZ * uz;
-                if (std::abs(udotdOmega - udotdOmega_music) > 1.e-4) {
-                    printf("u^mu * dsigma_mu should be invariant: %12.9f == %12.9f\n",
-                           udotdOmega, udotdOmega_music);
-                }
+		udotdOmega = dOmega0 * u0 - dOmegaX * ux - dOmegaY * uy - dOmegaZ * uz;
+		if (std::abs(udotdOmega - udotdOmega_music) > 1.e-4) {
+			printf("u^mu * dsigma_mu should be invariant: %12.9f == %12.9f\n",
+			udotdOmega, udotdOmega_music);
+		}
  
 		epsilonf = array[12]*HBARC; //was labeled Edec--guessed this was epsilon
 		Tdec = array[13]*HBARC;
@@ -302,8 +296,8 @@ void CmasterSampler::ReadHyper(){
 			elem->muS=muS+0.5*muC;
 			elem->muI=muC;
 
-                        // Is transforming a tensor to Cartesian coordinates really so easy? - Dima
-                        // There must be an error here
+			// Is transforming a tensor to Cartesian coordinates really so easy? - Dima
+			// There must be an error here
 			elem->pitilde[0][0]=pitilde00;
 			elem->pitilde[1][1]=pitildexx;
 			elem->pitilde[2][2]=pitildeyy;
@@ -319,8 +313,8 @@ void CmasterSampler::ReadHyper(){
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
 
-                        // This probably has to be transformed to Cartesian coordinates - Dima
-                        // There must be an error here
+			// This probably has to be transformed to Cartesian coordinates - Dima
+			// There must be an error here
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;
 			elem->qmu[2]=qmu2;

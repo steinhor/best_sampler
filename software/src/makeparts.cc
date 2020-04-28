@@ -109,7 +109,7 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 	FourVector p,r,ubj,ptilde,rtilde;
 	randy->increment_netprob(dN);
 	while(randy->test_threshold(0.0)){
-		GetP(hyper,resinfo,p,T);
+		GetP(hyper,T,resinfo,p);
 		if(BJORKEN_2D){
 			if(fabs(hyper->u[3])>0.01){
 				printf("BJORKEN_2D set, but u_z=%g\n",hyper->u[3]);
@@ -139,40 +139,63 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 	}	return dnparts;
 }
 
-void Csampler::GetP(Chyper *hyper,CresInfo *resinfo,FourVector &p,double T){
-	bool reflect;
-	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
-	FourVector dOmegaTilde,ptilde;
-	unsigned int alpha,beta;
-	for (alpha=0;alpha<4;alpha++) {
-		ptilde[alpha]=0;
+void Csampler::GetPInFluidFrame(double m,Chyper *hyper,double T,FourVector &p){
+	FourVector pnoshear,pnobulk;
+	double Tbulk;
+	int alpha;
+	if(hyper->Rvisc_calculated==false){
+		CalcRvisc(hyper);
+		hyper->Rvisc_calculated=true;
 	}
-	FourVector pnoviscous;
-	double m,nhat[4]={0.0};
-	if((!resinfo->decay) || resinfo->width<0.0001 || USE_POLE_MASS){
-		m=resinfo->mass;
-		randy->generate_boltzmann(m,T,pnoviscous);
+	if(INCLUDE_BULK_VISCOSITY){
+		Tbulk=T-hyper->PItilde/hyper->RTbulk;
+		randy->generate_boltzmann(m,Tbulk,pnobulk);
+		//printf("pnobulk=(%g,%g,%g,%g)\n",pnobulk[0],pnobulk[1],pnobulk[2],pnobulk[3]);
+		BulkScale(hyper,m,pnobulk,pnoshear);
+		//for(alpha=0;alpha<4;alpha++)
+			//pnoshear[alpha]=pnobulk[alpha];
 	}
-	else{
-		m=GenerateThermalMass(resinfo);
-		randy->generate_boltzmann(m,T,pnoviscous);
-	}
-	if(VISCOUSCORRECTIONS){
-		for(alpha=1;alpha<4;alpha++){
-			ptilde[alpha]=pnoviscous[alpha];
-			for(beta=1;beta<4;beta++){
-				if(mastersampler->SETMU0)
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((epsilon0+P0)*hyper->lambda*(M_PI));
-				else
-					ptilde[alpha]+=hyper->pitilde[alpha][beta]*pnoviscous[beta]/((hyper->epsilon+hyper->P)*hyper->lambda*(M_PI));
-			}
-		}
-		ptilde[0]=sqrt(ptilde[1]*ptilde[1]+ptilde[2]*ptilde[2]+ptilde[3]*ptilde[3]+m*m);
+	else
+		randy->generate_boltzmann(m,T,pnoshear);
+
+	if(INCLUDE_SHEAR_VISCOSITY){
+		ShearScale(hyper,m,pnoshear,p);
 	}
 	else{
 		for(alpha=0;alpha<4;alpha++)
-			ptilde[alpha]=pnoviscous[alpha];
+			p[alpha]=pnoshear[alpha];
 	}
+}
+
+void Csampler::BulkScale(Chyper *hyper,double mass,FourVector &pnobulk,FourVector &p){
+	int alpha;
+	for(alpha=1;alpha<4;alpha++)
+		p[alpha]=pnobulk[alpha]/(1.0+hyper->PItilde/(3.0*hyper->Rbulk));
+	p[0]=sqrt(mass*mass+p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
+}
+
+void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVector &p){
+	int alpha,beta;
+	for(alpha=1;alpha<4;alpha++){
+		p[alpha]=pnoshear[alpha];
+		for(beta=1;beta<4;beta++){
+			p[alpha]+=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
+		}
+	}
+	p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
+}
+
+void Csampler::GetP(Chyper *hyper,double T,CresInfo *resinfo,FourVector &p){
+	bool reflect;
+	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
+	FourVector dOmegaTilde,ptilde;
+	double m,nhat[4]={0.0};
+	if((!resinfo->decay) || resinfo->width<0.0001 || USE_POLE_MASS)
+		m=resinfo->mass;
+	else
+		m=GenerateThermalMass(resinfo);
+	GetPInFluidFrame(m,hyper,T,ptilde);
+
 	Misc::BoostToCM(hyper->u,hyper->dOmega,dOmegaTilde);  //dOmegaTilde is dOmega in fluid (u=0) frame
 	pdotdOmega=ptilde[0]*dOmegaTilde[0]-ptilde[1]*dOmegaTilde[1]-ptilde[2]*dOmegaTilde[2];
 	wreflect=pdotdOmega/(ptilde[0]*dOmegaTilde[0]);

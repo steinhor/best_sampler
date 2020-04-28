@@ -35,6 +35,7 @@ namespace msu_sampler {
 
 	class CpartList{
 	public:
+		double SE[4][4];
 		CpartList(CparameterMap *parmap);
 		~CpartList();
 		unsigned int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
@@ -48,6 +49,7 @@ namespace msu_sampler {
 		void IncrementMassDist(int pid,double dm,vector<double> &massdist);
 		double SumEnergy();
 		double SumEnergy(int pid);
+		void SumSETensor();
 		void AddPart(int pidset,FourVector &pset,FourVector &rset);
 	};
 }

@@ -11,8 +11,9 @@
 
 namespace msu_sampler {
   namespace EOS{
-      void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
-      void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &sigma2,double &dedt);
+      void freegascalc_onespecies(double T,double m,double &epsilon,double &P,double &dens,double &dedt,double &p4overE3);
+      void freegascalc_onespecies_finitewidth(CresInfo *resinfo,double T,double &epsilon,double &P,double &dens,double &dedt,double &p4overE3);
+			double Getp4overE3(double T,double m);
   };
 }
 
