@@ -182,7 +182,7 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	double R,Rmax,pmag,ctheta,stheta,phi;
 	for(alpha=0;alpha<4;alpha++)
 		p[alpha]=pnoshear[alpha];
-	pmag=sqrt(mass*mass+p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
+	pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
 	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*hyper->T*hyper->Rshear);
 	//printf("pmag=%g, Rmax=%g, biggestpitilde=%g, Rshear=%g\n",pmag,Rmax,hyper->biggestpitilde,hyper->Rshear);
 
