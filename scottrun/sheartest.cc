@@ -102,7 +102,7 @@ int main(){
 	char filename[80];
 	sprintf(filename,"results/sheartest_rhoB%g.dat",hyper->rhoB);
 	FILE *fptr=fopen(filename,"a");
-	fprintf(fptr,"#pizz_hydro    pizz_h/P    pizz/P     e/etarget  \n");
+	fprintf(fptr,"#pizz_hydro    pizz_h/P    pizz/pizz_h     e/etarget  \n");
 	fprintf(fptr,"%13.6e %13.6e %13.6e %13.6e\n",
 	hyper->pitilde[3][3],hyper->pitilde[3][3]/hyper->P,(partlist->SE[3][3]*norm-hyper->P)/hyper->pitilde[3][3],partlist->SE[0][0]*norm/hyper->epsilon);
 	fclose(fptr);
