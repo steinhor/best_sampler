@@ -1,6 +1,9 @@
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 #include "msu_sampler/sampler.h"
 #include "msu_sampler/constants.h"
 #include "msu_sampler/misc.h"
+#include <iostream>
 
 using namespace std;
 using namespace msu_sampler;
@@ -176,6 +179,38 @@ void Csampler::BulkScale(Chyper *hyper,double mass,FourVector &pnobulk,FourVecto
 
 void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVector &p){
 	int alpha,beta;
+	double R,Rmax,pmag,ctheta,stheta,phi;
+	for(alpha=0;alpha<4;alpha++)
+		p[alpha]=pnoshear[alpha];
+	pmag=sqrt(mass*mass+p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
+	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*hyper->T*hyper->Rshear);
+	//printf("pmag=%g, Rmax=%g, biggestpitilde=%g, Rshear=%g\n",pmag,Rmax,hyper->biggestpitilde,hyper->Rshear);
+
+	R=1.0;
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++){
+			R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+		}
+	}
+	while(randy->ran()>R/Rmax){
+		ctheta=1.0-2.0*randy->ran();
+		stheta=sqrt(1.0-ctheta*ctheta);
+		phi=2.0*M_PI*randy->ran();
+		p[1]=pmag*stheta*cos(phi);
+		p[2]=pmag*stheta*sin(phi);
+		p[3]=pmag*ctheta;
+		R=1.0;
+		for(alpha=1;alpha<4;alpha++){
+			for(beta=1;beta<4;beta++){
+				R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+			}
+		}
+		if(R>Rmax){
+			printf("R=%g, pmag=%g, Rmax=%g, biggestpitilde=%g, Rshear=%g\n",R,pmag,Rmax,hyper->biggestpitilde,hyper->Rshear);
+		}
+	};
+	
+	/*
 	for(alpha=1;alpha<4;alpha++){
 		p[alpha]=pnoshear[alpha];
 		for(beta=1;beta<4;beta++){
@@ -183,6 +218,8 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 		}
 	}
 	p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
+	*/
+	
 }
 
 void Csampler::GetP(Chyper *hyper,double T,CresInfo *resinfo,FourVector &p){

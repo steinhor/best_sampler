@@ -44,6 +44,7 @@ int main(){
 	printf("Enter pizz: ");
 	scanf("%lf",&(hyper->pitilde[3][3]));
 	hyper->pitilde[1][1]=hyper->pitilde[2][2]=-0.5*hyper->pitilde[3][3];
+	hyper->CalcBiggestpitilde();
 	
 	(ms.ChooseSampler(hyper))->GetNHMu0();
 	(ms.ChooseSampler(hyper))->GetMuNH(hyper);

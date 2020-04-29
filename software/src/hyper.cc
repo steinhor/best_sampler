@@ -1,4 +1,7 @@
 #include "msu_sampler/hyper.h"
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#include <iostream>
 
 using namespace msu_sampler;
 
@@ -23,5 +26,27 @@ void Chyper::Print(){
 
 double Chyper::GetEntropyDensity(){
 	double s=((epsilon+P)/T)-muB*rhoB-muI*rhoI-muS*rhoS;
-	return s;	
+	return s;
+}
+
+void Chyper::CalcBiggestpitilde(){
+	int alpha,beta;
+	Eigen::MatrixXd A(3,3);
+	Eigen::VectorXd V(3);
+	A(0,0)=0.0;
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++)
+			A(alpha-1,beta-1)=pitilde[alpha][beta];
+	}
+	//Eigen::SelfAdjointEigenSolver<MatrixXd> es(A);
+	Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(A);
+	cout << A << endl;
+	cout << es.eigenvalues() << endl;
+	V=es.eigenvalues();
+	printf("eigenvalues: %g,%g,%g\n",V(0),V(1),V(2));
+	biggestpitilde=0.0;
+	for(alpha=0;alpha<3;alpha++){
+		if(V(alpha)>biggestpitilde)
+			biggestpitilde=V(alpha);
+	}
 }

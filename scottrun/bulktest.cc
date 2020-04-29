@@ -22,7 +22,7 @@ int main(){
 	hyper->T=0.15;
 	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;
-	hyper->rhoB=0.1;
+	hyper->rhoB=0.0;
 	hyper->rhoS=0.0;
 	hyper->rhoI=0.0;
 	hyper->muB=0.0;
@@ -41,6 +41,7 @@ int main(){
 			hyper->pitilde[alpha][beta]=0.0;
 	printf("Enter PItilde: ");
 	scanf("%lf",&(hyper->PItilde));
+	hyper->CalcBiggestpitilde();
 	
 	(ms.ChooseSampler(hyper))->GetNHMu0();
 	(ms.ChooseSampler(hyper))->GetMuNH(hyper);
