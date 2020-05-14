@@ -8,7 +8,7 @@ int main(){
 	parmap.ReadParsFromFile("hydroparameters.txt");
 	CmasterSampler::meanfield=new CmeanField_Simple(&parmap);
 	CmasterSampler ms(&parmap);
-	long long int count=0,anticount=0;
+	long long int deltacount=0,rhocount=0;
 	CpartList pl=CpartList(&parmap);
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
@@ -18,12 +18,16 @@ int main(){
 	int	nevents=parmap.getI("SAMPLER_NEVENTS_TOT",10);
 	for(int ievent=0;ievent<nevents;ievent++){
 		nparts+=ms.MakeEvent();
-		count+=ms.partlist->CountResonances(2212)+ms.partlist->CountResonances(2112);
-		anticount+=ms.partlist->CountResonances(-2212)+ms.partlist->CountResonances(-2112);
-		if((ievent+1)%10==0)
+		deltacount+=ms.partlist->CountResonances(2224)+ms.partlist->CountResonances(-2224)
+			+ms.partlist->CountResonances(2214)+ms.partlist->CountResonances(-2214)
+				+ms.partlist->CountResonances(2224)+ms.partlist->CountResonances(-2224)
+					+ms.partlist->CountResonances(1114)+ms.partlist->CountResonances(-1114);
+		rhocount+=ms.partlist->CountResonances(113)+ms.partlist->CountResonances(213)+ms.partlist->CountResonances(-213);
+		if((10*(ievent+1))%nevents==0)
 			printf("ievent=%d nparts/event=%g\n",ms.NEVENTS,double(nparts)/double(ms.NEVENTS));
 	}
-	printf("BBAR/B=%g\n",double(anticount)/double(count));
+	printf("Nrho=%g\n",double(rhocount)/double(nevents));
+	printf("Ndelta=%g\n",double(deltacount)/double(nevents));
 
 	printf("YIPPEE!!!!! We made it all the way through!\n");
 	return 0;

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(samplertest CXX)
 project(samplertest_hydro CXX)
+project(rhocount CXX)
 project(sheartest CXX)
 project(bulktest CXX)
 
@@ -26,36 +27,44 @@ SET_SOURCE_FILES_PROPERTIES(
       samplertest.cc PROPERTIES OBJECT_DEPENDS
     ../software/lib/libmsu_sampler.a
  )
+add_executable(samplertest ${SOURCE_FILES})
  
 set(SOURCE_FILES ./samplertest_hydro.cc)
 SET_SOURCE_FILES_PROPERTIES(
       samplertest_hydro.cc PROPERTIES OBJECT_DEPENDS
     ../software/lib/libmsu_sampler.a
  )
- 
+add_executable(samplertest_hydro ${SOURCE_FILES})
+
+set(SOURCE_FILES ./rhocount.cc)
+SET_SOURCE_FILES_PROPERTIES(
+      rhocount.cc PROPERTIES OBJECT_DEPENDS
+    ../software/lib/libmsu_sampler.a
+ )
+add_executable(rhocount ${SOURCE_FILES})
+
 set(SOURCE_FILES ./bulktest.cc)
  SET_SOURCE_FILES_PROPERTIES(
 	bulktest.cc PROPERTIES OBJECT_DEPENDS ../software/lib/libmsu_sampler.a
 )
+add_executable(bulktest ${SOURCE_FILES})
+
 set(SOURCE_FILES ./sheartest.cc)
 SET_SOURCE_FILES_PROPERTIES(
 	sheartest.cc PROPERTIES OBJECT_DEPENDS ../software/lib/libmsu_sampler.a
 )
-
-add_executable(samplertest ${SOURCE_FILES})
-
-add_executable(samplertest_hydro ${SOURCE_FILES})
-
 add_executable(sheartest ${SOURCE_FILES})
 
-add_executable(bulktest ${SOURCE_FILES})
+
 
 add_dependencies(samplertest extern_msu_sampler)
 add_dependencies(samplertest_hydro extern_msu_sampler)
+add_dependencies(rhocount extern_msu_sampler)
 add_dependencies(sheartest extern_msu_sampler)
 add_dependencies(bulktest extern_msu_sampler)
 find_library(${CMAKE_CURRENT_SOURCE_DIR}/../software/lib msu_sampler)
 target_link_libraries(samplertest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 target_link_libraries(samplertest_hydro msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
+target_link_libraries(rhocount msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 target_link_libraries(sheartest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})
 target_link_libraries(bulktest msu_sampler ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${EIGEN3_LIBRARY})

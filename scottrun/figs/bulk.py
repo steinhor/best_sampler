@@ -18,9 +18,9 @@ font = {'family' : 'sans-serif',
         'size'   : 14}
 plt.rc('font', **font)
 plt.rc('text', usetex=False)
-plt.figure(figsize=(6,7))
+plt.figure(figsize=(6,9))
 fig = plt.figure(1)
-ax = fig.add_axes([0.16,0.12,0.8,0.4])
+ax = fig.add_axes([0.16,0.07,0.8,0.23])
 dPde=0.152181
 Pressure=0.0404889
 epsilon=0.24014
@@ -70,7 +70,31 @@ text(1.2,1.05,'$\\rho_B=0.1$',color='red',fontsize='22',ha='right')
 plt.xlabel('$-\Pi_{\\rm hydro}/P$ (percent)', fontsize=18, weight='normal')
 plt.ylabel('$\Pi/\Pi_{\\rm hydro}$',fontsize=18)
 
-ax = fig.add_axes([0.16,0.52,0.8,0.22])
+#
+# Now do energy density
+#
+ax = fig.add_axes([0.16,0.3,0.8,0.23])
+plt.plot(100.0*PIoverPtarget,echeck,marker='o',markersize='8',linestyle='--',linewidth=1,color='g')
+plt.plot(100.0*PIoverPtarget2,echeck2,marker='s',markersize='8',linestyle='--',linewidth=1,color='r')
+
+ax.set_xticklabels([], minor=False)
+plt.xlim(0.0,1.25)
+
+ax.tick_params(direction='in', which='both')
+ax.yaxis.set_ticks_position('both')
+ax.set_yticks(np.arange(0.0,1.5,0.01), minor=False)
+ax.set_yticklabels(np.arange(0.0,1.5,0.01), minor=False)
+ax.set_yticks(np.arange(0.0,1.5,0.002), minor=True)
+ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.2f'))
+plt.ylim(0.985,1.015)
+plt.ylabel('$\epsilon/\epsilon_{\\rm hydro}$',fontsize=18)
+
+#
+# Now do R_p
+#
+
+
+ax = fig.add_axes([0.16,0.53,0.8,0.23])
 plt.plot(100.0*PIoverPtarget,pbulkscale,marker='o',markersize='8',linestyle='--',linewidth=1,color='g')
 plt.plot(100.0*PIoverPtarget2,pbulkscale2,marker='s',markersize='8',linestyle='--',linewidth=1,color='r')
 
@@ -89,7 +113,7 @@ ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.2f'))
 plt.ylim(0.75,1.05)
 plt.ylabel('$R_p$',fontsize=18)
 
-ax = fig.add_axes([0.16,0.74,0.8,0.22])
+ax = fig.add_axes([0.16,0.76,0.8,0.23])
 plt.plot(100.0*PIoverPtarget,1000*Tbulk,marker='o',markersize='8',linestyle='--',linewidth=1,color='g')
 plt.plot(100.0*PIoverPtarget2,1000*Tbulk2,marker='s',markersize='8',linestyle='--',linewidth=1,color='r')
 

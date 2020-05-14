@@ -650,9 +650,10 @@ void Csampler::CalcRvisc(Chyper *hyper){
 	hyper->RTbulk=RTbulk; hyper->Rshear=Rshear; hyper->Rbulk=Rbulk;
 	hyper->dedT=dedt;
 	
+	/*
 	printf("T=%g, P=%g, epsilon=%g, dP/de=%g\n",T,P,epsilon,(P+epsilon)/(T*dedt));
 	printf("dedt=%g, eEbar=%g, m2dens=%g, p4overE3=%g\n",dedt,eEbar,m2dens,p4overE3);
-	printf("Rshear=%g, Rbulk=%g, RTbulk=%g, A=%g\n",Rshear,Rbulk,RTbulk,A);
+	printf("Rshear=%g, Rbulk=%g, RTbulk=%g, A=%g\n",Rshear,Rbulk,RTbulk,A);*/
 	
 	/* For checking
 	CresInfo *resinfo;
@@ -761,7 +762,7 @@ void Csampler::CalcNHadronsEpsilonP(Chyper *hyper){
 void Csampler::CalcNHadronsEpsilonP(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf){
 	double xB,xI,xS,xxB,xxI,xxS,xbose;
 	int nbose;
-	printf("epsilon0=%g\n",epsilon0);
+	//printf("epsilon0=%g\n",epsilon0);
 	if(mastersampler->SETMU0){
 		nhadronsf=nhadrons0;
 		epsilonf=epsilon0;
