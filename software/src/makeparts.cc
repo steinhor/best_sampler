@@ -199,6 +199,7 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 		p[1]=pmag*stheta*cos(phi);
 		p[2]=pmag*stheta*sin(phi);
 		p[3]=pmag*ctheta;
+		p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
 		R=1.0;
 		for(alpha=1;alpha<4;alpha++){
 			for(beta=1;beta<4;beta++){

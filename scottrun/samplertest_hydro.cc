@@ -12,7 +12,10 @@ int main(){
 	CpartList pl=CpartList(&parmap);
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
+	
 	ms.ReadHyper();
+	
+	printf("finished ReadHyper\n");
 	
 	long long int nparts=0;
 	int	nevents=parmap.getI("SAMPLER_NEVENTS_TOT",10);

@@ -26,7 +26,7 @@ namespace msu_sampler {
 		FourVector r; // position
 		FourVector qmu; // not used, but read in from Chun's hydro
 		double tau,eta; // Bjorken tau and spatial rapidity
-		double pitilde[4][4]; // shear tensor
+		double **pitilde; // shear tensor
 		double biggestpitilde; // largest eigenvalue
 		void CalcBiggestpitilde();
 		double PItilde; // bulk tensor correction

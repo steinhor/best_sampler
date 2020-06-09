@@ -8,6 +8,13 @@ using namespace msu_sampler;
 Chyper::Chyper(){
 	muB=muI=muS=0.0;
 	Rvisc_calculated=false;
+	int alpha,beta;
+	pitilde=new double *[4];
+	for(alpha=0;alpha<4;alpha++){
+		pitilde[alpha]=new double[4];
+		for(beta=0;beta<4;beta++)
+			pitilde[alpha][beta]=0.0;
+	}
 }
 
 void Chyper::Print(){
