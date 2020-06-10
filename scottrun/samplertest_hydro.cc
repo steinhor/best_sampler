@@ -15,8 +15,6 @@ int main(){
 	
 	ms.ReadHyper();
 	
-	printf("finished ReadHyper\n");
-	
 	long long int nparts=0;
 	int	nevents=parmap.getI("SAMPLER_NEVENTS_TOT",10);
 	for(int ievent=0;ievent<nevents;ievent++){

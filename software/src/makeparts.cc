@@ -16,13 +16,12 @@ int Csampler::MakeParts(Chyper *hyper){
 	double dNcheck=0.0;
 	double nptemp;
 	CresMassMap::iterator iter;
+	
 	if(mastersampler->SETMU0)
 		dNtot=dNtotprime=udotdOmega*nhadrons0;
 	else
 		dNtot=dNtotprime=udotdOmega*hyper->nhadrons;
 	totvol+=udotdOmega;
-	randy->netprob=0.0;
-	randy->threshold=randy->ran_exp();
 	if(randy->test_threshold(dNtot)){
 		dNcheck=0.0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
@@ -35,8 +34,10 @@ int Csampler::MakeParts(Chyper *hyper){
 				dN=exp(mutot)*density0i[ires]*udotdOmega;
 				dNcheck+=dN;
 				dNtotprime-=dN;
-				if(dNtotprime<-0.001){
-					printf("dNtotprime=%g\n",dNtotprime);
+				if(dNtotprime<-0.0001){
+					printf("dNtotprime=%g, should not be negative, mutot=%g, dNcheck=%g, dNtot=%g\n",
+					dNtotprime,mutot,dNcheck,dNtot);
+					printf("nhadrons0=%g, hyper->nhadrons=%g\n",nhadrons0,hyper->nhadrons);
 					exit(1);
 				}
 				dnparts=CheckResInVolume(dN,Tf,resinfo,hyper);
@@ -183,13 +184,13 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	for(alpha=0;alpha<4;alpha++)
 		p[alpha]=pnoshear[alpha];
 	pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
-	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*hyper->T*hyper->Rshear);
+	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*Tf*hyper->Rshear);
 	//printf("pmag=%g, Rmax=%g, biggestpitilde=%g, Rshear=%g\n",pmag,Rmax,hyper->biggestpitilde,hyper->Rshear);
 
 	R=1.0;
 	for(alpha=1;alpha<4;alpha++){
 		for(beta=1;beta<4;beta++){
-			R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+			R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*Tf*hyper->Rshear);
 		}
 	}
 	while(randy->ran()>R/Rmax){
@@ -203,7 +204,7 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 		R=1.0;
 		for(alpha=1;alpha<4;alpha++){
 			for(beta=1;beta<4;beta++){
-				R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+				R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*Tf*hyper->Rshear);
 			}
 		}
 		if(R>Rmax){

@@ -1,5 +1,8 @@
 #include "msu_sampler/master.h"
 #include "msu_sampler/constants.h"
+
+//#define __TEST_PITILDE_TRACE__
+
 using namespace std;
 using namespace msu_sampler;
 CmeanField *CmasterSampler::meanfield=NULL;
@@ -53,7 +56,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	for(it=0;it<=NTF;it++){
 		sampler[it].resize(NSIGMAF+1);
 		for(isigma=0;isigma<=NSIGMAF;isigma++){
-			sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
+			sampler[it][isigma]=nullptr;
 		}
 	}
 	//printf("Howdy Boys\n");
@@ -83,44 +86,39 @@ CmasterSampler::~CmasterSampler(){
 int CmasterSampler::MakeEvent(){
 	int np,nparts=0;
 	Chyper *hyper;
-	Csampler *samplerptr;
-	double Omega0Sum=0.0;
+	Csampler *samplerptr=nullptr,*sampler_findT=nullptr;
+	//double Omega0Sum=0.0;
 	partlist->nparts=0;
-	Csampler *samplertemp = nullptr;
 	list<Chyper *>::iterator it;
-	if(FINDT && NEVENTS==0){
-		samplertemp=new Csampler(150.0,0.093);
-	}
+
 	for(it=hyperlist.begin();it!=hyperlist.end();it++){
 		hyper=*it;
-		Omega0Sum+=hyper->dOmega[0];
-		if(NEVENTS==0 && FINDT){
-			samplertemp->GetTfMuNH(hyper);
-			hyper->T=samplertemp->Tf;
-		}
-		samplerptr=ChooseSampler(hyper);
-		if(samplerptr->FIRSTCALL){
-			hyper->T=samplerptr->Tf;
-			samplerptr->GetNHMu0();
-			samplerptr->CalcDensitiesMu0();
-			samplerptr->FIRSTCALL=false;
-		}
-		if(NEVENTS==0){
-			if(!SETMU0 && CALCMU){
+		if(hyper->firstcall){
+			if(FINDT){
+				if(sampler_findT==nullptr)
+					sampler_findT=new Csampler(150,hyper->sigma);
+				sampler_findT->GetTfMuNH(hyper);
+				CALCMU=false;
+			}
+			samplerptr=ChooseSampler(hyper);
+			hyper->sampler=samplerptr;
+			if(samplerptr->FIRSTCALL){
+				samplerptr->GetNHMu0();
+				samplerptr->CalcDensitiesMu0();
+				samplerptr->FIRSTCALL=false;
+			}
+			if(CALCMU)
 				samplerptr->GetMuNH(hyper);
-				samplerptr->CalcNHadronsEpsilonP(hyper);
-			}
-			if(!SETMU0 && !CALCMU){
-				samplerptr->CalcNHadronsEpsilonP(hyper);
-			}
+			hyper->firstcall=false;
+			samplerptr->CalcNHadronsEpsilonP(hyper);
 		}
-		np=samplerptr->MakeParts(hyper);
+		np=hyper->sampler->MakeParts(hyper);
 		nparts+=np;
+		//Omega0Sum+=hyper->dOmega[0];
 	}
+	if(sampler_findT!=nullptr)
+		delete sampler_findT;
 	NEVENTS+=1;
-	if(FINDT && NEVENTS==0){
-		delete samplertemp;
-	}
 	return nparts;
 }
 
@@ -131,7 +129,7 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 		it=0;
 	}
 	else{
-		T=hyper->T;
+		T=hyper->T0;
 		it=floorl((T-TFmin)/DELTF);
 		del=T-(TFmin+it*DELTF);
 		if(randy->ran()<del/DELTF)
@@ -154,6 +152,10 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 			isigma=0;
 		if(isigma>=NSIGMAF)
 			isigma=NSIGMAF-1;
+	}
+	if(sampler[it][isigma]==nullptr){
+		//printf("making Csampler object, Tf=%g, T0=%g\n",TFmin+it*DELTF,hyper->T0);
+		sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
 	}
 	return sampler[it][isigma];
 }
@@ -211,6 +213,10 @@ void CmasterSampler::ReadHyper(){
 		ux = array[9];
 		uy = array[10];
 		ueta = array[11];
+		utau=sqrt(1.0+ux*ux+uy*uy+ueta*ueta);
+		if(fabs(ueta)>0.0000001)
+			printf("ueta=%g\n",ueta);
+		
 		const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
 		if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
 			printf("Warning at reading from MUSIC output: "
@@ -262,7 +268,7 @@ void CmasterSampler::ReadHyper(){
 		pivisc[2][3]=pivisc[3][2]=array[26]*HBARC; // /tau;
 		pivisc[3][3]=array[27]*HBARC; // /(tau*tau);
 		
-		printf("reading, trace=%g =? 0\n",pivisc[0][0]-pivisc[1][1]-pivisc[2][2]-pivisc[3][3]);
+		//printf("reading, trace=%g =? 0\n",pivisc[0][0]-pivisc[1][1]-pivisc[2][2]-pivisc[3][3]);
 
 		PIbulk = array[28]*HBARC;   // GeV/fm^3
 		rhoB = array[29];  // 1/fm^3
@@ -308,7 +314,7 @@ void CmasterSampler::ReadHyper(){
 			// There must be an error here
 			
 			elem->epsilon=epsilonf;
-			elem->T=Tdec;
+			elem->T0=Tdec;
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
 
@@ -342,6 +348,7 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 		}
 	}
 	// Test Tr pivisc
+#ifdef __TEST_PITILDE_TRACE__
 	double trace=picontract/(u[0]*u[0]);
 	for(alpha=1;alpha<4;alpha++){
 		trace-=pivisc[alpha][alpha];
@@ -355,6 +362,7 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 		}
 		printf("\n");
 	}
+#endif
 	//
 	double x=u[0]*(1.0+u[0]);
 	for(alpha=1;alpha<4;alpha++){
@@ -362,6 +370,7 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 			pitilde[alpha][beta]=pivisc[alpha][beta]-(u[alpha]*pivec[beta]/x)-(pivec[alpha]*u[beta]/x)+picontract*u[alpha]*u[beta]/(x*x);
 		}
 	}
+#ifdef __TEST_PITILDE_TRACE__
 	// Test Tr pitilde
 	trace=0.0;
 	for(alpha=1;alpha<4;alpha++){
@@ -370,5 +379,5 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 	printf("after, trace=%g\n",trace);
 	if(fabs(picontract)>0.1)
 		Misc::Pause();
-	//
+#endif
 }

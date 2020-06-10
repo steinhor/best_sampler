@@ -378,7 +378,7 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 // Same as above, but also calculates T, also uses epsilon (uses GetEpsilonRhoDerivatives to get factors )
 void Csampler::GetTfMuNH(Chyper *hyper){
 	GetTfMuNH(hyper->epsilon,hyper->rhoB,hyper->rhoI,hyper->rhoS,hyper->muB,hyper->muI,hyper->muS);
-	hyper->T=Tf;
+	hyper->T0=Tf;
 }
 
 void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS){
@@ -586,7 +586,7 @@ void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double 
 
 void Csampler::CalcRvisc(Chyper *hyper){
 	double xB,xI,xS,xxB,xxI,xxS;
-	double T,epsilon,dedt,P,p4overE3,eEbar,m2dens,Rshear,Rbulk,RTbulk,A;
+	double epsilon,dedt,P,p4overE3,eEbar,m2dens,Rshear,Rbulk,RTbulk,A;
 	if(!byflavor_calculated)
 		GetNHMu0();
 	if(!hyper->epsilon_calculated)
@@ -641,12 +641,11 @@ void Csampler::CalcRvisc(Chyper *hyper){
 								+0.25*m2densh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI)
 									+0.5*m2densh0_b2i0s0*(xB*xB+xxB*xxB);
 	
-	T=hyper->T;
-	A=P/(T*T*dedt-eEbar);
+	A=P/(Tf*Tf*dedt-eEbar);
 	Rshear=(2.0/15.0)*p4overE3-2*P;
-	Rbulk=-A*epsilon*T+(A/3.0)*(dedt*T*T-m2dens);
+	Rbulk=-A*epsilon*Tf+(A/3.0)*(dedt*Tf*Tf-m2dens);
 	Rbulk=Rbulk-(2.0/3.0)*P+p4overE3/9.0;
-	RTbulk=-Rbulk/(A*T*T);
+	RTbulk=-Rbulk/(A*Tf*Tf);
 	hyper->RTbulk=RTbulk; hyper->Rshear=Rshear; hyper->Rbulk=Rbulk;
 	hyper->dedT=dedt;
 	
@@ -785,6 +784,7 @@ void Csampler::CalcNHadronsEpsilonP(double muB,double muI,double muS,double &nha
 								+0.25*nh0_b1i2s1*(xB*xxS+xxB*xS)*(xI*xI+xxI*xxI)
 									+0.25*nh0_b1i3s0*(xB+xxB)*(xI*xI*xI+xxI*xxI*xxI)
 										+0.5*nh0_b2i0s0*(xB*xB+xxB*xxB);
+		//printf("nhadronsf=%g, Tf=%g\n",nhadronsf,Tf);
 		Pf=nhadronsf*Tf;
 		epsilonf=eh0_b0i0s0+0.5*eh0_b0i2s0*(xI*xI+xxI*xxI)
 			+0.25*eh0_b0i1s1*(xI+xxI)*(xS+xxS)

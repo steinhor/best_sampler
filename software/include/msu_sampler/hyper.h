@@ -18,7 +18,10 @@ namespace msu_sampler {
 	class Chyper{
 	public:
 		Chyper();
-		double T,sigma,rhoB,rhoI,rhoS;
+		double T0; // T0 is read-in temperature, samplerptr->T is used to make parts;
+		Csampler *sampler;
+		int firstcall;
+		double sigma,rhoB,rhoI,rhoS;
 		double muB,muI,muS,nhadrons,Rshear,Rbulk,RTbulk,epsilon,P,dedT;
 		FourVector dOmega; // hyper volume
 		double udotdOmega; // dot product of u and dOmega
