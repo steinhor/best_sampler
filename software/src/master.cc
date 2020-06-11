@@ -96,7 +96,7 @@ int CmasterSampler::MakeEvent(){
 		if(hyper->firstcall){
 			if(FINDT){
 				if(sampler_findT==nullptr)
-					sampler_findT=new Csampler(150,hyper->sigma);
+					sampler_findT=new Csampler(0.140,hyper->sigma);
 				sampler_findT->GetTfMuNH(hyper);
 				CALCMU=false;
 			}
@@ -309,17 +309,13 @@ void CmasterSampler::ReadHyper(){
 			elem->muB=muB+0.5*muC;
 			elem->muS=muS+0.5*muC;
 			elem->muI=muC;
-
-			// Is transforming a tensor to Cartesian coordinates really so easy? - Dima
-			// There must be an error here
 			
 			elem->epsilon=epsilonf;
 			elem->T0=Tdec;
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
+			elem->rhoI=0.0;
 
-			// This probably has to be transformed to Cartesian coordinates - Dima
-			// There must be an error here
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;
 			elem->qmu[2]=qmu2;

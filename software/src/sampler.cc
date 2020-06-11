@@ -41,7 +41,7 @@ Csampler::Csampler(double Tfset,double sigmafset){
 	bose_test_off=false;
 	bose_test=false;
 	viscous_test=false;
-	byflavor_calculated=false;
+	forMU0_calculated=false;
 }
 
 // Destructor
@@ -223,7 +223,7 @@ void Csampler::GetNHMu0(){
 			}
 		}
 	}
-	byflavor_calculated=true;
+	forMU0_calculated=true;
 }
 
 /*
@@ -372,19 +372,23 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 	muB=mu[0];
 	muI=2.0*mu[1];
 	muS=mu[2];
-	printf("rho=(%g,%g,%g) =? (%g,%g,%g)\n",rhoB,rhoI,rhoS,rhoBtarget,rhoItarget,rhoStarget);
 }
 
 // Same as above, but also calculates T, also uses epsilon (uses GetEpsilonRhoDerivatives to get factors )
 void Csampler::GetTfMuNH(Chyper *hyper){
+	//double Tguess=Tf;
 	GetTfMuNH(hyper->epsilon,hyper->rhoB,hyper->rhoI,hyper->rhoS,hyper->muB,hyper->muI,hyper->muS);
+	sigmaf=hyper->sigma;
+	//if(fabs(Tguess-Tf)>0.001)
+	//	printf("T0=%g, but should have been %g and guess was %g\n",hyper->T0,Tf,Tguess);
 	hyper->T0=Tf;
 }
 
 void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarget,double rhoStarget,double &muB,double &muI,double &muS){
 	//4D Newton's Method
 	// Here rhoI refers to rho_u-rho_d = 2*I3 and mu[1]=muI/2
-	double epsilon=0,rhoB=0,rhoS=0,rhoI=0;
+	double epsilon,rhoB,rhoS,rhoI=0;
+	GetNHMu0();
 	Eigen::MatrixXd A(4,4);
 	Eigen::VectorXd dmu(4),drho(4);
 	double cmb,smb;
@@ -398,8 +402,6 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		smb=sinh(muB);
 		cmb=cosh(muB);
 
-		if(!byflavor_calculated)
-			GetNHMu0();
 		GetEpsilonRhoDerivatives(muB,muI,muS,epsilon,rhoB,rhoI,rhoS,A);
 		for(int i=0;i<4;i++){
 			A(i,1)=A(i,1)/cmb;
@@ -410,6 +412,7 @@ void Csampler::GetTfMuNH(double epsilontarget,double rhoBtarget,double rhoItarge
 		drho[3]=rhoStarget-rhoS;
 		dmu=A.colPivHouseholderQr().solve(drho);
 		Tf+=dmu[0];
+		GetNHMu0();
 		smb+=dmu[1];
 		muB=asinh(smb);
 		muI+=dmu[2];
@@ -427,7 +430,7 @@ void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double 
 	double drhoI_dT,drhoI_dmuB,drhoI_dmuS,drhoI_dmuI;
 	double de_dT,de_dmuB,de_dmuI,de_dmuS;
 
-	if(!byflavor_calculated)
+	if(!forMU0_calculated)
 		GetNHMu0();
 
 	xB=exp(muB);
@@ -587,7 +590,7 @@ void Csampler::GetEpsilonRhoDerivatives(double muB,double muI,double muS,double 
 void Csampler::CalcRvisc(Chyper *hyper){
 	double xB,xI,xS,xxB,xxI,xxS;
 	double epsilon,dedt,P,p4overE3,eEbar,m2dens,Rshear,Rbulk,RTbulk,A;
-	if(!byflavor_calculated)
+	if(!forMU0_calculated)
 		GetNHMu0();
 	if(!hyper->epsilon_calculated)
 		CalcNHadronsEpsilonP(hyper);

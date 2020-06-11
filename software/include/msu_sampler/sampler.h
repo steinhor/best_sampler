@@ -50,7 +50,7 @@ namespace msu_sampler {
 		bool bose_test_off;
 		bool bose_test;
 		bool viscous_test;
-		bool byflavor_calculated;
+		bool forMU0_calculated;
 		map<int,vector<Cpart*>> pmap;
 		map<int,double> DensityMap;
 

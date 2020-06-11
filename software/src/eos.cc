@@ -70,7 +70,11 @@ double EOS::Getp4overE3(double T,double m){
 	double G[nmax+5];
 	int n;
 	z=m/T;
-	if(z<60.0){
+	if(z<0 || z!=z){
+		printf("K0(z<0)\n, z=%g\n",z);
+		exit(1);
+	}
+	if(z<50.0){
 		G[0]=gsl_sf_gamma_inc(5,z)*pow(z,-5);
 		for(int j=1;j<nmax+5;j++){
 			n=5-2*j;
