@@ -76,6 +76,7 @@ Cpart* CpartList::GetPart(){
 	nparts+=1;
 	return &partvec[nparts];
 }
+
 void CpartList::Kill(){
 	partvec.clear();
 	partvec.shrink_to_fit();

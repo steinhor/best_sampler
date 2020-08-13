@@ -21,8 +21,11 @@ int Csampler::MakeParts(Chyper *hyper){
 		dNtot=dNtotprime=udotdOmega*nhadrons0;
 	else
 		dNtot=dNtotprime=udotdOmega*hyper->nhadrons;
+	
+	//printf("mu=(%g,%g,%g)\n",hyper->muB,hyper->muI,hyper->muS);
 	totvol+=udotdOmega;
 	if(randy->test_threshold(dNtot)){
+		//printf("udotdOmega=%g, dNtot=%g, nhadrons=%g, nhadrons0=%g\n",udotdOmega,dNtot,hyper->nhadrons,nhadrons0);
 		dNcheck=0.0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
 			resinfo=iter->second;
@@ -214,10 +217,10 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	
 	/*
 	for(alpha=1;alpha<4;alpha++){
-		p[alpha]=pnoshear[alpha];
-		for(beta=1;beta<4;beta++){
-			p[alpha]-=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
-		}
+	p[alpha]=pnoshear[alpha];
+	for(beta=1;beta<4;beta++){
+	p[alpha]-=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
+	}
 	}
 	p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
 	*/

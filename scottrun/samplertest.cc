@@ -27,8 +27,8 @@ int main(){
 	ms.MakeDummyHyper();
 	Chyper *hyper=*(ms.hyperlist.begin());
 	double V0=10000.0;
-	hyper->T=0.145;
-	hyper->T=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
+	hyper->T0=0.145;
+	hyper->T0=0.5*parmap.getD("SAMPLER_TFMIN",0.150)+0.5*parmap.getD("SAMPLER_TFMAX",0.150);
 	hyper->sigma=0.093;
 	hyper->rhoB=0.0;
 	hyper->rhoS=0.0;
@@ -36,7 +36,7 @@ int main(){
 	hyper->epsilon=0.3;
 	hyper->muB=hyper->muS=hyper->muI=0.0;
 	
-	hyper->muB=0.0502531705905960349327493288057178011854/hyper->T;  //exp(2*muB/T)=2
+	hyper->muB=0.0502531705905960349327493288057178011854/hyper->T0;  //exp(2*muB/T)=2
 	
 	hyper->u[1]=hyper->u[2]=hyper->u[3]=0.0;
 	//hyper->u[1]=sqrt(3.0);
@@ -89,9 +89,9 @@ int main(){
 
 	double epsilon,P,dens,sigma2,dedt,ntarget;
 	if(resinfo->decay)
-		EOS::freegascalc_onespecies_finitewidth(resinfo,hyper->T,epsilon,P,dens,sigma2,dedt);
+		EOS::freegascalc_onespecies_finitewidth(resinfo,hyper->T0,epsilon,P,dens,sigma2,dedt);
 	else
-		EOS::freegascalc_onespecies(hyper->T,resinfo->mass,epsilon,P,dens,sigma2,dedt);
+		EOS::freegascalc_onespecies(hyper->T0,resinfo->mass,epsilon,P,dens,sigma2,dedt);
 	dens*=resinfo->degen*exp(hyper->muB*resinfo->baryon+hyper->muI*I3+hyper->muS*resinfo->strange);
 	ntarget=dens*double(ms.NEVENTS_TOT)*hyper->udotdOmega;
 	printf("------ For PID=%d ------\n",pid);
@@ -112,7 +112,7 @@ int main(){
 		pmag=(ip+0.5)*dp;
 		d3p=((ip+1)*(ip+1)*(ip+1)-ip*ip*ip)*dp*dp*dp*4.0*PI*hyper->udotdOmega*ms.NEVENTS_TOT/3.0;
 		//d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
-		fprintf(fptr,"%6.3f %g\n",(ip+0.5)*dp,(1.0/3.0)*spectra_rho[ip]/d3p);
+		fprintf(fptr,"%6.3f %g\n",pmag,(1.0/3.0)*spectra_rho[ip]/d3p);
 	}
 	fclose(fptr);
 	
@@ -137,7 +137,7 @@ int main(){
 		pmag=(ip+0.5)*dp;
 		d3p=((ip+1)*(ip+1)*(ip+1)-ip*ip*ip)*dp*dp*dp*4.0*PI*hyper->udotdOmega*ms.NEVENTS_TOT/3.0;
 		//d3p=4.0*PI*pmag*pmag*dp*hyper->udotdOmega*ms.NEVENTS_TOT;
-		fprintf(fptr,"%6.3f %g\n",(ip+0.5)*dp,0.125*spectra_delta[ip]/d3p);
+		fprintf(fptr,"%6.3f %g\n",pmag,0.125*spectra_delta[ip]/d3p);
 	}
 	fclose(fptr);
 	

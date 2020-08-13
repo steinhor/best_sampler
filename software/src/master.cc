@@ -114,6 +114,7 @@ int CmasterSampler::MakeEvent(){
 		}
 		np=hyper->sampler->MakeParts(hyper);
 		nparts+=np;
+		//printf("np=%d,nparts=%d\n",np,nparts);
 		//Omega0Sum+=hyper->dOmega[0];
 	}
 	if(sampler_findT!=nullptr)
@@ -214,8 +215,6 @@ void CmasterSampler::ReadHyper(){
 		uy = array[10];
 		ueta = array[11];
 		utau=sqrt(1.0+ux*ux+uy*uy+ueta*ueta);
-		if(fabs(ueta)>0.0000001)
-			printf("ueta=%g\n",ueta);
 		
 		const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
 		if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
@@ -329,7 +328,7 @@ void CmasterSampler::ReadHyper(){
 		}
 	}
 	nelements=ielement;
-	printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
+	//printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
 }
 
 void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
