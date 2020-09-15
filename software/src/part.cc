@@ -165,8 +165,8 @@ double CpartList::SumEnergy(int pid){
 void CpartList::AddPart(int pidset,FourVector &pset,FourVector &rset){
 	unsigned int alpha;
 	if(partvec.size()==nparts){
-		//printf("resizing partvec, old size=%lu\n",partvec.size());
-		partvec.resize(partvec.size()+nparts);
+		partvec.resize(partvec.size()+nparts_blocksize);
+		printf("resizing partvec, new size=%lu\n",partvec.size());
 	}
 	partvec[nparts].pid=pidset;
 	for(alpha=0;alpha<4;alpha++){

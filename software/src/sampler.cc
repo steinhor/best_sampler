@@ -46,6 +46,10 @@ Csampler::Csampler(double Tfset,double sigmafset){
 
 // Destructor
 Csampler::~Csampler(){
+	density0i.clear();
+	epsilon0i.clear();
+	P0i.clear();
+	sfdens0imap.clear();
 }
 
 // Calculates array of densities for each resonance with mu=0, to be used in sampling

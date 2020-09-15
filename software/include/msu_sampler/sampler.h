@@ -51,8 +51,6 @@ namespace msu_sampler {
 		bool bose_test;
 		bool viscous_test;
 		bool forMU0_calculated;
-		map<int,vector<Cpart*>> pmap;
-		map<int,double> DensityMap;
 
 		// Including Isospin (i refers to 2*I3)
 		// number densities
