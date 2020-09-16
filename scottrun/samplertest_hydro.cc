@@ -5,13 +5,14 @@ using namespace msu_sampler;
 
 int main(){
 	CparameterMap parmap;
-	parmap.ReadParsFromFile("hydroparameters.txt");
+	parmap.ReadParsFromFile("hydroparameters_3D.txt");
 	CmasterSampler::meanfield=new CmeanField_Simple(&parmap);
 	CmasterSampler ms(&parmap);
 	long long int deltacount=0,rhocount=0;
 	CpartList pl=CpartList(&parmap);
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
+	
 	ms.ReadHyper();
 	
 	long long int nparts=0;

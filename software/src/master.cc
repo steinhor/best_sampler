@@ -1,5 +1,8 @@
 #include "msu_sampler/master.h"
 #include "msu_sampler/constants.h"
+
+//#define __TEST_PITILDE_TRACE__
+
 using namespace std;
 using namespace msu_sampler;
 CmeanField *CmasterSampler::meanfield=NULL;
@@ -53,7 +56,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	for(it=0;it<=NTF;it++){
 		sampler[it].resize(NSIGMAF+1);
 		for(isigma=0;isigma<=NSIGMAF;isigma++){
-			sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
+			sampler[it][isigma]=nullptr;
 		}
 	}
 	//printf("Howdy Boys\n");
@@ -83,44 +86,40 @@ CmasterSampler::~CmasterSampler(){
 int CmasterSampler::MakeEvent(){
 	int np,nparts=0;
 	Chyper *hyper;
-	Csampler *samplerptr;
-	double Omega0Sum=0.0;
+	Csampler *samplerptr=nullptr,*sampler_findT=nullptr;
+	//double Omega0Sum=0.0;
 	partlist->nparts=0;
-	Csampler *samplertemp = nullptr;
 	list<Chyper *>::iterator it;
-	if(FINDT && NEVENTS==0){
-		samplertemp=new Csampler(150.0,0.093);
-	}
+
 	for(it=hyperlist.begin();it!=hyperlist.end();it++){
 		hyper=*it;
-		Omega0Sum+=hyper->dOmega[0];
-		if(NEVENTS==0 && FINDT){
-			samplertemp->GetTfMuNH(hyper);
-			hyper->T=samplertemp->Tf;
-		}
-		samplerptr=ChooseSampler(hyper);
-		if(samplerptr->FIRSTCALL){
-			hyper->T=samplerptr->Tf;
-			samplerptr->GetNHMu0();
-			samplerptr->CalcDensitiesMu0();
-			samplerptr->FIRSTCALL=false;
-		}
-		if(NEVENTS==0){
-			if(!SETMU0 && CALCMU){
+		if(hyper->firstcall){
+			if(FINDT){
+				if(sampler_findT==nullptr)
+					sampler_findT=new Csampler(0.140,hyper->sigma);
+				sampler_findT->GetTfMuNH(hyper);
+				CALCMU=false;
+			}
+			samplerptr=ChooseSampler(hyper);
+			hyper->sampler=samplerptr;
+			if(samplerptr->FIRSTCALL){
+				samplerptr->GetNHMu0();
+				samplerptr->CalcDensitiesMu0();
+				samplerptr->FIRSTCALL=false;
+			}
+			if(CALCMU)
 				samplerptr->GetMuNH(hyper);
-				samplerptr->CalcNHadronsEpsilonP(hyper);
-			}
-			if(!SETMU0 && !CALCMU){
-				samplerptr->CalcNHadronsEpsilonP(hyper);
-			}
+			hyper->firstcall=false;
+			samplerptr->CalcNHadronsEpsilonP(hyper);
 		}
-		np=samplerptr->MakeParts(hyper);
+		np=hyper->sampler->MakeParts(hyper);
 		nparts+=np;
+		//printf("np=%d,nparts=%d\n",np,nparts);
+		//Omega0Sum+=hyper->dOmega[0];
 	}
+	if(sampler_findT!=nullptr)
+		delete sampler_findT;
 	NEVENTS+=1;
-	if(FINDT && NEVENTS==0){
-		delete samplertemp;
-	}
 	return nparts;
 }
 
@@ -131,7 +130,7 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 		it=0;
 	}
 	else{
-		T=hyper->T;
+		T=hyper->T0;
 		it=floorl((T-TFmin)/DELTF);
 		del=T-(TFmin+it*DELTF);
 		if(randy->ran()<del/DELTF)
@@ -155,6 +154,10 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 		if(isigma>=NSIGMAF)
 			isigma=NSIGMAF-1;
 	}
+	if(sampler[it][isigma]==nullptr){
+		//printf("making Csampler object, Tf=%g, T0=%g\n",TFmin+it*DELTF,hyper->T0);
+		sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
+	}
 	return sampler[it][isigma];
 }
 
@@ -166,17 +169,22 @@ void CmasterSampler::MakeDummyHyper(){
 void CmasterSampler::ReadHyper(){
 	string filename;
 	Chyper *elem;
-	int ielement=0;
+	int ielement=0,alpha,beta;
 	double u0,ux,uy,uz,utau,ueta;
 	double t,x,y,z,tau,eta;
 	double udotdOmega,udotdOmega_music;
 	double dOmega0,dOmegaX,dOmegaY,dOmegaZ,dOmegaTau,dOmegaEta;
-	double pitildexx,pitildeyy,pitildexy,epsilonf;
+	double epsilonf;
 	double Tdec,muB,muS,muC;
 	double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
-	double pitilde00,pitilde0x,pitilde0y,pitilde0z,pitildexz,pitildeyz,pitildezz;
 	double qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
+	double **pivisc=new double *[4];
+	for(alpha=0;alpha<4;alpha++){
+		pivisc[alpha]=new double[4];
+		for(beta=0;beta<4;beta++)
+			pivisc[alpha][beta]=0.0;
+	}
 
 	nelements=0;
 	filename=parmap->getS("HYPER_INFO_FILE",string("../hydrodata/surface_2D.dat"));
@@ -191,10 +199,9 @@ void CmasterSampler::ReadHyper(){
 
 	while(!feof(fptr)){
 		elem=new Chyper();
-		//read from binary file
+		// read from binary file
 		float array[34];
 		fread(array, sizeof(array),1,fptr);
-
 		tau = array[0];
 		x = array[1];
 		y = array[2];
@@ -207,6 +214,8 @@ void CmasterSampler::ReadHyper(){
 		ux = array[9];
 		uy = array[10];
 		ueta = array[11];
+		utau=sqrt(1.0+ux*ux+uy*uy+ueta*ueta);
+		
 		const double u_milne_sqr = utau * utau - ux * ux - uy * uy - ueta * ueta;
 		if (std::abs(u_milne_sqr - 1.0) > 1.e-6) {
 			printf("Warning at reading from MUSIC output: "
@@ -246,17 +255,19 @@ void CmasterSampler::ReadHyper(){
 		muS  = array[15]*HBARC/Tdec;
 		muC  = array[16]*HBARC/Tdec;
 		Pdec = array[17]*Tdec - epsilonf;
-
-		pitilde00 = array[18]*HBARC;  // GeV/fm^3
-		pitilde0x = array[19]*HBARC;  // GeV/fm^3
-		pitilde0y = array[20]*HBARC;  // GeV/fm^3
-		pitilde0z = array[21]*HBARC/tau;  // GeV/fm^3
-		pitildexx = array[22]*HBARC;  // GeV/fm^3
-		pitildexy = array[23]*HBARC;  // GeV/fm^3
-		pitildexz = array[24]*HBARC/tau;  // GeV/fm^3
-		pitildeyy = array[25]*HBARC;  // GeV/fm^3
-		pitildeyz = array[26]*HBARC/tau;  // GeV/fm^3
-		pitildezz = array[27]*HBARC/(tau*tau);  // GeV/fm^3
+		
+		pivisc[0][0]=array[18]*HBARC;
+		pivisc[0][1]=pivisc[1][0]=array[19]*HBARC;
+		pivisc[0][2]=pivisc[2][0]=array[20]*HBARC;
+		pivisc[0][3]=pivisc[3][0]=array[21]*HBARC; // /tau;
+		pivisc[1][1]=array[22]*HBARC;
+		pivisc[1][2]=pivisc[2][1]=array[23]*HBARC;
+		pivisc[1][3]=pivisc[3][1]=array[24]*HBARC;  // /tau;
+		pivisc[2][2]=array[25]*HBARC;
+		pivisc[2][3]=pivisc[3][2]=array[26]*HBARC; // /tau;
+		pivisc[3][3]=array[27]*HBARC; // /(tau*tau);
+		
+		//printf("reading, trace=%g =? 0\n",pivisc[0][0]-pivisc[1][1]-pivisc[2][2]-pivisc[3][3]);
 
 		PIbulk = array[28]*HBARC;   // GeV/fm^3
 		rhoB = array[29];  // 1/fm^3
@@ -291,30 +302,19 @@ void CmasterSampler::ReadHyper(){
 			elem->u[1]=ux;
 			elem->u[2]=uy;
 			elem->u[3]=uz;
+			
+			GetPitilde(pivisc,elem->pitilde,elem->u);
 
 			elem->muB=muB+0.5*muC;
 			elem->muS=muS+0.5*muC;
 			elem->muI=muC;
-
-			// Is transforming a tensor to Cartesian coordinates really so easy? - Dima
-			// There must be an error here
-			elem->pitilde[0][0]=pitilde00;
-			elem->pitilde[1][1]=pitildexx;
-			elem->pitilde[2][2]=pitildeyy;
-			elem->pitilde[1][2]=elem->pitilde[2][1]=pitildexy;
-			elem->pitilde[3][3]=-pitildezz;
-			elem->pitilde[3][1]=elem->pitilde[1][3]=pitildexz;
-			elem->pitilde[3][2]=elem->pitilde[2][3]=pitildeyz;
-			elem->pitilde[0][1]=elem->pitilde[1][0]=pitilde0x;
-			elem->pitilde[0][2]=elem->pitilde[2][0]=pitilde0y;
-			elem->pitilde[0][3]=elem->pitilde[3][0]=pitilde0z;
+			
 			elem->epsilon=epsilonf;
-			elem->T=Tdec;
+			elem->T0=Tdec;
 			elem->rhoB=rhoB;
 			elem->rhoS=0.0;
+			elem->rhoI=0.0;
 
-			// This probably has to be transformed to Cartesian coordinates - Dima
-			// There must be an error here
 			elem->qmu[0]=qmu0;
 			elem->qmu[1]=qmu1;
 			elem->qmu[2]=qmu2;
@@ -328,5 +328,51 @@ void CmasterSampler::ReadHyper(){
 		}
 	}
 	nelements=ielement;
-	printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
+	//printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
+}
+
+void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
+	int alpha,beta;
+	double picontract=0.0;
+	double pivec[4]={0.0};
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++){
+			pitilde[alpha][beta]=0.0;
+			picontract+=pivisc[alpha][beta]*u[alpha]*u[beta];
+			pivec[alpha]+=pivisc[alpha][beta]*u[beta];
+		}
+	}
+	// Test Tr pivisc
+#ifdef __TEST_PITILDE_TRACE__
+	double trace=picontract/(u[0]*u[0]);
+	for(alpha=1;alpha<4;alpha++){
+		trace-=pivisc[alpha][alpha];
+	}
+	printf("-----------------------------\n");
+	printf("before, trace=%g, pi_00=%g=?%g, u=(%g,%g,%g,%g)\n",trace,picontract/(u[0]*u[0]),pivisc[0][0],u[0],u[1],u[2],u[3]);
+	printf("pivisc=\n");
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++){
+			printf("%10.7f ",pivisc[alpha][beta]);
+		}
+		printf("\n");
+	}
+#endif
+	//
+	double x=u[0]*(1.0+u[0]);
+	for(alpha=1;alpha<4;alpha++){
+		for(beta=1;beta<4;beta++){
+			pitilde[alpha][beta]=pivisc[alpha][beta]-(u[alpha]*pivec[beta]/x)-(pivec[alpha]*u[beta]/x)+picontract*u[alpha]*u[beta]/(x*x);
+		}
+	}
+#ifdef __TEST_PITILDE_TRACE__
+	// Test Tr pitilde
+	trace=0.0;
+	for(alpha=1;alpha<4;alpha++){
+		trace-=pitilde[alpha][alpha];
+	}
+	printf("after, trace=%g\n",trace);
+	if(fabs(picontract)>0.1)
+		Misc::Pause();
+#endif
 }

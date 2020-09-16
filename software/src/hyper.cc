@@ -2,17 +2,27 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <iostream>
+#include "msu_sampler/sampler.h"
 
 using namespace msu_sampler;
 
 Chyper::Chyper(){
 	muB=muI=muS=0.0;
 	Rvisc_calculated=false;
+	firstcall=true;
+	int alpha,beta;
+	pitilde=new double *[4];
+	sigma=0.093;
+	for(alpha=0;alpha<4;alpha++){
+		pitilde[alpha]=new double[4];
+		for(beta=0;beta<4;beta++)
+			pitilde[alpha][beta]=0.0;
+	}
 }
 
 void Chyper::Print(){
 	printf("----- hyper info -------\n");
-	printf("T=%g, sigma=%g, rhoB=%g, rhoI=%g\n",T,sigma,rhoB,rhoI);
+	printf("T0=%g, sampler->Tf=%g, sigma=%g, rhoB=%g, rhoI=%g\n",T0,sampler->Tf,sigma,rhoB,rhoI);
 	printf("muB=%g, muI=%g, muS=%g\n",muB,muI,muS);
 	printf("epsilon=%g, P=%g, s=%g\n",epsilon,P,GetEntropyDensity());
 	printf("dOmega=(%g,%g,%g,%g), udotdOmega=%g\n",dOmega[0],dOmega[1],dOmega[2],dOmega[3],udotdOmega);
@@ -25,7 +35,7 @@ void Chyper::Print(){
 }
 
 double Chyper::GetEntropyDensity(){
-	double s=((epsilon+P)/T)-muB*rhoB-muI*rhoI-muS*rhoS;
+	double s=((epsilon+P)/T0)-muB*rhoB-muI*rhoI-muS*rhoS;
 	return s;
 }
 

@@ -16,14 +16,16 @@ int Csampler::MakeParts(Chyper *hyper){
 	double dNcheck=0.0;
 	double nptemp;
 	CresMassMap::iterator iter;
+	
 	if(mastersampler->SETMU0)
 		dNtot=dNtotprime=udotdOmega*nhadrons0;
 	else
 		dNtot=dNtotprime=udotdOmega*hyper->nhadrons;
+	
+	//printf("mu=(%g,%g,%g)\n",hyper->muB,hyper->muI,hyper->muS);
 	totvol+=udotdOmega;
-	randy->netprob=0.0;
-	randy->threshold=randy->ran_exp();
 	if(randy->test_threshold(dNtot)){
+		//printf("udotdOmega=%g, dNtot=%g, nhadrons=%g, nhadrons0=%g\n",udotdOmega,dNtot,hyper->nhadrons,nhadrons0);
 		dNcheck=0.0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
 			resinfo=iter->second;
@@ -35,8 +37,10 @@ int Csampler::MakeParts(Chyper *hyper){
 				dN=exp(mutot)*density0i[ires]*udotdOmega;
 				dNcheck+=dN;
 				dNtotprime-=dN;
-				if(dNtotprime<-0.001){
-					printf("dNtotprime=%g\n",dNtotprime);
+				if(dNtotprime<-0.0001){
+					printf("dNtotprime=%g, should not be negative, mutot=%g, dNcheck=%g, dNtot=%g\n",
+					dNtotprime,mutot,dNcheck,dNtot);
+					printf("nhadrons0=%g, hyper->nhadrons=%g\n",nhadrons0,hyper->nhadrons);
 					exit(1);
 				}
 				dnparts=CheckResInVolume(dN,Tf,resinfo,hyper);
@@ -183,13 +187,13 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	for(alpha=0;alpha<4;alpha++)
 		p[alpha]=pnoshear[alpha];
 	pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
-	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*hyper->T*hyper->Rshear);
+	Rmax=1.0-hyper->biggestpitilde*pmag*pmag/(p[0]*Tf*hyper->Rshear);
 	//printf("pmag=%g, Rmax=%g, biggestpitilde=%g, Rshear=%g\n",pmag,Rmax,hyper->biggestpitilde,hyper->Rshear);
 
 	R=1.0;
 	for(alpha=1;alpha<4;alpha++){
 		for(beta=1;beta<4;beta++){
-			R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+			R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*Tf*hyper->Rshear);
 		}
 	}
 	while(randy->ran()>R/Rmax){
@@ -199,10 +203,11 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 		p[1]=pmag*stheta*cos(phi);
 		p[2]=pmag*stheta*sin(phi);
 		p[3]=pmag*ctheta;
+		p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
 		R=1.0;
 		for(alpha=1;alpha<4;alpha++){
 			for(beta=1;beta<4;beta++){
-				R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*hyper->T*hyper->Rshear);
+				R-=hyper->pitilde[alpha][beta]*p[alpha]*p[beta]/(p[0]*Tf*hyper->Rshear);
 			}
 		}
 		if(R>Rmax){
@@ -212,10 +217,10 @@ void Csampler::ShearScale(Chyper *hyper,double mass,FourVector &pnoshear,FourVec
 	
 	/*
 	for(alpha=1;alpha<4;alpha++){
-		p[alpha]=pnoshear[alpha];
-		for(beta=1;beta<4;beta++){
-			p[alpha]-=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
-		}
+	p[alpha]=pnoshear[alpha];
+	for(beta=1;beta<4;beta++){
+	p[alpha]-=hyper->pitilde[alpha][beta]*pnoshear[beta]/hyper->Rshear;
+	}
 	}
 	p[0]=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]+mass*mass);
 	*/
