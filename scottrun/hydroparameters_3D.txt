@@ -18,4 +18,5 @@ SAMPLER_BJORKEN_YMAX 0.00001
 HYDRO_BJORKEN_YMAX 0.00001
 SAMPLER_SFDIRNAME ../software/resinfo/spectralfunctions
 SAMPLER_USE_POLE_MASS true
-HYPER_INFO_FILE /Users/scottpratt/data_b/ppbar/hydrodata/surface_eps_0.26.dat
+#HYPER_INFO_FILE /Users/scottpratt/data_b/ppbar/hydrodata/surface_eps_0.26.dat
+HYPER_INFO_FILE hydrodata/surface_eps_0.26.dat
