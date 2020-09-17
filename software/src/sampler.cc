@@ -380,11 +380,8 @@ void Csampler::GetMuNH(double rhoBtarget,double rhoItarget,double rhoStarget,dou
 
 // Same as above, but also calculates T, also uses epsilon (uses GetEpsilonRhoDerivatives to get factors )
 void Csampler::GetTfMuNH(Chyper *hyper){
-	//double Tguess=Tf;
 	GetTfMuNH(hyper->epsilon,hyper->rhoB,hyper->rhoI,hyper->rhoS,hyper->muB,hyper->muI,hyper->muS);
 	sigmaf=hyper->sigma;
-	//if(fabs(Tguess-Tf)>0.001)
-	//	printf("T0=%g, but should have been %g and guess was %g\n",hyper->T0,Tf,Tguess);
 	hyper->T0=Tf;
 }
 
@@ -762,7 +759,7 @@ void Csampler::GetDensPMax(CresInfo *resinfo,double &densi,double &epsiloni,doub
 
 // gets nhadrons, epsilon and P
 void Csampler::CalcNHadronsEpsilonP(Chyper *hyper){
-	CalcNHadronsEpsilonP(hyper->muB,hyper->muI,hyper->muS,hyper->nhadrons,hyper->epsilon,hyper->P);
+	CalcNHadronsEpsilonP(hyper->muB*hyper->T0/Tf,hyper->muI*hyper->T0/Tf,hyper->muS*hyper->T0/Tf,hyper->nhadrons,hyper->epsilon,hyper->P);
 }
 
 void Csampler::CalcNHadronsEpsilonP(double muB,double muI,double muS,double &nhadronsf,double &epsilonf,double &Pf){
