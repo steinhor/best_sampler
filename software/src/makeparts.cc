@@ -34,6 +34,7 @@ int Csampler::MakeParts(Chyper *hyper){
 				ires=resinfo->ires;
 				I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 				mutot=hyper->muB*resinfo->baryon+hyper->muI*I3+hyper->muS*resinfo->strange;
+				mutot=mutot*hyper->T0/Tf;
 				dN=exp(mutot)*density0i[ires]*udotdOmega;
 				dNcheck+=dN;
 				dNtotprime-=dN;
@@ -57,7 +58,7 @@ int Csampler::MakeParts(Chyper *hyper){
 				resinfo=reslist->GetResInfoPtr(211);
 				nptemp=0;
 				ires=resinfo->ires;
-				mutot=nbose*hyper->muI;
+				mutot=nbose*hyper->muI*hyper->T0/Tf;
 				dN=exp(mutot)*pibose_dens0[nbose]*udotdOmega;
 				dNcheck+=dN;
 				dNtotprime-=dN;
@@ -84,7 +85,7 @@ int Csampler::MakeParts(Chyper *hyper){
 				resinfo=reslist->GetResInfoPtr(-211);
 				nptemp=0;
 				ires=resinfo->ires;
-				mutot=-nbose*hyper->muI;
+				mutot=-nbose*hyper->muI*hyper->T0/Tf;
 				dN=exp(mutot)*pibose_dens0[nbose]*udotdOmega;
 				dNcheck+=dN;
 				dNtotprime-=dN;
