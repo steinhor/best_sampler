@@ -13,10 +13,12 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	reslist=new CresList(parmap);
 	NEVENTS=0;
 	RESWIDTH_ALPHA=parmap->getD("SAMPLER_RESWIDTH_ALPHA",0.5);
-	NTF=parmap->getI("SAMPLER_NTF",1);
-	NSIGMAF=parmap->getI("SAMPLER_NSIGMAF",1);
-	TFmin=parmap->getD("SAMPLER_TFMIN",155.0);
-	TFmax=parmap->getD("SAMPLER_TFMAX",155.0);
+	TFmax=0.250;
+	DELTF=parmap->getD("SAMPLER_DELTF",0.001);
+	NTF=lrint(TFmax/DELTF);
+	NSIGMAF=parmap->getD("SAMPLER_NSIGMAF",1);
+	if(NSIGMAF<1)
+		NSIGMAF=1;
 	SIGMAFmin=parmap->getD("SAMPLER_SIGMAFMIN",93.0);
 	SIGMAFmax=parmap->getD("SAMPLER_SIGMAFMAX",93.0);
 	SETMU0=parmap->getB("SAMPLER_SETMU0",false);
@@ -24,9 +26,6 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	FINDT=parmap->getB("SAMPLER_FINDT", false);
 	NEVENTS_TOT=parmap->getI("SAMPLER_NEVENTS_TOT",1);
 	NEVENTS=0; // running count of events
-	DELTF=(TFmax-TFmin)/double(NTF);
-	if(NTF==0)
-		DELTF=0.0;
 	DELSIGMAF=(SIGMAFmax-SIGMAFmin)/double(NSIGMAF);
 	if(NSIGMAF==0)
 		DELSIGMAF=0.0;
@@ -52,10 +51,10 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::INCLUDE_SHEAR_VISCOSITY=parmap->getB("SAMPLER_INCLUDE_SHEAR_VISCOSITY",false);
 	int it,isigma;
 	hyperlist.clear();
-	sampler.resize(NTF+1);
+	sampler.resize(NTF);
 	for(it=0;it<=NTF;it++){
-		sampler[it].resize(NSIGMAF+1);
-		for(isigma=0;isigma<=NSIGMAF;isigma++){
+		sampler[it].resize(NSIGMAF);
+		for(isigma=0;isigma<NSIGMAF;isigma++){
 			sampler[it][isigma]=nullptr;
 		}
 	}
@@ -126,19 +125,17 @@ int CmasterSampler::MakeEvent(){
 Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 	double T,sigma,del;
 	int it,isigma;
-	if(NTF==0){
+	T=hyper->T0;
+	it=floorl(T/DELTF);
+	del=T-it*DELTF;
+	if(randy->ran()<del/DELTF)
+		it+=1;
+	if(it<0)
 		it=0;
-	}
-	else{
-		T=hyper->T0;
-		it=floorl((T-TFmin)/DELTF);
-		del=T-(TFmin+it*DELTF);
-		if(randy->ran()<del/DELTF)
-			it+=1;
-		if(it<0)
-			it=0;
-		if(it>NTF)
-			it=NTF;
+	if(it>=NTF){
+		it=NTF-1;
+		printf("WARNING in CmasterSampler::ChooseSampler\n");
+		printf("your temperature, T=%g, is higher than TFmax=%g\n",T,TFmax);
 	}
 	if(NSIGMAF==0){
 		isigma=0;
@@ -155,8 +152,8 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 			isigma=NSIGMAF-1;
 	}
 	if(sampler[it][isigma]==nullptr){
-		//printf("making Csampler object, Tf=%g, T0=%g\n",TFmin+it*DELTF,hyper->T0);
-		sampler[it][isigma]=new Csampler(TFmin+it*DELTF,SIGMAFmin+isigma*DELSIGMAF);
+		//printf("making Csampler object, DELTF=%g, it=%d, Tf-T0=%g\n",DELTF,it,(it+0.5)*DELTF-hyper->T0);
+		sampler[it][isigma]=new Csampler((it+0.5)*DELTF,SIGMAFmin+(isigma+0.5)*DELSIGMAF);
 	}
 	return sampler[it][isigma];
 }

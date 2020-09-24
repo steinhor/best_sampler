@@ -34,7 +34,7 @@ namespace msu_sampler {
 		CparameterMap *parmap;
 		CresList *reslist;
 		Crandy *randy;
-		double TFmin,TFmax;
+		double TFmax;
 		string MEANFIELD;
 		double SIGMAFmin,SIGMAFmax;
 		int NTF,NSIGMAF;

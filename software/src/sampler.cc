@@ -721,7 +721,7 @@ double Csampler::GenerateThermalMass(CresInfo *resinfo){
 		E=((netprob-p1)*E2+(p2-netprob)*E1)/(p2-p1);
 	}
 	if(E<resinfo->minmass || E1>E || E2<E){
-		printf("something odd, E=%g, (E1,E2)=(%g,%g), (p1,p2)=(%g,%g), minmass=%g, netprob=%g\n",E,E1, E2,p1,p2,resinfo->minmass,netprob);
+		printf("something odd in MSU Sampler, GenerateThermalMass, E=%g, (E1,E2)=(%g,%g), (p1,p2)=(%g,%g), minmass=%g, netprob=%g\n",E,E1, E2,p1,p2,resinfo->minmass,netprob);
 		resinfo->PrintBranchInfo();
 		resinfo->PrintSpectralFunction();
 		map<double,double>::iterator it;
