@@ -9,7 +9,6 @@ CmeanField *CmasterSampler::meanfield=NULL;
 
 CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	parmap=parmapin;
-	parmap->PrintPars();
 	randy=new Crandy(-1234);
 	reslist=new CresList(parmap);
 	NEVENTS=0;
