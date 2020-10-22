@@ -9,6 +9,7 @@ CmeanField *CmasterSampler::meanfield=NULL;
 
 CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	parmap=parmapin;
+	parmap->PrintPars();
 	randy=new Crandy(-1234);
 	reslist=new CresList(parmap);
 	NEVENTS=0;
@@ -51,14 +52,13 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	Csampler::INCLUDE_SHEAR_VISCOSITY=parmap->getB("SAMPLER_INCLUDE_SHEAR_VISCOSITY",false);
 	int it,isigma;
 	hyperlist.clear();
-	sampler.resize(NTF);
+	sampler.resize(NTF+1);
 	for(it=0;it<=NTF;it++){
 		sampler[it].resize(NSIGMAF);
 		for(isigma=0;isigma<NSIGMAF;isigma++){
 			sampler[it][isigma]=nullptr;
 		}
 	}
-	//printf("Howdy Boys\n");
 }
 
 CmasterSampler::~CmasterSampler(){
