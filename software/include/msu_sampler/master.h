@@ -57,6 +57,8 @@ namespace msu_sampler {
 		void MakeDummyHyper();
 		void GetPitilde(double **pivisc,double **pitilde,FourVector &u);
 		static CmeanField *meanfield;
+        void TransformPiTotz(double **piMline, const double cosh_eta,
+                             const double sinh_eta);
 	};
 }
 
