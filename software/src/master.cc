@@ -173,7 +173,7 @@ void CmasterSampler::ReadHyper(){
 	double epsilonf;
 	double Tdec,muB,muS,muC;
 	double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
-	double qmu0,qmu1,qmu2,qmu3;
+	double qmu_tau, qmu_eta, qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
 	double **pivisc=new double *[4];
 	for(alpha=0;alpha<4;alpha++){
@@ -269,10 +269,12 @@ void CmasterSampler::ReadHyper(){
 		PIbulk = array[28]*HBARC;   // GeV/fm^3
 		rhoB = array[29];  // 1/fm^3
 
-		qmu0 = array[30];
+		qmu_tau = array[30];
 		qmu1 = array[31];
 		qmu2 = array[32];
-		qmu3 = array[33];
+		qmu_eta = array[33];
+        qmu0 = qmu_tau*ch_eta + qmu_eta*sh_eta;
+        qmu3 = qmu_tau*sh_eta + qmu_eta*ch_eta;
 
 		if(parmap->getB("SAMPLER_BJORKEN_2D",false)){
 			double YMAX_ratio=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0)/parmap->getD("HYDRO_BJORKEN_YMAX",1.0);
