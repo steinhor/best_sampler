@@ -329,7 +329,7 @@ void CmasterSampler::ReadHyper(){
 
     // avoid memory leak
     for (int i = 0; i < 4; i++)
-        delete[] pivisc;
+        delete[] pivisc[i];
     delete[] pivisc;
 }
 
