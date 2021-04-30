@@ -42,7 +42,7 @@ namespace msu_sampler {
 		bool SETMU0,CALCMU;
 		double RESWIDTH_ALPHA;
 		double YMAX; // only for 2D sampler
-		int NEVENTS,NEVENTS_TOT;
+		long long int NEVENTS,NEVENTS_TOT;
 		int nelements;
 		bool FINDT;  // true if you need to find T(epsilon) in hyper elements
 

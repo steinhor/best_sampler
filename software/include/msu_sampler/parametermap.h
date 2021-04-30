@@ -24,11 +24,13 @@ namespace msu_sampler {
   public:
     bool   getB(string ,bool);
     int    getI(string ,int);
+		long long int    getLongI(string ,long long int);
     string getS(string ,string);
     double getD(string ,double);
     vector< vector< double > > getM(string);
     void set(string, double);
     void set(string, int);
+		void set(string, long long int);
     void set(string, bool);
     void set(string, string);
     void set(string, char*);

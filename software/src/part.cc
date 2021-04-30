@@ -3,6 +3,7 @@
 
 #include "msu_sampler/part.h"
 using namespace msu_sampler;
+CresList *msu_sampler::CpartList::reslist=NULL;
 
 Cpart::Cpart(){
 	msquared=0.0;
@@ -57,9 +58,10 @@ void Cpart::BoostR(FourVector &u){
 		r[alpha]=rprime[alpha];
 }
 
-CpartList::CpartList(CparameterMap *parmap){
+CpartList::CpartList(CparameterMap *parmap,CresList *reslist_in){
 	nparts_blocksize=parmap->getI("SAMPLER_NPARTS_BLOCKSIZE",2000);
 	partvec.resize(nparts_blocksize);
+	reslist=reslist_in;
 	Reset();
 }
 
@@ -106,11 +108,19 @@ void CpartList::WriteParts(string filename){
 	fclose(fptr);
 }
 
-unsigned int CpartList::CountResonances(int pid){
-	unsigned int count=0,ipart;
-	for(ipart=0;ipart<nparts;ipart++){
+void CpartList::CountResonances(){
+	CresInfo *resinfo;
+	for(unsigned int ipart=0;ipart<nparts;ipart++){
+		resinfo=reslist->GetResInfoPtr(partvec[ipart].pid);
+		resinfo->count+=1;
+	}
+}
+
+long long int CpartList::CountResonances(int pid){
+	long long int count=0;
+	for(unsigned int ipart=0;ipart<nparts;ipart++){
 		if(partvec[ipart].pid==pid)
-			count+=1;
+		count+=1;
 	}
 	return count;
 }

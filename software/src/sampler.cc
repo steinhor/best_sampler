@@ -38,9 +38,6 @@ Csampler::Csampler(double Tfset,double sigmafset){
 		pibose_dedt0.resize(n_bose_corr+1);
 		pibose_dens0.resize(n_bose_corr+1);
 	}
-	bose_test_off=false;
-	bose_test=false;
-	viscous_test=false;
 	forMU0_calculated=false;
 }
 

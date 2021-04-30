@@ -24,7 +24,7 @@ CmasterSampler::CmasterSampler(CparameterMap *parmapin){
 	SETMU0=parmap->getB("SAMPLER_SETMU0",false);
 	CALCMU=parmap->getB("SAMPLER_CALCMU",false);
 	FINDT=parmap->getB("SAMPLER_FINDT", false);
-	NEVENTS_TOT=parmap->getI("SAMPLER_NEVENTS_TOT",1);
+	NEVENTS_TOT=parmap->getLongI("SAMPLER_NEVENTS_TOT",1);
 	NEVENTS=0; // running count of events
 	DELSIGMAF=(SIGMAFmax-SIGMAFmin)/double(NSIGMAF);
 	if(NSIGMAF==0)
@@ -151,9 +151,10 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 			isigma=NSIGMAF-1;
 	}
 	if(sampler[it][isigma]==nullptr){
-		//printf("making Csampler object, DELTF=%g, it=%d, Tf-T0=%g\n",DELTF,it,(it+0.5)*DELTF-hyper->T0);
-		sampler[it][isigma]=new Csampler((it+0.5)*DELTF,SIGMAFmin+(isigma+0.5)*DELSIGMAF);
+		printf("making Csampler object, DELTF=%g, it=%d, Tf-T0=%g\n",DELTF,it,it*DELTF-hyper->T0);
+		sampler[it][isigma]=new Csampler(it*DELTF,SIGMAFmin+(isigma+0.5)*DELSIGMAF);
 	}
+	//eprintf("hyper->T0=%g, it=%d, T=%g, sampler->Tf=%g\n",hyper->T0,it,T,sampler[it][isigma]->Tf);
 	return sampler[it][isigma];
 }
 

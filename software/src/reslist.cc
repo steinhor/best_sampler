@@ -1,11 +1,6 @@
-#ifndef __RESONANCES_CC__
-#define __RESONANCES_CC__
 #include "msu_sampler/resonances.h"
+#include "msu_sampler/constants.h"
 using namespace msu_sampler;
-
-Crandy *CresInfo::randy=NULL;
-unsigned int CresInfo::NSPECTRAL=100;
-string CresInfo::SFDIRNAME="../local/resinfo/spectralfunctions";
 
 CresList::CresList(){
 }
@@ -23,21 +18,16 @@ CresList::~CresList(){
 	massmap.clear();
 }
 
-CresList::CresList(CparameterMap* parmap_in){
-	parmap=parmap_in;
-	CresInfo::NSPECTRAL=parmap->getI("SAMPLER_NSPECTRAL",100);
-	CresInfo::SFDIRNAME=parmap->getS("SAMPLER_SFDIRNAME","../local/resinfo/spectralfunctions");
-	//RESONANCE_DECAYS=parmap->getB("RESONANCE_DECAYS",true);
-	ReadResInfo();
-	CalcMinMasses();
-	//CalcSpectralFunctions();
-	ReadSpectralFunctions();
-}
-
-CresInfo::CresInfo(){
-	minmass=1.0E20;
-	SFcalculated=false;
-	branchlist.clear();
+CresInfo* CresList::GetResInfoPtr(int pid){
+	CresInfoMap::iterator rpos;
+	rpos=resmap.find(pid);
+	if(rpos!=resmap.end())
+		return rpos->second;
+	else{
+		printf("Warning GetResInfoPtr() can't find match for PID=%d\n",pid);
+		exit(1);
+		return NULL;
+	}
 }
 
 void CresList::CalcMinMasses(){
@@ -49,26 +39,15 @@ void CresList::CalcMinMasses(){
 	}
 }
 
-CbranchInfo::CbranchInfo(){
-}
-
-void CresInfo::PrintBranchInfo(){
-	Print();
-	if(decay){
-		printf(" ------  branches -------\n");
-		for(unsigned int ib=0;ib<branchlist.size();ib++){
-			printf("%2d, branching=%5.3f, ",ib,branchlist[ib]->branching);
-			for(unsigned int ir=0;ir<branchlist[ib]->resinfo.size();ir++)
-				printf("%6d ",branchlist[ib]->resinfo[ir]->pid);
-			printf("Gamma_i=%g\n",width*branchlist[ib]->branching);
-		}
-	}
-}
-
-void CresInfo::Print(){
-	printf("+++++++ ID=%d, M=%g, M_min=%g, %s +++++++++\n",pid,mass,minmass,name.c_str());
-	printf("Gamma=%g, Degen=%g, Decay=%d\n",width,degen,int(decay));
-	printf("Q=%d, B=%d, S=%d, G_parity=%d\n",charge,baryon,strange,G_Parity);
+CresList::CresList(CparameterMap* parmap_in){
+	parmap=parmap_in;
+	CresInfo::NSPECTRAL=parmap->getI("SAMPLER_NSPECTRAL",100);
+	CresInfo::SFDIRNAME=parmap->getS("SAMPLER_SFDIRNAME","../local/resinfo/spectralfunctions");
+	//RESONANCE_DECAYS=parmap->getB("RESONANCE_DECAYS",true);
+	ReadResInfo();
+	CalcMinMasses();
+	//CalcSpectralFunctions();
+	ReadSpectralFunctions();
 }
 
 void CresList::ReadResInfo(){
@@ -87,7 +66,8 @@ void CresList::ReadResInfo(){
 	double gisospin;
 	int dummy_int;
 	CresInfoMap::iterator iter;
-
+	CdecayInfoMap::iterator diter;
+	
 	filename=parmap->getS("RESONANCES_INFO_FILE",string("../software/resinfo/pdg-SMASH.dat"));
 	printf("will read resonance info from %s\n",filename.c_str());
 	resinfofile=fopen(filename.c_str(),"r");
@@ -111,13 +91,16 @@ void CresList::ReadResInfo(){
 			{resinfo->decay=false;}
 		else
 			{resinfo->decay=true;}
-		//resinfo->decay=bool((decay-1)); //subtract 1 because if stable, entry will be 1
 		cname[int(strlen(cname))-1]='\0';
 		resinfo->name=cname;
 
 		//decay reading
-		for (unsigned int j=0; j<resinfo->nchannels; j++) { //reads into map values: will access for decays when done creating resonances
-			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d %d", &dummy_int,&decayinfo->Nparts[j],&decayinfo->branchratio[j],&decayinfo->products[j][0],&decayinfo->products[j][1],&decayinfo->products[j][2],&decayinfo->products[j][3],&decayinfo->products[j][4],&decayinfo->d_L[j]);
+		//reads into map values: will access for decays when done creating resonances
+		for (unsigned int j=0; j<resinfo->nchannels; j++) { 
+			fscanf(resinfofile, " %d %d %lf %d %d %d %d %d %d", 
+			&dummy_int,&decayinfo->Nparts[j],&decayinfo->branchratio[j],&decayinfo->products[j][0],
+			&decayinfo->products[j][1],&decayinfo->products[j][2],&decayinfo->products[j][3],
+			&decayinfo->products[j][4],&decayinfo->d_L[j]);
 		}
 
 		if(resinfo->pid!=22){ //copied from old pid
@@ -128,7 +111,7 @@ void CresList::ReadResInfo(){
 		resinfo->branchlist.clear();
 
 		if(!resinfo->decay && (resinfo->nchannels-1)==1){
-			printf("decay turned off\n");
+			printf("decay turned off, but channels exist\n");
 			resinfo->Print();
 		}
 
@@ -252,40 +235,28 @@ void CresList::ReadResInfo(){
 	decaymap.clear();
 }
 
-void CresInfo::CalcMinMass(){
-	if(decay){
-		minmass=1.0E20;
-		double mbranch;
-		unsigned int ibranch,nbodies,ibody;
-		CbranchInfo *bptr;
-		for(ibranch=0;ibranch<branchlist.size();ibranch++){
-			bptr=branchlist[ibranch];
-			mbranch=0.0;
-			nbodies=bptr->resinfo.size();
-			for(ibody=0;ibody<nbodies;ibody++){
-				if(bptr->resinfo[ibody]->minmass>1.0E8){
-					bptr->resinfo[ibody]->CalcMinMass();
-				}
-				mbranch+=bptr->resinfo[ibody]->minmass;
-			}
-			if(mbranch<minmass)
-				minmass=mbranch;
+void CresList::CalcSpectralFunctions(){
+	CresMassMap::iterator rpos;
+	CresInfo *resinfo;
+	for(rpos=massmap.begin();rpos!=massmap.end();++rpos){
+		resinfo=rpos->second;
+		if(resinfo->decay && !resinfo->SFcalculated){
+			resinfo->CalcSpectralFunction();
 		}
-	}
-	else
-		minmass=mass;
-}
-
-CresInfo* CresList::GetResInfoPtr(int pid){
-	CresInfoMap::iterator rpos;
-	rpos=resmap.find(pid);
-	if(rpos!=resmap.end())
-		return rpos->second;
-	else{
-		printf("Warning GetResInfoPtr() can't find match for PID=%d\n",pid);
-		exit(1);
-		return NULL;
+		else
+			resinfo->SFcalculated=true;
 	}
 }
 
-#endif
+void CresList::ReadSpectralFunctions(){
+	CresMassMap::iterator rpos;
+	CresInfo *resinfo;
+	for(rpos=massmap.begin();rpos!=massmap.end();++rpos){
+		resinfo=rpos->second;
+		if(resinfo->decay && !resinfo->SFcalculated){
+			resinfo->ReadSpectralFunction();
+		}
+		else
+			resinfo->SFcalculated=true;
+	}
+}

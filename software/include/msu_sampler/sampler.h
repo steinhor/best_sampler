@@ -34,7 +34,6 @@ namespace msu_sampler {
 		Csampler(double Tfset,double sigmafset); // Constructor
 		~Csampler();
 		void GetPars(CparameterMap *parmapset);
-		CpartMap *partmap;
 		void CalcLambdaMu0(); // Calculates lambda which is used for viscous corrections with mu=0
 		double CalcLambdaF(Chyper *hyper);
 		double CalcLambdaF(double muB,double muI,double muS,double Pf); //  calculates lambda with mu !=0
@@ -44,12 +43,6 @@ namespace msu_sampler {
 		double totvol;
 		vector<double> pibose_dens0,pibose_P0,pibose_epsilon0,pibose_dedt0;
 
-		//some variables used only for testing
-		vector<double> dN_dp_p2;
-		double dp;
-		bool bose_test_off;
-		bool bose_test;
-		bool viscous_test;
 		bool forMU0_calculated;
 
 		// Including Isospin (i refers to 2*I3)

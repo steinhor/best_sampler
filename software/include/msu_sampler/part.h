@@ -36,7 +36,7 @@ namespace msu_sampler {
 	class CpartList{
 	public:
 		double SE[4][4];
-		CpartList(CparameterMap *parmap);
+		CpartList(CparameterMap *parmap,CresList *reslist);
 		~CpartList();
 		unsigned int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
 		vector<Cpart> partvec;
@@ -44,13 +44,15 @@ namespace msu_sampler {
 		void Kill(); // set nparts=0 and frees memory
 		void Reset();     // just sets nparts=0
 		void WriteParts(string filename);
-		unsigned int CountResonances(int pid);
+		void CountResonances();
+		long long int CountResonances(int pid);
 		void IncrementSpectra(int pid,double dp,vector<double> &spectra);
 		void IncrementMassDist(int pid,double dm,vector<double> &massdist);
 		double SumEnergy();
 		double SumEnergy(int pid);
 		void SumSETensor();
 		void AddPart(int pidset,FourVector &pset,FourVector &rset);
+		static CresList *reslist;
 	};
 }
 #endif

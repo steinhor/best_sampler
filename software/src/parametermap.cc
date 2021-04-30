@@ -23,6 +23,19 @@ int CparameterMap::getI(string key,int def)
   }
   return param;
 }
+long long int CparameterMap::getLongI(string key,long long int def)
+{
+  long long int param;
+  map<string,string>::iterator itr;
+  itr = this->find(key);
+  if(itr!=this->end()){
+    stringstream ss(itr->second);
+    ss>>param;
+  }else{
+    param = def;
+  }
+  return param;
+}
 
 //Returns an bool from the map.
 bool CparameterMap::getB(string key,bool def)
@@ -92,6 +105,14 @@ void CparameterMap::set(string key,double val)
 }
 //Adds an int to the map.
 void CparameterMap::set(string key,int val)
+{
+  string sval;
+  stringstream ss;
+  ss<<val;ss>>sval;
+  set(key,sval);
+}
+//Adds a long long int to the map.
+void CparameterMap::set(string key,long long int val)
 {
   string sval;
   stringstream ss;

@@ -31,6 +31,7 @@ namespace msu_sampler {
 	class CresInfo{
 	public:
 		int ires;
+		long long int count;
 		double mass;
 		double degen;
 		double width;
@@ -48,7 +49,6 @@ namespace msu_sampler {
 		bool decay; //false if stable, true if can decay. check if true
 		unsigned int nchannels;
 		CbranchList branchlist;
-		CbranchInfo	*bptr_minmass;
 		vector<double> SpectVec;
 		vector<double> SpectEVec;
 		vector<double> GammaVec;
@@ -62,9 +62,9 @@ namespace msu_sampler {
 		double ChiInt(double T,double vmax); // Integral used by ChiOmega
 		double ChiTilde(double T,double vmax); // Integral used by ChiOmega
 		CresInfo();
+		~CresInfo();
 		static Crandy *randy;
 		static CresList *reslist;
-		static double **ChiA; // stored array used by ChiOmegaInt
 		void CalcSpectralFunction();
 		void ReadSpectralFunction();
 		void CalcMinMass();
@@ -92,8 +92,6 @@ namespace msu_sampler {
 		CresList(CparameterMap* parmap_in);
 		CresInfoMap resmap;
 		CresMassMap massmap;
-		//Cmerge ***MergeArray;
-		//double **SigmaMaxArray;
 		CresInfo *GetResInfoPtr(int pid);
 		void ReadResInfo();
 		void CalcMinMasses();

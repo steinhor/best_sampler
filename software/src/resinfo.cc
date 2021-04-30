@@ -1,33 +1,77 @@
-#ifndef __RESONANCES_SPECTRAL_CC__
-#define __RESONANCES_SPECTRAL_CC__
+#define __RESINFO_CC__
 #include "msu_sampler/resonances.h"
 #include "msu_sampler/constants.h"
 using namespace msu_sampler;
 
-void CresList::CalcSpectralFunctions(){
-	CresMassMap::iterator rpos;
-	CresInfo *resinfo;
-	for(rpos=massmap.begin();rpos!=massmap.end();++rpos){
-		resinfo=rpos->second;
-		if(resinfo->decay && !resinfo->SFcalculated){
-			resinfo->CalcSpectralFunction();
+Crandy *CresInfo::randy=NULL;
+unsigned int CresInfo::NSPECTRAL=100;
+string CresInfo::SFDIRNAME="../local/resinfo/spectralfunctions";
+
+CresInfo::CresInfo(){
+	minmass=1.0E20;
+	SFcalculated=false;
+	int b=branchlist.size()-1;
+	while(b>=0){
+		delete branchlist[b];
+		b=branchlist.size()-1;
+	}
+	branchlist.clear();
+	count=0;
+}
+
+CresInfo::~CresInfo(){
+	int b=branchlist.size()-1;
+	while(b>=0){
+		delete branchlist[b];
+		b=branchlist.size()-1;
+	}
+	branchlist.clear();
+}
+
+CbranchInfo::CbranchInfo(){
+}
+
+void CresInfo::PrintBranchInfo(){
+	Print();
+	if(decay){
+		printf(" ------  branches -------\n");
+		for(unsigned int ib=0;ib<branchlist.size();ib++){
+			printf("%2d, branching=%5.3f, ",ib,branchlist[ib]->branching);
+			for(unsigned int ir=0;ir<branchlist[ib]->resinfo.size();ir++)
+				printf("%6d ",branchlist[ib]->resinfo[ir]->pid);
+			printf("Gamma_i=%g\n",width*branchlist[ib]->branching);
 		}
-		else
-			resinfo->SFcalculated=true;
 	}
 }
 
-void CresList::ReadSpectralFunctions(){
-	CresMassMap::iterator rpos;
-	CresInfo *resinfo;
-	for(rpos=massmap.begin();rpos!=massmap.end();++rpos){
-		resinfo=rpos->second;
-		if(resinfo->decay && !resinfo->SFcalculated){
-			resinfo->ReadSpectralFunction();
+void CresInfo::Print(){
+	printf("+++++++ ID=%d, M=%g, M_min=%g, %s +++++++++\n",pid,mass,minmass,name.c_str());
+	printf("Gamma=%g, Degen=%g, Decay=%d\n",width,degen,int(decay));
+	printf("Q=%d, B=%d, S=%d, G_parity=%d\n",charge,baryon,strange,G_Parity);
+}
+
+void CresInfo::CalcMinMass(){
+	if(decay){
+		minmass=1.0E20;
+		double mbranch;
+		unsigned int ibranch,nbodies,ibody;
+		CbranchInfo *bptr;
+		for(ibranch=0;ibranch<branchlist.size();ibranch++){
+			bptr=branchlist[ibranch];
+			mbranch=0.0;
+			nbodies=bptr->resinfo.size();
+			for(ibody=0;ibody<nbodies;ibody++){
+				if(bptr->resinfo[ibody]->minmass>1.0E8){
+					bptr->resinfo[ibody]->CalcMinMass();
+				}
+				mbranch+=bptr->resinfo[ibody]->minmass;
+			}
+			if(mbranch<minmass)
+				minmass=mbranch;
 		}
-		else
-			resinfo->SFcalculated=true;
 	}
+	else
+		minmass=mass;
 }
 
 void CresInfo::ReadSpectralFunction(){
@@ -196,8 +240,8 @@ double CresInfo::GetFF(double E,double Ea,double Eb,CresInfo *resinfo_a,CresInfo
 		/(pow(lambda,4)+pow( E*E-0.5*(s0+mass*mass),2));
 	//if(pid==229 && resinfo_a->pid==223 && resinfo_b->pid==223 && FF>18){
 	/* if(FF>25 && E<mass){
-		printf("pid=%d, mass=%g, E=%g, Ea=%g, Eb=%g, lambda=%g, FF=%g\n",pid,mass,E,Ea,Eb,lambda,FF);
-		resinfo_a->Print();
+	printf("pid=%d, mass=%g, E=%g, Ea=%g, Eb=%g, lambda=%g, FF=%g\n",pid,mass,E,Ea,Eb,lambda,FF);
+	resinfo_a->Print();
 	}*/
 	return FF*FF;
 }
@@ -254,5 +298,3 @@ double CresInfo::GetDecayMomentum(double M,double ma,double mb){ // Gives relati
 		pf=sqrt(fabs(pow((M*M-ma*ma-mb*mb),2.0)-(4.0*ma*ma*mb*mb)))/(2.0*M);
 	return pf;
 }
-
-#endif

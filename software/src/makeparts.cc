@@ -14,7 +14,6 @@ int Csampler::MakeParts(Chyper *hyper){
 	double udotdOmega=hyper->udotdOmega;
 	double dN,dNtot=0,dNtotprime=0,mutot=0,I3;
 	double dNcheck=0.0;
-	double nptemp;
 	CresMassMap::iterator iter;
 	
 	if(mastersampler->SETMU0)
@@ -22,15 +21,12 @@ int Csampler::MakeParts(Chyper *hyper){
 	else
 		dNtot=dNtotprime=udotdOmega*hyper->nhadrons;
 	
-	//printf("mu=(%g,%g,%g)\n",hyper->muB,hyper->muI,hyper->muS);
 	totvol+=udotdOmega;
 	if(randy->test_threshold(dNtot)){
-		//printf("udotdOmega=%g, dNtot=%g, nhadrons=%g, nhadrons0=%g\n",udotdOmega,dNtot,hyper->nhadrons,nhadrons0);
 		dNcheck=0.0;
 		for(iter=reslist->massmap.begin();iter!=reslist->massmap.end();++iter){
 			resinfo=iter->second;
 			if(resinfo->pid!=22){
-				nptemp=0;
 				ires=resinfo->ires;
 				I3=0.5*(2.0*resinfo->charge-resinfo->baryon-resinfo->strange);
 				mutot=hyper->muB*resinfo->baryon+hyper->muI*I3+hyper->muS*resinfo->strange;
@@ -39,24 +35,22 @@ int Csampler::MakeParts(Chyper *hyper){
 				dNcheck+=dN;
 				dNtotprime-=dN;
 				if(dNtotprime<-0.0001){
-					printf("dNtotprime=%g, should not be negative, mutot=%g, dNcheck=%g, dNtot=%g\n",
-					dNtotprime,mutot,dNcheck,dNtot);
+					printf("res=%d, dNtotprime=%g, should not be negative, mutot=%g, dNcheck=%g, dNtot=%g\n",
+					ires,dNtotprime,mutot,dNcheck,dNtot);
 					printf("nhadrons0=%g, hyper->nhadrons=%g\n",nhadrons0,hyper->nhadrons);
 					exit(1);
 				}
 				dnparts=CheckResInVolume(dN,Tf,resinfo,hyper);
 				nparts+=dnparts;
-				nptemp+=dnparts;
 				if(!(randy->test_threshold(dNtotprime))){
 					randy->increment_netprob(dNtotprime);
 					goto NoMoreParts;
 				}
 			}
 		}
-		if(bose_corr && !bose_test_off){
+		if(bose_corr){
 			for(nbose=2;nbose<=n_bose_corr;nbose++){
 				resinfo=reslist->GetResInfoPtr(211);
-				nptemp=0;
 				ires=resinfo->ires;
 				mutot=nbose*hyper->muI*hyper->T0/Tf;
 				dN=exp(mutot)*pibose_dens0[nbose]*udotdOmega;
@@ -64,26 +58,22 @@ int Csampler::MakeParts(Chyper *hyper){
 				dNtotprime-=dN;
 				dnparts=CheckResInVolume(dN,Tf/double(nbose),resinfo,hyper);
 				nparts+=dnparts;
-				nptemp+=dnparts;
 				if(!(randy->test_threshold(dNtotprime))){
 					randy->increment_netprob(dNtotprime);
 					goto NoMoreParts;
 				}
 				resinfo=reslist->GetResInfoPtr(111);
-				nptemp=0;
 				ires=resinfo->ires;
 				mutot=0.0;
 				dN=pibose_dens0[nbose]*udotdOmega;
 				dNtotprime-=dN;
 				dnparts=CheckResInVolume(dN,Tf/double(nbose),resinfo,hyper);
 				nparts+=dnparts;
-				nptemp+=dnparts;
 				if(!(randy->test_threshold(dNtotprime))){
 					randy->increment_netprob(dNtotprime);
 					goto NoMoreParts;
 				}
 				resinfo=reslist->GetResInfoPtr(-211);
-				nptemp=0;
 				ires=resinfo->ires;
 				mutot=-nbose*hyper->muI*hyper->T0/Tf;
 				dN=exp(mutot)*pibose_dens0[nbose]*udotdOmega;
@@ -91,7 +81,6 @@ int Csampler::MakeParts(Chyper *hyper){
 				dNtotprime-=dN;
 				dnparts=CheckResInVolume(dN,Tf/double(nbose),resinfo,hyper);
 				nparts+=dnparts;
-				nptemp+=dnparts;
 				if(!(randy->test_threshold(dNtotprime))){
 					randy->increment_netprob(dNtotprime);
 					goto NoMoreParts;
@@ -113,8 +102,8 @@ int Csampler::MakeParts(Chyper *hyper){
 }
 
 int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hyper){
-	int dnparts=0,alpha,ibin;
-	double pmag,eta;
+	int dnparts=0,alpha;
+	double eta;
 	FourVector p,r,ubj,ptilde,rtilde;
 	randy->increment_netprob(dN);
 	while(randy->test_threshold(0.0)){
@@ -135,17 +124,13 @@ int Csampler::CheckResInVolume(double dN,double T,CresInfo *resinfo,Chyper *hype
 				r[alpha]=rtilde[alpha];
 			}
 		}
-		if (bose_test==true && (resinfo->pid==211||resinfo->pid==-211||resinfo->pid==111)) { //only runs when testing bose
-			pmag=sqrt(p[1]*p[1]+p[2]*p[2]+p[3]*p[3]);
-			ibin=floorl(pmag/dp);
-			dN_dp_p2[ibin]+=(2*M_PI*M_PI*HBARC*HBARC*HBARC)/(3*(ibin*dp+dp/2)*(ibin*dp+dp/2)*dp);
-		}
 		for(alpha=0;alpha<4;alpha++)
 			r[alpha]=hyper->r[alpha];
 		mastersampler->partlist->AddPart(resinfo->pid,p,r);
 		dnparts+=1;
 		randy->increase_threshold();
-	}	return dnparts;
+	}
+	return dnparts;
 }
 
 void Csampler::GetPInFluidFrame(double m,Chyper *hyper,double T,FourVector &p){
@@ -233,10 +218,12 @@ void Csampler::GetP(Chyper *hyper,double T,CresInfo *resinfo,FourVector &p){
 	double pdotdOmega,nhatnorm,nhatdotp,wreflect;
 	FourVector dOmegaTilde,ptilde;
 	double m,nhat[4]={0.0};
-	if((!resinfo->decay) || resinfo->width<0.0001 || USE_POLE_MASS)
+	if((!resinfo->decay) || resinfo->width<0.0001 || USE_POLE_MASS){
 		m=resinfo->mass;
-	else
+	}
+	else{
 		m=GenerateThermalMass(resinfo);
+	}
 	GetPInFluidFrame(m,hyper,T,ptilde);
 
 	Misc::BoostToCM(hyper->u,hyper->dOmega,dOmegaTilde);  //dOmegaTilde is dOmega in fluid (u=0) frame
