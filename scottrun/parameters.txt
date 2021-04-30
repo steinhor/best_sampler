@@ -6,8 +6,8 @@ SAMPLER_NEVENTS_TOT 100
 SAMPLER_NPARTS_BLOCKSIZE 10000
 SAMPLER_MEANFIELD simple
 SAMPLER_CALCMU false #true if hydro hyper info doesn't already have mu.
-RESONANCES_INFO_FILE /Users/scottpratt/git/best_sampler/software/resinfo/pdg-SMASH.dat
-RESONANCES_DECAYS_FILE /Users/scottpratt/git/best_sampler/software/resinfo/pdg-SMASH.dat
+RESONANCES_INFO_FILE ../software/resinfo/pdg-SMASH.dat
+RESONANCES_DECAYS_FILE ../software/resinfo/pdg-SMASH.dat
 SAMPLER_FINDT false
 SAMPLER_BOSE_CORR true
 SAMPLER_N_BOSE_CORR 1
