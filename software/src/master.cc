@@ -174,7 +174,7 @@ void CmasterSampler::ReadHyper(){
 	double epsilonf;
 	double Tdec,muB,muS,muC;
 	double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
-	double qmu0,qmu1,qmu2,qmu3;
+	double qmu_tau, qmu_eta, qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
 	double **pivisc=new double *[4];
 	for(alpha=0;alpha<4;alpha++){
@@ -263,16 +263,19 @@ void CmasterSampler::ReadHyper(){
 		pivisc[2][2]=array[25]*HBARC;
 		pivisc[2][3]=pivisc[3][2]=array[26]*HBARC; // /tau;
 		pivisc[3][3]=array[27]*HBARC; // /(tau*tau);
+        TransformPiTotz(pivisc, ch_eta, sh_eta);
 		
 		//printf("reading, trace=%g =? 0\n",pivisc[0][0]-pivisc[1][1]-pivisc[2][2]-pivisc[3][3]);
 
 		PIbulk = array[28]*HBARC;   // GeV/fm^3
 		rhoB = array[29];  // 1/fm^3
 
-		qmu0 = array[30];
+		qmu_tau = array[30];
 		qmu1 = array[31];
 		qmu2 = array[32];
-		qmu3 = array[33];
+		qmu_eta = array[33];
+        qmu0 = qmu_tau*ch_eta + qmu_eta*sh_eta;
+        qmu3 = qmu_tau*sh_eta + qmu_eta*ch_eta;
 
 		if(parmap->getB("SAMPLER_BJORKEN_2D",false)){
 			double YMAX_ratio=parmap->getD("SAMPLER_BJORKEN_YMAX",1.0)/parmap->getD("HYDRO_BJORKEN_YMAX",1.0);
@@ -326,6 +329,11 @@ void CmasterSampler::ReadHyper(){
 	}
 	nelements=ielement;
 	//printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
+
+    // avoid memory leak
+    for (int i = 0; i < 4; i++)
+        delete[] pivisc[i];
+    delete[] pivisc;
 }
 
 void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
@@ -372,4 +380,34 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 	if(fabs(picontract)>0.1)
 		Misc::Pause();
 #endif
+}
+
+void CmasterSampler::TransformPiTotz(double **piMline, const double cosh_eta,
+                                     const double sinh_eta) {
+    double piCart[4][4];
+    piCart[0][0] = (piMline[0][0]*cosh_eta*cosh_eta
+                    + 2.*piMline[0][3]*cosh_eta*sinh_eta
+                    + piMline[3][3]*sinh_eta*sinh_eta);
+    piCart[0][1] = piMline[0][1]*cosh_eta + piMline[1][3]*sinh_eta;
+    piCart[0][2] = piMline[0][2]*cosh_eta + piMline[2][3]*sinh_eta;
+    piCart[0][3] = (piMline[0][0]*cosh_eta*sinh_eta
+                    + piMline[0][3]*(cosh_eta*cosh_eta + sinh_eta*sinh_eta)
+                    + piMline[3][3]*sinh_eta*cosh_eta);
+    piCart[1][0] = piCart[0][1];
+    piCart[1][1] = piMline[1][1];
+    piCart[1][2] = piMline[1][2];
+    piCart[1][3] = piMline[0][1]*sinh_eta + piMline[1][3]*cosh_eta;
+    piCart[2][0] = piCart[0][2];
+    piCart[2][1] = piCart[1][2];
+    piCart[2][2] = piMline[2][2];
+    piCart[2][3] = piMline[0][2]*sinh_eta + piMline[2][3]*cosh_eta;
+    piCart[3][0] = piCart[0][3];
+    piCart[3][1] = piCart[1][3];
+    piCart[3][2] = piCart[2][3];
+    piCart[3][3] = (piMline[0][0]*sinh_eta*sinh_eta
+                    + 2.*piMline[0][3]*cosh_eta*sinh_eta
+                    + piMline[3][3]*cosh_eta*cosh_eta);
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            piMline[i][j] = piCart[i][j];
 }
