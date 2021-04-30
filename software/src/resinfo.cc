@@ -20,15 +20,21 @@ CresInfo::CresInfo(){
 }
 
 CresInfo::~CresInfo(){
-	int b=branchlist.size()-1;
-	while(b>=0){
+	unsigned int b=branchlist.size()-1;
+	for(b=0;b<branchlist.size();b++){
 		delete branchlist[b];
-		b=branchlist.size()-1;
 	}
 	branchlist.clear();
+	SpectVec.clear();
+	SpectEVec.clear();
+	GammaVec.clear();
 }
 
 CbranchInfo::CbranchInfo(){
+}
+
+CbranchInfo::~CbranchInfo(){
+	resinfo.clear();
 }
 
 void CresInfo::PrintBranchInfo(){

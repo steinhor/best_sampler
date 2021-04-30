@@ -47,6 +47,11 @@ Csampler::~Csampler(){
 	epsilon0i.clear();
 	P0i.clear();
 	sfdens0imap.clear();
+	pibose_dens0.clear();
+	pibose_P0.clear();
+	pibose_epsilon0.clear();
+	pibose_dedt0.clear();
+	
 }
 
 // Calculates array of densities for each resonance with mu=0, to be used in sampling

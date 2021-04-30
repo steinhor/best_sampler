@@ -67,7 +67,6 @@ CpartList::CpartList(CparameterMap *parmap,CresList *reslist_in){
 
 CpartList::~CpartList(){
 	partvec.clear();
-	partvec.shrink_to_fit();
 }
 
 Cpart* CpartList::GetPart(){
@@ -79,9 +78,8 @@ Cpart* CpartList::GetPart(){
 	return &partvec[nparts];
 }
 
-void CpartList::Kill(){
+void CpartList::Clear(){
 	partvec.clear();
-	partvec.shrink_to_fit();
 	nparts=0;
 }
 

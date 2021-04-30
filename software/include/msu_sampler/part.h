@@ -41,7 +41,7 @@ namespace msu_sampler {
 		unsigned int nparts,nparts_blocksize;  // increases array by nparts_blocksize when needed
 		vector<Cpart> partvec;
 		Cpart *GetPart();
-		void Kill(); // set nparts=0 and frees memory
+		void Clear(); // set nparts=0 and frees memory
 		void Reset();     // just sets nparts=0
 		void WriteParts(string filename);
 		void CountResonances();

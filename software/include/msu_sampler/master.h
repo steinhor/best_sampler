@@ -54,11 +54,12 @@ namespace msu_sampler {
 		int MakeEvent(); // returns number of parts
 		Csampler* ChooseSampler(Chyper *hyper);
 		void ChooseSampler(double Tf,double sigmaf,int &itf,int &isigmaf);
-		void MakeDummyHyper();
-		void GetPitilde(double **pivisc,double **pitilde,FourVector &u);
+		void MakeDummyHyper(int nhyper);
+		void GetPitilde(FourTensor &pivisc,FourTensor &pitilde,FourVector &u);
 		static CmeanField *meanfield;
-        void TransformPiTotz(double **piMline, const double cosh_eta,
-                             const double sinh_eta);
+		void TransformPiTotz(FourTensor &piMline, const double cosh_eta,
+		const double sinh_eta);
+		void ClearHyperList();
 	};
 }
 

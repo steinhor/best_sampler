@@ -26,6 +26,7 @@ namespace msu_sampler {
 		double branching;
 		int L;
 		CbranchInfo();
+		~CbranchInfo();
 	};
 
 	class CresInfo{

@@ -10,9 +10,9 @@ CresList::~CresList(){
 	CresInfoMap::iterator rpos=resmap.begin();
 	while(rpos!=resmap.end()){
 		resinfo=rpos->second;
+		delete resinfo;
 		resmap.erase(rpos);
 		rpos=resmap.begin();
-		delete resinfo;
 	}
 	resmap.clear();
 	massmap.clear();

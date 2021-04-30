@@ -68,13 +68,11 @@ CmasterSampler::~CmasterSampler(){
 	Csampler *sampleri;
 	int iT,isigma;
 	for(iT=0;iT<NTF;iT++){
-		sampler[iT].resize(NSIGMAF);
 		for(isigma=0;isigma<NSIGMAF;isigma++){
 			sampleri=sampler[iT][isigma];
 			delete sampleri;
 		}
 		sampler[iT].clear();
-		sampler[iT].shrink_to_fit();
 	}
 	sampler.clear();
 	delete reslist;
@@ -99,7 +97,7 @@ int CmasterSampler::MakeEvent(){
 				CALCMU=false;
 			}
 			samplerptr=ChooseSampler(hyper);
-			hyper->sampler=samplerptr;
+			hyper->SetSampler(samplerptr);
 			if(samplerptr->FIRSTCALL){
 				samplerptr->GetNHMu0();
 				samplerptr->CalcDensitiesMu0();
@@ -158,15 +156,18 @@ Csampler* CmasterSampler::ChooseSampler(Chyper *hyper){
 	return sampler[it][isigma];
 }
 
-void CmasterSampler::MakeDummyHyper(){
-	Chyper *hyper=new Chyper();
-	hyperlist.push_back(hyper);
+void CmasterSampler::MakeDummyHyper(int nhyper){
+	Chyper *hyper;
+	for(int i=0;i<nhyper;i++){
+		hyper=new Chyper();
+		hyperlist.push_back(hyper);
+	}
 }
 
 void CmasterSampler::ReadHyper(){
 	string filename;
 	Chyper *elem;
-	int ielement=0,alpha,beta;
+	int ielement=0;
 	double u0,ux,uy,uz,utau,ueta;
 	double t,x,y,z,tau,eta;
 	double udotdOmega,udotdOmega_music;
@@ -176,12 +177,7 @@ void CmasterSampler::ReadHyper(){
 	double PIbulk __attribute__((unused)), Pdec __attribute__((unused));
 	double qmu_tau, qmu_eta, qmu0,qmu1,qmu2,qmu3;
 	double rhoB;
-	double **pivisc=new double *[4];
-	for(alpha=0;alpha<4;alpha++){
-		pivisc[alpha]=new double[4];
-		for(beta=0;beta<4;beta++)
-			pivisc[alpha][beta]=0.0;
-	}
+	FourTensor pivisc;
 
 	nelements=0;
 	filename=parmap->getS("HYPER_INFO_FILE",string("../hydrodata/surface_2D.dat"));
@@ -328,15 +324,17 @@ void CmasterSampler::ReadHyper(){
 		}
 	}
 	nelements=ielement;
-	//printf("Exiting ReadHyper() happily, TotalVolume=%lf, nelements=%d\n",TotalVolume,nelements);
 
-    // avoid memory leak
-    for (int i = 0; i < 4; i++)
-        delete[] pivisc[i];
-    delete[] pivisc;
 }
 
-void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
+void CmasterSampler::ClearHyperList(){
+	list<Chyper *>::iterator it;
+	for(it=hyperlist.begin();it!=hyperlist.end();it++)
+		delete *it;
+	hyperlist.clear();
+}
+
+void CmasterSampler::GetPitilde(FourTensor &pivisc,FourTensor &pitilde,FourVector &u){
 	int alpha,beta;
 	double picontract=0.0;
 	double pivec[4]={0.0};
@@ -382,8 +380,7 @@ void CmasterSampler::GetPitilde(double **pivisc,double **pitilde,FourVector &u){
 #endif
 }
 
-void CmasterSampler::TransformPiTotz(double **piMline, const double cosh_eta,
-                                     const double sinh_eta) {
+void CmasterSampler::TransformPiTotz(FourTensor &piMline, const double cosh_eta,const double sinh_eta) {
     double piCart[4][4];
     piCart[0][0] = (piMline[0][0]*cosh_eta*cosh_eta
                     + 2.*piMline[0][3]*cosh_eta*sinh_eta

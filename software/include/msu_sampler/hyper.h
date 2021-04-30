@@ -18,8 +18,9 @@ namespace msu_sampler {
 	class Chyper{
 	public:
 		Chyper();
+		//~Chyper();
 		double T0; // T0 is read-in temperature, samplerptr->T is used to make parts;
-		Csampler *sampler;
+		//Csampler *sampler;
 		int firstcall;
 		double sigma,rhoB,rhoI,rhoS;
 		double muB,muI,muS,nhadrons,Rshear,Rbulk,RTbulk,epsilon,P,dedT;
@@ -29,17 +30,19 @@ namespace msu_sampler {
 		FourVector r; // position
 		FourVector qmu; // not used, but read in from Chun's hydro
 		double tau,eta; // Bjorken tau and spatial rapidity
-		double **pitilde; // shear tensor
+		FourTensor pitilde; // shear tensor
 		double biggestpitilde; // largest eigenvalue
 		void CalcBiggestpitilde();
 		double PItilde; // bulk tensor correction
 		double GetEntropyDensity();
+		void SetSampler(Csampler *samplerptr);
 		//double pixx,pixy,pixz,piyy,piyz,pizz;
 		void FillOutShearTensor(double &pixx,double &pixy,double &pixz,double &piyy,double &piyz,double &pizz);
 		void Print2D();  // prints out info for 2D element (Bjorken symm)
 		void Print();    // prints out info for 3D element
 		bool Rvisc_calculated;
 		bool epsilon_calculated;
+		Csampler *sampler;
 	};
 }
 
