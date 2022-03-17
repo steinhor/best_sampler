@@ -8,7 +8,7 @@ int main(){
 	parmap.ReadParsFromFile("parameters.dat");
 	CmasterSampler::meanfield=new CmeanField_Simple(&parmap);
 	CmasterSampler ms(&parmap);
-	CpartList pl=CpartList(&parmap);
+	CpartList pl=CpartList(&parmap, ms.reslist);
 	ms.partlist=&pl;
 	ms.randy->reset(time(NULL));
 	ms.ReadHyper();
